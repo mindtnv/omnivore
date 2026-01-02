@@ -1,0 +1,195 @@
+services:
+  postgres:
+    image: ankane/pgvector:v0.5.1
+    user: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-omnivore}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.2.4-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minio}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-miniominio}
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  createbuckets:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minio}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-miniominio}
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set myminio http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD};
+      mc mb --ignore-existing myminio/omnivore;
+      mc anonymous set public myminio/omnivore;
+      exit 0;
+      "
+    restart: "no"
+
+  migrate:
+    image: ghcr.io/omnivore-app/sh-migrate:latest
+    command: /bin/sh ./packages/db/setup.sh
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-omnivore}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_USER: ${PG_USER:-app_user}
+      PG_PASSWORD: ${PG_PASSWORD:-app_pass}
+      PG_DB: ${POSTGRES_DB:-omnivore}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    image: ghcr.io/omnivore-app/sh-backend:latest
+    environment:
+      API_ENV: ${API_ENV:-local}
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_USER: ${PG_USER:-app_user}
+      PG_PASSWORD: ${PG_PASSWORD:-app_pass}
+      PG_DB: ${POSTGRES_DB:-omnivore}
+      PG_POOL_MAX: ${PG_POOL_MAX:-20}
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      SSO_JWT_SECRET: ${SSO_JWT_SECRET:?SSO_JWT_SECRET is required}
+      IMAGE_PROXY_SECRET: ${IMAGE_PROXY_SECRET:-some-secret}
+      IMAGE_PROXY_URL: ${IMAGE_PROXY_URL}
+      CLIENT_URL: ${CLIENT_URL:?CLIENT_URL is required}
+      GATEWAY_URL: http://api:8080/api
+      CONTENT_FETCH_URL: http://content-fetch:8080/?token=${VERIFICATION_TOKEN:-some_token}
+      CONTENT_FETCH_QUEUE_ENABLED: "true"
+      GCS_USE_LOCAL_HOST: "true"
+      GCS_UPLOAD_BUCKET: omnivore
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-minio}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-miniominio}
+      AWS_REGION: us-east-1
+      AWS_S3_ENDPOINT_URL: http://minio:9000
+      LOCAL_MINIO_URL: ${LOCAL_MINIO_URL}
+      AUTO_VERIFY: ${AUTO_VERIFY:-true}
+      EXPORT_QUEUE_NAME: omnivore-backend-queue
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 0.0.0.0 8080 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  queue-processor:
+    image: ghcr.io/omnivore-app/sh-queue-processor:latest
+    environment:
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_USER: ${PG_USER:-app_user}
+      PG_PASSWORD: ${PG_PASSWORD:-app_pass}
+      PG_DB: ${POSTGRES_DB:-omnivore}
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      SSO_JWT_SECRET: ${SSO_JWT_SECRET:?SSO_JWT_SECRET is required}
+      CONTENT_FETCH_URL: http://content-fetch:8080/?token=${VERIFICATION_TOKEN:-some_token}
+      GCS_USE_LOCAL_HOST: "true"
+      GCS_UPLOAD_BUCKET: omnivore
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-minio}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-miniominio}
+      AWS_REGION: us-east-1
+      AWS_S3_ENDPOINT_URL: http://minio:9000
+    depends_on:
+      api:
+        condition: service_healthy
+
+  web:
+    image: ghcr.io/omnivore-app/sh-web:latest
+    environment:
+      APP_ENV: prod
+      BASE_URL: ${CLIENT_URL:?CLIENT_URL is required}
+      SERVER_BASE_URL: ${SERVER_BASE_URL:?SERVER_BASE_URL is required}
+      HIGHLIGHTS_BASE_URL: ${CLIENT_URL:?CLIENT_URL is required}
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 0.0.0.0 8080 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  image-proxy:
+    image: ghcr.io/omnivore-app/sh-image-proxy:latest
+    environment:
+      IMAGE_PROXY_SECRET: ${IMAGE_PROXY_SECRET:-some-secret}
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 0.0.0.0 8080 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  content-fetch:
+    image: ghcr.io/omnivore-app/sh-content-fetch:latest
+    environment:
+      USE_FIREFOX: "true"
+      VERIFICATION_TOKEN: ${VERIFICATION_TOKEN:-some_token}
+      REST_BACKEND_ENDPOINT: http://api:8080/api
+      REDIS_URL: redis://redis:6379/0
+      SKIP_UPLOAD_ORIGINAL: "true"
+      GCS_USE_LOCAL_HOST: "true"
+      GCS_UPLOAD_BUCKET: omnivore
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-minio}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-miniominio}
+      AWS_REGION: us-east-1
+      AWS_S3_ENDPOINT_URL: http://minio:9000
+    depends_on:
+      api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 0.0.0.0 8080 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  pgdata:
+  redis_data:
+  minio_data:
