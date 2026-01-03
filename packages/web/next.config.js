@@ -16,12 +16,23 @@ const ContentSecurityPolicy = `
 
 const moduleExports = {
   transpilePackages: ["antd", "@ant-design", "rc-util", "rc-pagination", "rc-picker", "rc-notification", "rc-tooltip", "rc-tree", "rc-table"],
+  // Enable Turbopack with empty config (Next.js 16 default)
+  turbopack: {},
   images: {
     formats: ['image/avif', 'image/webp'],
-    domains: [
-      'proxy-demo.omnivore-image-cache.app',
-      'proxy-dev.omnivore-image-cache.app',
-      'proxy.omnivore-image-cache.app',
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'proxy-demo.omnivore-image-cache.app',
+      },
+      {
+        protocol: 'https',
+        hostname: 'proxy-dev.omnivore-image-cache.app',
+      },
+      {
+        protocol: 'https',
+        hostname: 'proxy.omnivore-image-cache.app',
+      },
     ],
   },
   rewrites: () => {
