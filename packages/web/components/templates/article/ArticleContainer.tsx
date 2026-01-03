@@ -1,4 +1,5 @@
 import { Article } from './../../../components/templates/article/Article'
+import { AISummary } from './AISummary'
 import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
 import { StyledText } from './../../elements/StyledText'
 import {
@@ -527,16 +528,14 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
                 </Button>
               </VStack>
             )}
-          {/* {userHasFeature(props.viewer, 'ai-summaries') && (
-            <AISummary
-              libraryItemId={props.article.id}
-              idx="latest"
-              fontFamily={styles.fontFamily}
-              fontSize={styles.fontSize}
-              lineHeight={styles.lineHeight}
-              readerFontColor={styles.readerFontColor}
-            />
-          )} */}
+          <AISummary
+            libraryItemId={props.article.id}
+            idx="latest"
+            fontFamily={styles.fontFamily}
+            fontSize={styles.fontSize}
+            lineHeight={styles.lineHeight}
+            readerFontColor={styles.readerFontColor}
+          />
         </VStack>
         <Article
           articleId={props.article.id}

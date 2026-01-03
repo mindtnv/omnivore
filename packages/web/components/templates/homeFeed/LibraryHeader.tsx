@@ -15,7 +15,6 @@ import { HeaderToggleGridIcon } from '../../elements/icons/HeaderToggleGridIcon'
 import { HeaderToggleListIcon } from '../../elements/icons/HeaderToggleListIcon'
 import { HeaderToggleTLDRIcon } from '../../elements/icons/HeaderToggleTLDRIcon'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import { userHasFeature } from '../../../lib/featureFlag'
 import { MultiSelectControls, CheckBoxButton } from './MultiSelectControls'
 
 export type MultiSelectMode = 'off' | 'none' | 'some' | 'visible' | 'search'
@@ -155,27 +154,25 @@ const HeaderControls = (props: LibraryHeaderProps): JSX.Element => {
       />
 
       <SpanBox css={{ display: 'flex', ml: 'auto', gap: '10px' }}>
-        {/* {userHasFeature(props.viewer, 'ai-summaries') && (
-          <Button
-            title="TLDR Summaries"
-            style="plainIcon"
-            css={{
-              display: 'flex',
-              marginLeft: 'auto',
-              '&:hover': { opacity: '1.0' },
-            }}
-            onClick={(e) => {
-              if (props.mode == 'reads') {
-                props.setMode('tldr')
-              } else {
-                props.setMode('reads')
-              }
-              e.preventDefault()
-            }}
-          >
-            <HeaderToggleTLDRIcon />
-          </Button>
-        )} */}
+        <Button
+          title="TLDR Summaries"
+          style="plainIcon"
+          css={{
+            display: 'flex',
+            marginLeft: 'auto',
+            '&:hover': { opacity: '1.0' },
+          }}
+          onClick={(e) => {
+            if (props.mode == 'reads') {
+              props.setMode('tldr')
+            } else {
+              props.setMode('reads')
+            }
+            e.preventDefault()
+          }}
+        >
+          <HeaderToggleTLDRIcon />
+        </Button>
 
         <Button
           title={

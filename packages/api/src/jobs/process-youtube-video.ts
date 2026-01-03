@@ -1,5 +1,4 @@
 import { PromptTemplate } from '@langchain/core/prompts'
-import { OpenAI } from '@langchain/openai'
 import { parseHTML } from 'linkedom'
 import showdown from 'showdown'
 import { Chapter, Client as YouTubeClient } from 'youtubei'
@@ -8,7 +7,8 @@ import {
   findLibraryItemById,
   updateLibraryItem,
 } from '../services/library_item'
-import { OPENAI_MODEL } from '../utils/ai'
+import { env } from '../env'
+import { createLLM } from '../utils/ai'
 import { enqueueProcessYouTubeTranscript } from '../utils/createTask'
 import { stringToHash } from '../utils/helpers'
 import { logger } from '../utils/logger'
@@ -90,7 +90,8 @@ export const createTranscriptHTML = async (
   const transcriptHash = createTranscriptHash(transcript)
   const promptHash = stringToHash(process.env.YOUTUBE_TRANSCRIPT_PROMPT ?? '')
 
-  if (process.env.YOUTUBE_TRANSCRIPT_PROMPT && process.env.OPENAI_API_KEY) {
+  const llm = createLLM()
+  if (process.env.YOUTUBE_TRANSCRIPT_PROMPT && llm) {
     const cachedTranscriptHTML = await fetchCachedYouTubeTranscript(
       videoId,
       transcriptHash,
@@ -100,12 +101,6 @@ export const createTranscriptHTML = async (
       return cachedTranscriptHTML
     }
 
-    const llm = new OpenAI({
-      modelName: OPENAI_MODEL,
-      configuration: {
-        apiKey: process.env.OPENAI_API_KEY,
-      },
-    })
     const promptTemplate = PromptTemplate.fromTemplate(
       `${process.env.YOUTUBE_TRANSCRIPT_PROMPT}
 
@@ -116,7 +111,8 @@ export const createTranscriptHTML = async (
       transcriptData: transcript.map((item) => item.text).join(' '),
     })
 
-    transcriptMarkdown = result
+    transcriptMarkdown =
+      typeof result.content === 'string' ? result.content : ''
   }
 
   // If the LLM didn't give us enough data fallback to the raw template
@@ -129,7 +125,7 @@ export const createTranscriptHTML = async (
   })
   const transcriptHTML = converter.makeHtml(transcriptMarkdown)
 
-  if (process.env.YOUTUBE_TRANSCRIPT_PROMPT && process.env.OPENAI_API_KEY) {
+  if (process.env.YOUTUBE_TRANSCRIPT_PROMPT && llm) {
     await cacheYouTubeTranscript(
       videoId,
       transcriptHash,
@@ -288,7 +284,7 @@ export const processYouTubeVideo = async (
       Number(
         process.env['YOUTUBE_MAXIMUM_VIDEO_DURATION_TRANSCRIPT'] ?? 1801
       ) &&
-    process.env['OPENAI_API_KEY']
+    env.ai.openai.apiKey
   ) {
     // If the video has a transcript available, put a placehold in and
     // enqueue a job to process the full transcript

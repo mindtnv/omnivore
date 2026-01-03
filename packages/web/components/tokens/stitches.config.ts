@@ -407,10 +407,64 @@ const darkThemeSpec = {
   },
 }
 
-// This is used by iOS
+// OLED Black theme - pure black backgrounds for OLED screens
 const blackThemeSpec = {
   colors: {
-    readerBg: 'black',
+    readerBg: '#000000',
+    readerMargin: '#000000',
+
+    thBackground: '#000000',
+    thBackground2: '#0D0D0D',
+    thBackground3: '#000000',
+    thBackground4: '#1A1A1A',
+    thBackground5: '#0D0D0D',
+    thBackgroundActive: '#1A1A1A',
+    thBackgroundContrast: '#000000',
+    thLeftMenuBackground: '#000000',
+    thNavMenuFooter: '#1A1A1A',
+    thLibraryBackground: '#000000',
+    thLibrarySearchbox: '#0D0D0D',
+    thLibrarySelectionColor: '#1A1A1A',
+    thLibraryNavigationMenuFooter: '#0D0D0D',
+    thLibraryMenuFooterHover: '#1A1A1A',
+    thLibraryMultiselectHover: '#1A1A1A',
+
+    thFormInput: '#0D0D0D',
+
+    thLabelChipBackground: '#0D0D0D',
+    thLabelChipUnselectedBorder: '#000000',
+
+    thHeaderIconRing: '#1A1A1A',
+
+    thNotebookBorder: '#1A1A1A',
+    thNotebookBackground: '#000000',
+    thNotebookTextBackground: '#0D0D0D',
+
+    thBorderColor: '#1A1A1A',
+    thBorderSubtle: '#1A1A1A',
+
+    homeCardHover: '#0D0D0D',
+    homeDivider: '#1A1A1A',
+    homeActionHoverBg: '#1A1A1A',
+
+    backgroundMedium: '#0D0D0D',
+
+    thLibraryAISummaryBackground: '#0D0D0D',
+
+    thFallbackImageBackground: '#0D0D0D',
+
+    modalBackground: '#000000',
+    grayBase: '#000000',
+    grayBg: '#0D0D0D',
+    grayBgActive: '#1A1A1A',
+    grayBorder: '#1A1A1A',
+    grayBgSubtle: '#000000',
+    grayBgHover: '#0D0D0D',
+    grayLine: '#1A1A1A',
+
+    labelButtonsBg: '#1A1A1A',
+    border: '#1A1A1A',
+    overlay: 'rgba(0, 0, 0, 0.85)',
   },
 }
 

@@ -1,4 +1,3 @@
-import { ChatOpenAI } from '@langchain/openai'
 import { loadSummarizationChain } from 'langchain/chains'
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { AISummary } from '../entity/AISummary'
@@ -6,6 +5,7 @@ import { LibraryItemState } from '../entity/library_item'
 import { authTrx } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { getAISummary } from '../services/ai-summaries'
+import { createLLM } from '../utils/ai'
 import { logger } from '../utils/logger'
 import { htmlToMarkdown } from '../utils/parser'
 
@@ -51,11 +51,12 @@ export const aiSummarize = async (jobData: AISummarizeJobData) => {
       return
     }
 
-    const llm = new ChatOpenAI({
-      configuration: {
-        apiKey: process.env.OPENAI_API_KEY,
-      },
-    })
+    const llm = createLLM()
+    if (!llm) {
+      logger.info('AI summarization skipped: no API key configured')
+      return
+    }
+
     const textSplitter = new RecursiveCharacterTextSplitter({
       chunkSize: 2000,
     })

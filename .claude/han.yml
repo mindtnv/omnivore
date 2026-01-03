@@ -1,0 +1,6 @@
+hooks:
+  enabled: false
+memory:
+  enabled: false
+metrics:
+  enabled: false

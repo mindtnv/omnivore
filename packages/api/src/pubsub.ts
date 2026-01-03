@@ -4,6 +4,7 @@ import { RuleEventType } from './entity/rule'
 import { env } from './env'
 import { ReportType } from './generated/graphql'
 import {
+  enqueueAISummarizeJob,
   enqueueProcessYouTubeVideo,
   enqueueThumbnailJob,
   enqueueTriggerRuleJob,
@@ -58,12 +59,11 @@ export const createPubSubClient = (): PubsubClient => {
       })
 
       if (type === EntityType.ITEM) {
-        // if (await findGrantedFeatureByName(FeatureName.AISummaries, userId)) {
-        // await enqueueAISummarizeJob({
-        //   userId,
-        //   libraryItemId,
-        // })
-        // }
+        // Trigger AI summarization for new items
+        await enqueueAISummarizeJob({
+          userId,
+          libraryItemId: data.id,
+        })
 
         const isItemWithURL = (data: any): data is { originalUrl: string } => {
           return 'originalUrl' in data

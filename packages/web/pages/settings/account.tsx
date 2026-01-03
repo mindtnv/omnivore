@@ -398,8 +398,7 @@ export default function Account(): JSX.Element {
               )}
             </form>
           </VStack>
-          {/* 
-          <DigestSection /> */}
+          <DigestSection />
 
           <VStack
             css={{

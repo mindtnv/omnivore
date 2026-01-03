@@ -12,6 +12,7 @@ import { LIBRARY_LEFT_MENU_WIDTH } from '../navMenu/LibraryMenu'
 import { BulkAction } from '../../../lib/networking/library_items/useLibraryItems'
 import { HeaderToggleGridIcon } from '../../elements/icons/HeaderToggleGridIcon'
 import { HeaderToggleListIcon } from '../../elements/icons/HeaderToggleListIcon'
+import { HeaderToggleTLDRIcon } from '../../elements/icons/HeaderToggleTLDRIcon'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import {
   MultiSelectControls,

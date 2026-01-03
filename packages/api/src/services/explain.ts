@@ -1,8 +1,7 @@
 import { PromptTemplate } from '@langchain/core/prompts'
-import { OpenAI } from '@langchain/openai'
 import { authTrx } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
-import { OPENAI_MODEL } from '../utils/ai'
+import { createLLM } from '../utils/ai'
 import { htmlToMarkdown } from '../utils/parser'
 
 export const explainText = async (
@@ -10,12 +9,10 @@ export const explainText = async (
   text: string,
   libraryItemId: string
 ): Promise<string> => {
-  const llm = new OpenAI({
-    modelName: OPENAI_MODEL,
-    configuration: {
-      apiKey: process.env.OPENAI_API_KEY,
-    },
-  })
+  const llm = createLLM()
+  if (!llm) {
+    throw new Error('AI not configured')
+  }
 
   const libraryItem = await authTrx(
     async (tx) =>
@@ -51,5 +48,5 @@ export const explainText = async (
   })
   console.log('result: ', result)
 
-  return result
+  return typeof result.content === 'string' ? result.content : ''
 }

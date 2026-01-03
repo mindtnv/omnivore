@@ -141,6 +141,13 @@ export interface BackendEnv {
   score: {
     apiUrl: string
   }
+  ai: {
+    openai: {
+      apiKey: string
+      baseUrl: string
+      model: string
+    }
+  }
 }
 
 const nullableEnvVars = [
@@ -213,6 +220,9 @@ const nullableEnvVars = [
   'GCS_USE_LOCAL_HOST',
   'LOCAL_EMAIL_DOMAIN',
   'AWS_S3_ENDPOINT_URL',
+  'OPENAI_API_KEY',
+  'OPENAI_BASE_URL',
+  'OPENAI_MODEL',
 ] // Allow some vars to be null/empty
 
 const envParser =
@@ -390,6 +400,13 @@ export function getEnv(): BackendEnv {
   const score = {
     apiUrl: parse('SCORE_API_URL') || 'http://digest-score/batch',
   }
+  const ai = {
+    openai: {
+      apiKey: parse('OPENAI_API_KEY'),
+      baseUrl: parse('OPENAI_BASE_URL') || 'https://api.openai.com/v1',
+      model: parse('OPENAI_MODEL') || 'gpt-4o-mini',
+    },
+  }
 
   return {
     pg,
@@ -415,6 +432,7 @@ export function getEnv(): BackendEnv {
     redis,
     notion,
     score,
+    ai,
   }
 }
 

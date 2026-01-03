@@ -195,12 +195,12 @@ export const createWorker = (connection: ConnectionOptions) =>
             return callWebhook(job.data)
           case EXPORT_ITEM_JOB_NAME:
             return exportItem(job.data)
-          // case AI_SUMMARIZE_JOB_NAME:
-          //   return aiSummarize(job.data)
+          case AI_SUMMARIZE_JOB_NAME:
+            return aiSummarize(job.data)
           case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
             return processYouTubeVideo(job.data)
           case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
-            if (process.env['OPENAI_API_KEY']) {
+            if (env.ai.openai.apiKey) {
               return processYouTubeTranscript(job.data)
             }
             break
@@ -216,8 +216,8 @@ export const createWorker = (connection: ConnectionOptions) =>
             return saveNewsletterJob(job.data)
           case FORWARD_EMAIL_JOB:
             return forwardEmailJob(job.data)
-          // case CREATE_DIGEST_JOB:
-          //   return createDigest(job.data)
+          case CREATE_DIGEST_JOB:
+            return createDigest(job.data)
           case UPLOAD_CONTENT_JOB:
             return uploadContentJob(job.data)
           // case UPDATE_HOME_JOB:

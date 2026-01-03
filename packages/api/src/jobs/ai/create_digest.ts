@@ -1,7 +1,5 @@
-import { ChatAnthropic } from '@langchain/anthropic'
 import { JsonOutputParser } from '@langchain/core/output_parsers'
 import { ChatPromptTemplate, PromptTemplate } from '@langchain/core/prompts'
-import { OpenAI } from '@langchain/openai'
 import {
   htmlToSpeechFile,
   SpeechFile,
@@ -27,7 +25,7 @@ import {
   findUserAndPersonalization,
   sendPushNotifications,
 } from '../../services/user'
-import { ANTHROPIC_MODEL, OPENAI_MODEL } from '../../utils/ai'
+import { createLLM } from '../../utils/ai'
 import { analytics } from '../../utils/analytics'
 import { enqueueSendEmail } from '../../utils/createTask'
 import { wordsCount } from '../../utils/helpers'
@@ -253,12 +251,10 @@ const getCandidatesList = async (
 const createUserProfile = async (
   preferences: LibraryItem[]
 ): Promise<string> => {
-  const llm = new OpenAI({
-    modelName: OPENAI_MODEL,
-    configuration: {
-      apiKey: process.env.OPENAI_API_KEY,
-    },
-  })
+  const llm = createLLM()
+  if (!llm) {
+    throw new Error('AI not configured')
+  }
 
   const contextualTemplate = ChatPromptTemplate.fromTemplate(
     digestDefinition.zeroShot.userPreferencesProfilePrompt
@@ -269,7 +265,7 @@ const createUserProfile = async (
     titles: preferences.map((item) => `* ${item.title}`).join('\n'),
   })
 
-  return result
+  return typeof result.content === 'string' ? result.content : ''
 }
 
 // Checks redis for a user profile, if not found creates one and writes
@@ -292,17 +288,15 @@ const findOrCreateUserProfile = async (userId: string): Promise<string> => {
   return profile
 }
 
-// Uses OpenAI to rank all the titles based on the user profiles
+// Uses LLM to rank all the titles based on the user profiles
 const rankCandidates = async (
   candidates: LibraryItem[],
   userProfile: string
 ): Promise<RankedItem[]> => {
-  const llm = new OpenAI({
-    modelName: OPENAI_MODEL,
-    configuration: {
-      apiKey: process.env.OPENAI_API_KEY,
-    },
-  })
+  const llm = createLLM()
+  if (!llm) {
+    throw new Error('AI not configured')
+  }
 
   const contextualTemplate = PromptTemplate.fromTemplate(
     digestDefinition.zeroShot.rankPrompt
@@ -385,46 +379,16 @@ const chooseRankedSelections = (rankedCandidates: RankedItem[]) => {
 }
 
 const summarizeItems = async (
-  model: string,
   rankedCandidates: RankedItem[]
 ): Promise<RankedItem[]> => {
+  const llm = createLLM()
+  if (!llm) {
+    throw new Error('AI not configured')
+  }
+
   const contextualTemplate = PromptTemplate.fromTemplate(
     digestDefinition.summaryPrompt
   )
-
-  if (model === 'openai') {
-    const llm = new OpenAI({
-      modelName: OPENAI_MODEL,
-      configuration: {
-        apiKey: process.env.OPENAI_API_KEY,
-      },
-    })
-
-    const chain = contextualTemplate.pipe(llm)
-
-    // send all the ranked candidates to openAI at once in a batch
-    const summaries = await chain.batch(
-      rankedCandidates.map((item) => ({
-        title: item.libraryItem.title,
-        author: item.libraryItem.author ?? '',
-        content: item.libraryItem.readableContent, // markdown content
-      }))
-    )
-
-    logger.info('summaries: ', summaries)
-
-    summaries.forEach(
-      (summary, index) => (rankedCandidates[index].summary = summary)
-    )
-
-    return rankedCandidates
-  }
-
-  // use anthropic otherwise
-  const llm = new ChatAnthropic({
-    apiKey: process.env.CLAUDE_API_KEY,
-    model: ANTHROPIC_MODEL,
-  })
 
   const prompts = await Promise.all(
     rankedCandidates.map(async (item) => {
@@ -511,20 +475,6 @@ const generateByline = (summaries: RankedItem[]): string =>
     .filter((summary) => !!summary.libraryItem.author)
     .map((item) => item.libraryItem.author)
     .join(', ')
-
-const selectModel = (model?: string): string => {
-  switch (model) {
-    case 'random':
-      // randomly choose between openai and anthropic
-      return ['anthropic', 'openai'][Math.floor(Math.random() * 2)]
-    case 'anthropic':
-      return 'anthropic'
-    case 'openai':
-    default:
-      // default to openai
-      return 'openai'
-  }
-}
 
 const uploadSummary = async (
   userId: string,
@@ -762,14 +712,11 @@ export const createDigest = async (jobData: CreateDigestData) => {
 
     const config = personalization
       ? (personalization.digestConfig as {
-          model?: string
           channels?: Channel[]
         })
       : undefined
 
     digestDefinition = await fetchDigestDefinition()
-    const model = selectModel(config?.model || digestDefinition.model)
-    logger.info(`model: ${model}`)
 
     const candidates = await getCandidatesList(
       jobData.userId,
@@ -794,7 +741,7 @@ export const createDigest = async (jobData: CreateDigestData) => {
       libraryItem: item,
       summary: '',
     }))
-    const summaries = await summarizeItems(model, selections)
+    const summaries = await summarizeItems(selections)
 
     const filteredSummaries = filterSummaries(summaries)
     const summariesInHtml = filteredSummaries.map((item) => {
@@ -834,7 +781,6 @@ export const createDigest = async (jobData: CreateDigestData) => {
       // description: generateDescription(filteredSummaries, rankedTopics),
       byline: generateByline(filteredSummaries),
       urlsToAudio: [],
-      model,
     }
 
     await Promise.all([
