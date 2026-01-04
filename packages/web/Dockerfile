@@ -40,9 +40,6 @@ COPY --from=deps /app/packages/web/node_modules ./packages/web/node_modules
 COPY tsconfig.json .prettierrc .eslintrc ./
 COPY packages/web ./packages/web
 
-# Empty next.config.js for docker builds (removes CSP and Sentry)
-RUN echo "module.exports = { output: 'standalone', transpilePackages: ['antd', '@ant-design', 'rc-util', 'rc-pagination', 'rc-picker', 'rc-notification', 'rc-tooltip', 'rc-tree', 'rc-table'] }" > ./packages/web/next.config.js
-
 # Build the application
 RUN yarn workspace @omnivore/web build
 
