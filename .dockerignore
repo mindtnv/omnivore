@@ -1,10 +1,75 @@
+# Dependencies
 **/node_modules
+**/.pnp
+**/.pnp.js
+
+# Build outputs
+**/.next
+**/out
 **/dist
-**/.DS_Store
+**/build
+
+# Testing
+**/coverage
+**/.nyc_output
+
+# Development
 **/.env*
-**/Dockerfile
+**/.env.local
+
+# IDE
+**/.idea
+**/.vscode
+**/*.swp
+**/*.swo
+
+# OS
+**/.DS_Store
+**/Thumbs.db
+
+# Docker
+**/Dockerfile*
 **/.dockerignore
-**/*.yaml
-.secrets*.yaml
+**/docker-compose*.yml
+**/docker-compose*.yaml
+
+# Git
+.git
+**/.gitignore
+
+# Platform-specific packages not needed for web
 apple
 android
+
+# Documentation
+**/*.md
+**/LICENSE
+
+# Config files not needed for build
+**/*.yaml
+.secrets*.yaml
+**/.eslintcache
+**/.prettierignore
+
+# Debug logs
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+
+# Misc
+**/*.log
+**/*.tsbuildinfo
+
+# Packages not needed for web builds
+packages/api
+packages/db
+packages/rss-handler
+packages/export-handler
+packages/import-handler
+packages/text-to-speech
+packages/inbound-email-handler
+packages/content-fetch
+packages/puppeteer-parse
+packages/content-handler
+packages/pdf-handler
+packages/readabilityjs

@@ -18,4 +18,4 @@ file_contents=$(cat /app/packages/web/public/env.js)
 new_contents=${file_contents//\{\{BASE_URL\}\}/$BASE_URL}
 echo "$new_contents" > /app/packages/web/public/env.js
 
-yarn workspace @omnivore/web start
+exec node /app/packages/web/server.js
