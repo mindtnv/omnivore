@@ -57,9 +57,7 @@ services:
     restart: "no"
 
   migrate:
-    build:
-      context: .
-      dockerfile: packages/db/Dockerfile
+    image: ghcr.io/mindtnv/omnivore-migrate:latest
     command: /bin/bash ./packages/db/setup.sh
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -77,9 +75,7 @@ services:
     restart: "no"
 
   api:
-    build:
-      context: .
-      dockerfile: packages/api/Dockerfile
+    image: ghcr.io/mindtnv/omnivore-api:latest
     environment:
       API_ENV: ${API_ENV:-local}
       PG_HOST: postgres
@@ -122,9 +118,7 @@ services:
       start_period: 30s
 
   queue-processor:
-    build:
-      context: .
-      dockerfile: packages/api/Dockerfile
+    image: ghcr.io/mindtnv/omnivore-api:latest
     command: ["yarn", "workspace", "@omnivore/api", "start_queue_processor"]
     environment:
       PG_HOST: postgres
@@ -155,14 +149,7 @@ services:
         condition: service_healthy
 
   web:
-    build:
-      context: .
-      dockerfile: packages/web/Dockerfile
-      args:
-        - APP_ENV=prod
-        - BASE_URL=${CLIENT_URL:?CLIENT_URL is required}
-        - SERVER_BASE_URL=${SERVER_BASE_URL:?SERVER_BASE_URL is required}
-        - HIGHLIGHTS_BASE_URL=${CLIENT_URL:?CLIENT_URL is required}
+    image: ghcr.io/mindtnv/omnivore-web:latest
     environment:
       APP_ENV: prod
       BASE_URL: ${CLIENT_URL:?CLIENT_URL is required}
@@ -184,9 +171,7 @@ services:
       IMAGE_PROXY_SECRET: ${IMAGE_PROXY_SECRET:-some-secret}
 
   content-fetch:
-    build:
-      context: .
-      dockerfile: packages/content-fetch/Dockerfile
+    image: ghcr.io/mindtnv/omnivore-content-fetch:latest
     environment:
       USE_FIREFOX: "true"
       VERIFICATION_TOKEN: ${VERIFICATION_TOKEN:-some_token}
