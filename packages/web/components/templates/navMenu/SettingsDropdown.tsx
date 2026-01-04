@@ -1,10 +1,12 @@
+'use client'
+
 import { SETTINGS_SECTION_1, SETTINGS_SECTION_2 } from './SettingsMenu'
 import {
   Dropdown,
   DropdownOption,
   DropdownSeparator,
 } from '../../elements/DropdownElements'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import { List } from '@phosphor-icons/react'
 
 export const SettingsDropdown = (): JSX.Element => {

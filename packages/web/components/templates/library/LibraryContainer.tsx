@@ -1,6 +1,8 @@
+'use client'
+
 import { Action, createAction, useKBar, useRegisterActions } from 'kbar'
 import debounce from 'lodash/debounce'
-import { useRouter } from 'next/router'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import TopBarProgress from 'react-topbar-progress-indicator'
 import { useFetchMore } from '../../../lib/hooks/useFetchMoreScroll'
@@ -45,7 +47,7 @@ import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { SetPageLabelsModalPresenter } from '../article/SetLabelsModalPresenter'
 import { NotebookPresenter } from '../article/NotebookPresenter'
 import { PinnedButtons } from '../homeFeed/PinnedButtons'
-import { PinnedSearch } from '../../../pages/settings/pinned-searches'
+import { PinnedSearch } from '../../../app/settings/pinned-searches/page'
 import { FetchItemsError } from '../homeFeed/FetchItemsError'
 import { LibraryHeader } from './LibraryHeader'
 import { TrashIcon } from '../../elements/icons/TrashIcon'
@@ -80,6 +82,8 @@ type LibraryContainerProps = {
 
 export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
   const { data: viewerData } = useGetViewer()
   const { queryValue } = useKBar((state) => ({ queryValue: state.searchQuery }))
   const [searchResults, setSearchResults] = useState<SearchItem[]>([])
@@ -135,12 +139,8 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
   }, [queryValue])
 
   useEffect(() => {
-    if (!router.isReady) return
-    const q = router.query['q']
-    let qs = ''
-    if (q && typeof q === 'string') {
-      qs = q
-    }
+    const q = searchParams.get('q')
+    const qs = q ?? ''
 
     if (qs !== (queryInputs.searchQuery || '')) {
       setQueryInputs({ ...queryInputs, searchQuery: qs })
@@ -150,11 +150,11 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
     // intentionally not watching queryInputs and performActionOnItem
     // here to prevent infinite looping
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setQueryInputs, router.isReady, router.query])
+  }, [setQueryInputs, searchParams])
 
   useEffect(() => {
-    window.localStorage.setItem('nav-return', router.asPath)
-  }, [router.asPath])
+    window.localStorage.setItem('nav-return', pathname)
+  }, [pathname])
 
   const libraryItems = useMemo(() => {
     const items =
@@ -820,7 +820,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
         }
 
         const href = `${window.location.pathname}?${qp.toString()}`
-        router.push(href, href, { shallow: true })
+        router.push(href)
         window.sessionStorage.setItem('q', qp.toString())
       }}
       loadMore={fetchNextPage}

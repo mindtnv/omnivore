@@ -7,7 +7,6 @@ import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { Check, Circle, Plus, WarningCircle } from '@phosphor-icons/react'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { randomLabelColorHex } from '../../../utils/settings-page/labels/labelColorObjects'
-import { useRouter } from 'next/router'
 import { LabelsPicker } from '../../elements/LabelsPicker'
 import { LabelsDispatcher } from '../../../lib/hooks/useSetPageLabels'
 import {

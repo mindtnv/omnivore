@@ -1,16 +1,18 @@
+'use client'
+
 import { SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { BorderedFormInput, FormLabel } from '../../elements/FormElements'
 import { fetchEndpoint } from '../../../lib/appConfig'
-import { useRouter } from 'next/router'
+import { useSearchParams } from 'next/navigation'
 import { formatMessage } from '../../../locales/en/messages'
 import { parseErrorCodes } from '../../../lib/queryParamParser'
 import { LoadingView } from '../../patterns/LoadingView'
 
-export function EmailResetPassword(): JSX.Element {
-  const router = useRouter()
+function EmailResetPasswordContent(): JSX.Element {
+  const searchParams = useSearchParams()
   const [token, setToken] = useState<string | undefined>(undefined)
   const [password, setPassword] = useState<string>('')
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
@@ -18,8 +20,8 @@ export function EmailResetPassword(): JSX.Element {
   )
 
   useEffect(() => {
-    if (!router.isReady) return
-    const errorCode = parseErrorCodes(router.query)
+    const query = Object.fromEntries(searchParams.entries())
+    const errorCode = parseErrorCodes(query)
     const errorMsg = errorCode
       ? formatMessage({ id: `error.${errorCode}` })
       : undefined
@@ -27,8 +29,8 @@ export function EmailResetPassword(): JSX.Element {
     console.log('errorCode', errorCode, errorMsg)
 
     setErrorMessage(errorMsg)
-    setToken(router.query.token as string)
-  }, [router.isReady, router.query])
+    setToken(searchParams.get('token') ?? undefined)
+  }, [searchParams])
 
   if (!token) {
     return <LoadingView />
@@ -86,5 +88,13 @@ export function EmailResetPassword(): JSX.Element {
         </Button>
       </VStack>
     </form>
+  )
+}
+
+export function EmailResetPassword(): JSX.Element {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EmailResetPasswordContent />
+    </Suspense>
   )
 }

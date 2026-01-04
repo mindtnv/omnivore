@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useAddItem } from '../networking/library_items/useLibraryItems'
 import { showErrorToast, showSuccessToastWithAction } from '../toastHelpers'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 
 export const useHandleAddUrl = () => {
   const router = useRouter()

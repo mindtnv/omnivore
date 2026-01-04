@@ -15,7 +15,11 @@
     "gql-typegen": "graphql-codegen",
     "deploy:web": "vercel --prod"
   },
-  "dependencies": {},
+  "dependencies": {
+    "next": "16.1.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
   "devDependencies": {
     "@ardatan/aggregate-error": "^0.0.6",
     "@graphql-codegen/cli": "^2.6.2",

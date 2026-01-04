@@ -1,6 +1,8 @@
+'use client'
+
 import * as HoverCard from '@radix-ui/react-hover-card'
 import { styled } from '@stitches/react'
-import { useRouter } from 'next/router'
+import { useRouter, usePathname } from 'next/navigation'
 import {
   createContext,
   useCallback,
@@ -198,6 +200,7 @@ export function HomeContainer(): JSX.Element {
   const homeData = useGetHomeItems()
 
   const router = useRouter()
+  const pathname = usePathname()
   const { data: viewerData } = useGetViewer()
 
   const hasTopPicks = (homeData: HomeItemResponse) => {
@@ -255,8 +258,8 @@ export function HomeContainer(): JSX.Element {
   }, [searchData])
 
   useEffect(() => {
-    window.localStorage.setItem('nav-return', router.asPath)
-  }, [router.asPath])
+    window.localStorage.setItem('nav-return', pathname)
+  }, [pathname])
 
   useEffect(() => {
     const newSections = homeData.sections

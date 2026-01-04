@@ -1,3 +1,5 @@
+'use client'
+
 import { useMemo } from 'react'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { LIBRARY_LEFT_MENU_WIDTH } from './LibraryMenu'
@@ -6,7 +8,7 @@ import Link from 'next/link'
 import { styled, theme } from '../../tokens/stitches.config'
 import { Button } from '../../elements/Button'
 import { ArrowSquareUpRight } from '@phosphor-icons/react'
-import { useRouter } from 'next/router'
+import { useRouter, usePathname } from 'next/navigation'
 import { NavMenuFooter } from './Footer'
 
 export const SETTINGS_SECTION_1 = [
@@ -205,13 +207,10 @@ type SettingsButtonProps = {
 }
 
 function SettingsButton(props: SettingsButtonProps): JSX.Element {
-  const router = useRouter()
+  const pathname = usePathname()
   const selected = useMemo(() => {
-    if (router && router.isReady) {
-      return router.asPath.endsWith(props.destination)
-    }
-    return false
-  }, [props, router])
+    return pathname.endsWith(props.destination)
+  }, [props, pathname])
 
   return (
     <Link href={props.destination} passHref title={props.name} legacyBehavior>

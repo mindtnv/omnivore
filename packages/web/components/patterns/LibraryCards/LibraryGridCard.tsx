@@ -1,3 +1,5 @@
+'use client'
+
 import { Box, VStack, HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { LabelChip } from '../../elements/LabelChip'
 import type { LinkedItemCardProps } from './CardTypes'
@@ -30,12 +32,13 @@ import { DotsThree } from '@phosphor-icons/react'
 import { isTouchScreenDevice } from '../../../lib/deviceType'
 import { LoadingBarOverlay, ProgressBarOverlay } from './LibraryListCard'
 import { GridFallbackImage } from './FallbackImage'
-import { useRouter } from 'next/router'
+import { useRouter, usePathname } from 'next/navigation'
 
 dayjs.extend(relativeTime)
 
 export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
   const router = useRouter()
+  const pathname = usePathname()
   const [isHovered, setIsHovered] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
 
@@ -96,7 +99,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
           props.setIsChecked(props.item.id, !props.isChecked)
           return
         }
-        window.localStorage.setItem('nav-return', router.asPath)
+        window.localStorage.setItem('nav-return', pathname)
         if (event.metaKey || event.ctrlKey) {
           window.open(
             `/${props.viewer.profile.username}/${props.item.slug}`,

@@ -1,4 +1,6 @@
-import { useRouter } from 'next/router'
+'use client'
+
+import { useRouter } from 'next/navigation'
 import { NodeApi, SimpleTree, Tree, TreeApi } from 'react-arborist'
 import useResizeObserver from 'use-resize-observer'
 import {

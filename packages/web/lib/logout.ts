@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { logoutMutation } from './networking/mutations/logoutMutation'
 import { useCallback } from 'react'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 
 export const useLogout = () => {
   const router = useRouter()

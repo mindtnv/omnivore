@@ -1,8 +1,8 @@
 import { Action } from 'kbar'
 import type { KeyboardCommand } from './useKeyboardShortcuts'
-import type { NextRouter } from 'next/router'
+import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 
-export function navigationCommands(router: NextRouter | undefined): Action[] {
+export function navigationCommands(router: AppRouterInstance | undefined): Action[] {
   return [
     {
       id: 'home',

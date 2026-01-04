@@ -1,9 +1,11 @@
+'use client'
+
 import { HStack, SpanBox, VStack } from './LayoutPrimitives'
 import { StyledText } from './StyledText'
 import { NewspaperClipping } from '@phosphor-icons/react'
 import { theme } from '../tokens/stitches.config'
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 
 export function Discover(): JSX.Element {
   const [isUsed, setIsUsed] = useState(false)
