@@ -58,9 +58,9 @@ services:
 
   migrate:
     build:
-      context: .
-      dockerfile: ./packages/db/Dockerfile
-    command: /bin/sh ./packages/db/setup.sh
+      context: ../..
+      dockerfile: packages/db/Dockerfile
+    command: /bin/bash ./packages/db/setup.sh
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
@@ -78,8 +78,8 @@ services:
 
   api:
     build:
-      context: .
-      dockerfile: ./packages/api/Dockerfile
+      context: ../..
+      dockerfile: packages/api/Dockerfile
     environment:
       API_ENV: ${API_ENV:-local}
       PG_HOST: postgres
@@ -123,8 +123,9 @@ services:
 
   queue-processor:
     build:
-      context: .
-      dockerfile: ./packages/api/Dockerfile
+      context: ../..
+      dockerfile: packages/api/queue-processor/Dockerfile
+    command: ["yarn", "workspace", "@omnivore/api", "start_queue_processor"]
     environment:
       PG_HOST: postgres
       PG_PORT: 5432
@@ -155,8 +156,8 @@ services:
 
   web:
     build:
-      context: .
-      dockerfile: ./packages/web/Dockerfile
+      context: ../..
+      dockerfile: packages/web/Dockerfile
       args:
         - APP_ENV=prod
         - BASE_URL=${CLIENT_URL:?CLIENT_URL is required}
@@ -184,8 +185,8 @@ services:
 
   content-fetch:
     build:
-      context: .
-      dockerfile: ./packages/content-fetch/Dockerfile
+      context: ../..
+      dockerfile: packages/content-fetch/Dockerfile
     environment:
       USE_FIREFOX: "true"
       VERIFICATION_TOKEN: ${VERIFICATION_TOKEN:-some_token}

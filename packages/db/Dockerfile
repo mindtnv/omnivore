@@ -1,20 +1,19 @@
-FROM node:22.12
+# Optimized Dockerfile for Omnivore DB migrations
 
+FROM node:22.12-alpine
 WORKDIR /app
 
-COPY package.json .
-COPY yarn.lock .
-COPY tsconfig.json .
+# Install dependencies (bash required for setup.sh, postgresql-client for psql, util-linux for uuidgen)
+RUN apk add --no-cache postgresql-client util-linux bash
 
-COPY /packages/db/package.json ./packages/db/package.json
+# Copy package files
+COPY package.json yarn.lock tsconfig.json ./
+COPY packages/db/package.json ./packages/db/
 
-RUN apt-get update && apt-get install -y \
-  postgresql \
-  uuid-runtime
+# Install dependencies
+RUN yarn install --frozen-lockfile --network-timeout=300000
 
-RUN yarn install
-
-ADD /packages/db ./packages/db
-ADD /packages/db/setup.sh ./packages/db/setup.sh
+# Copy migration files
+COPY packages/db ./packages/db
 
 CMD ["yarn", "workspace", "@omnivore/db", "migrate"]
