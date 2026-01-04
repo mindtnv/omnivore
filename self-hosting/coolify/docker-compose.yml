@@ -57,7 +57,9 @@ services:
     restart: "no"
 
   migrate:
-    image: ghcr.io/omnivore-app/sh-migrate:latest
+    build:
+      context: .
+      dockerfile: ./packages/db/Dockerfile
     command: /bin/sh ./packages/db/setup.sh
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -75,7 +77,9 @@ services:
     restart: "no"
 
   api:
-    image: ghcr.io/omnivore-app/sh-backend:latest
+    build:
+      context: .
+      dockerfile: ./packages/api/Dockerfile
     environment:
       API_ENV: ${API_ENV:-local}
       PG_HOST: postgres
@@ -118,7 +122,9 @@ services:
       start_period: 30s
 
   queue-processor:
-    image: ghcr.io/omnivore-app/sh-queue-processor:latest
+    build:
+      context: .
+      dockerfile: ./packages/api/Dockerfile
     environment:
       PG_HOST: postgres
       PG_PORT: 5432
@@ -148,7 +154,14 @@ services:
         condition: service_healthy
 
   web:
-    image: ghcr.io/omnivore-app/sh-web:latest
+    build:
+      context: .
+      dockerfile: ./packages/web/Dockerfile
+      args:
+        - APP_ENV=prod
+        - BASE_URL=${CLIENT_URL:?CLIENT_URL is required}
+        - SERVER_BASE_URL=${SERVER_BASE_URL:?SERVER_BASE_URL is required}
+        - HIGHLIGHTS_BASE_URL=${CLIENT_URL:?CLIENT_URL is required}
     environment:
       APP_ENV: prod
       BASE_URL: ${CLIENT_URL:?CLIENT_URL is required}
@@ -170,7 +183,9 @@ services:
       IMAGE_PROXY_SECRET: ${IMAGE_PROXY_SECRET:-some-secret}
 
   content-fetch:
-    image: ghcr.io/omnivore-app/sh-content-fetch:latest
+    build:
+      context: .
+      dockerfile: ./packages/content-fetch/Dockerfile
     environment:
       USE_FIREFOX: "true"
       VERIFICATION_TOKEN: ${VERIFICATION_TOKEN:-some_token}
