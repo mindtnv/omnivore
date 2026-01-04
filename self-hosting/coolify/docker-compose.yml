@@ -102,6 +102,9 @@ services:
       LOCAL_MINIO_URL: ${LOCAL_MINIO_URL}
       AUTO_VERIFY: ${AUTO_VERIFY:-true}
       EXPORT_QUEUE_NAME: omnivore-backend-queue
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL}
+      OPENAI_MODEL: ${OPENAI_MODEL}
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -132,6 +135,14 @@ services:
       AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-miniominio}
       AWS_REGION: us-east-1
       AWS_S3_ENDPOINT_URL: http://minio:9000
+      GATEWAY_URL: http://api:8080/api
+      CONTENT_FETCH_QUEUE_ENABLED: "true"
+      LOCAL_MINIO_URL: ${LOCAL_MINIO_URL}
+      AUTO_VERIFY: ${AUTO_VERIFY:-true}
+      EXPORT_QUEUE_NAME: omnivore-backend-queue
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL}
+      OPENAI_MODEL: ${OPENAI_MODEL}
     depends_on:
       api:
         condition: service_healthy
