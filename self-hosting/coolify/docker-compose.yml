@@ -118,8 +118,7 @@ services:
       start_period: 30s
 
   queue-processor:
-    image: ghcr.io/mindtnv/omnivore-api:latest
-    command: ["yarn", "workspace", "@omnivore/api", "start_queue_processor"]
+    image: ghcr.io/mindtnv/omnivore-queue-processor:latest
     environment:
       PG_HOST: postgres
       PG_PORT: 5432
