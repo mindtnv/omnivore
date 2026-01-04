@@ -37,7 +37,7 @@
 .git
 **/.gitignore
 
-# Platform-specific packages not needed for web
+# Platform-specific - not needed for server builds
 apple
 android
 
@@ -45,8 +45,7 @@ android
 **/*.md
 **/LICENSE
 
-# Config files not needed for build
-**/*.yaml
+# Config files
 .secrets*.yaml
 **/.eslintcache
 **/.prettierignore
@@ -60,16 +59,6 @@ android
 **/*.log
 **/*.tsbuildinfo
 
-# Packages not needed for web builds
-packages/api
-packages/db
-packages/rss-handler
-packages/export-handler
-packages/import-handler
-packages/text-to-speech
-packages/inbound-email-handler
-packages/content-fetch
-packages/puppeteer-parse
-packages/content-handler
-packages/pdf-handler
-packages/readabilityjs
+# Large unused assets
+packages/web/public/pspdfkit-lib
+packages/web/public/static/unused
