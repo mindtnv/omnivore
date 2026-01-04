@@ -1,11 +1,13 @@
+'use client'
+
 import { HStack, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText, StyledTextSpan } from '../../elements/StyledText'
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { BorderedFormInput, FormLabel } from '../../elements/FormElements'
 import { fetchEndpoint } from '../../../lib/appConfig'
 import { logoutMutation } from '../../../lib/networking/mutations/logoutMutation'
-import { useRouter } from 'next/router'
+import { useSearchParams } from 'next/navigation'
 import { parseErrorCodes } from '../../../lib/queryParamParser'
 import { formatMessage } from '../../../locales/en/messages'
 import Link from 'next/link'
@@ -50,20 +52,20 @@ const LoginForm = (): JSX.Element => {
   )
 }
 
-export function EmailLogin(): JSX.Element {
-  const router = useRouter()
+function EmailLoginContent(): JSX.Element {
+  const searchParams = useSearchParams()
   const [errorMessage, setErrorMessage] =
     useState<string | undefined>(undefined)
   const recaptchaTokenRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (!router.isReady) return
-    const errorCode = parseErrorCodes(router.query)
+    const query = Object.fromEntries(searchParams.entries())
+    const errorCode = parseErrorCodes(query)
     const errorMsg = errorCode
       ? formatMessage({ id: `error.${errorCode}` })
       : undefined
     setErrorMessage(errorMsg)
-  }, [router.isReady, router.query])
+  }, [searchParams])
 
   return (
     <form action={`${fetchEndpoint}/auth/email-login`} method="POST">
@@ -183,5 +185,13 @@ export function EmailLogin(): JSX.Element {
         </StyledText>
       </VStack>
     </form>
+  )
+}
+
+export function EmailLogin(): JSX.Element {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EmailLoginContent />
+    </Suspense>
   )
 }

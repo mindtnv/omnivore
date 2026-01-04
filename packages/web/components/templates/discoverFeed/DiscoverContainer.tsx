@@ -1,7 +1,9 @@
+'use client'
+
 import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
 import { LibraryFilterMenu } from '../navMenu/LibraryMenu'
 import { DiscoverHeader } from './DiscoverHeader/DiscoverHeader'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useState } from 'react'
 import { DiscoverItemFeed } from './DiscoverFeed/DiscoverFeed'
 import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'

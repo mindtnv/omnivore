@@ -1,5 +1,7 @@
+'use client'
+
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import { DEFAULT_HOME_PATH } from '../../../lib/navigations'
 import { Box } from '../LayoutPrimitives'
 export type OmnivoreLogoBaseProps = {

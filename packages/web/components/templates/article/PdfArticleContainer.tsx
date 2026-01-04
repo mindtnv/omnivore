@@ -1,3 +1,5 @@
+'use client'
+
 import {
   ArticleAttributes,
   useUpdateItemReadStatus,
@@ -27,7 +29,7 @@ import {
   useMergeHighlight,
   useUpdateHighlight,
 } from '../../../lib/networking/highlights/useItemHighlights'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 
 export type PdfArticleContainerProps = {
   viewer: UserBasicData

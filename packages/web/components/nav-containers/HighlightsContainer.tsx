@@ -1,9 +1,12 @@
+'use client'
+
 import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
 import { useFetchMore } from '../../lib/hooks/useFetchMoreScroll'
 import { useCallback, useMemo, useState } from 'react'
 import { useGetHighlights } from '../../lib/networking/queries/useGetHighlights'
 import { Highlight } from '../../lib/networking/fragments/highlightFragment'
-import { NextRouter, useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 import { SetHighlightLabelsModalPresenter } from '../templates/article/SetLabelsModalPresenter'
 import { TrashIcon } from '../elements/icons/TrashIcon'
@@ -100,7 +103,7 @@ export function HighlightsContainer(): JSX.Element {
 type HighlightCardProps = {
   highlight: Highlight
   viewer: UserBasicData
-  router: NextRouter
+  router: AppRouterInstance
   mutate: () => void
 }
 
@@ -143,24 +146,13 @@ function HighlightCard(props: HighlightCardProps): JSX.Element {
       const viewer = props.viewer
       const item = props.highlight.libraryItem
 
-      if (!router || !router.isReady || !viewer || !item) {
+      if (!router || !viewer || !item) {
         showErrorToast('Error navigating to highlight')
         return
       }
 
       router.push(
-        {
-          pathname: '/[username]/[slug]',
-          query: {
-            username: viewer.profile.username,
-            slug: item.slug,
-          },
-          hash: highlightId,
-        },
-        `${viewer.profile.username}/${item.slug}#${highlightId}`,
-        {
-          scroll: false,
-        }
+        `${viewer.profile.username}/${item.slug}#${highlightId}`
       )
     },
     [props.highlight.libraryItem, props.viewer, props.router]

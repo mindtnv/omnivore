@@ -1,3 +1,5 @@
+'use client'
+
 import { Box, VStack, HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { useCallback, useMemo, useState } from 'react'
 import { CaretDown, CaretUp } from '@phosphor-icons/react'
@@ -9,7 +11,7 @@ import { Button } from '../../elements/Button'
 import { theme } from '../../tokens/stitches.config'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { HighlightView } from '../HighlightView'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import { showErrorToast } from '../../../lib/toastHelpers'
 import { sortHighlights } from '../../../lib/highlights/sortHighlights'
 import { timeAgo } from '../../../lib/textFormatting'
@@ -35,23 +37,12 @@ export function LibraryHighlightGridCard(
   const router = useRouter()
   const viewInReader = useCallback(
     (highlightId: string) => {
-      if (!router || !router.isReady || !props.viewer) {
+      if (!router || !props.viewer) {
         showErrorToast('Error navigating to highlight')
         return
       }
       router.push(
-        {
-          pathname: '/[username]/[slug]',
-          query: {
-            username: props.viewer.profile.username,
-            slug: props.item.slug,
-          },
-          hash: highlightId,
-        },
-        `${props.viewer.profile.username}/${props.item.slug}#${highlightId}`,
-        {
-          scroll: false,
-        }
+        `${props.viewer.profile.username}/${props.item.slug}#${highlightId}`
       )
     },
     [router, props]

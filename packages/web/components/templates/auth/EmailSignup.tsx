@@ -1,13 +1,15 @@
+'use client'
+
 import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText, StyledTextSpan } from '../../elements/StyledText'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { BorderedFormInput, FormLabel } from '../../elements/FormElements'
 import { TermAndConditionsFooter } from '../LoginForm'
 import { fetchEndpoint } from '../../../lib/appConfig'
 import { useValidateUsernameQuery } from '../../../lib/networking/queries/useValidateUsernameQuery'
 import { logoutMutation } from '../../../lib/networking/mutations/logoutMutation'
-import { useRouter } from 'next/router'
+import { useSearchParams } from 'next/navigation'
 import { formatMessage } from '../../../locales/en/messages'
 import { parseErrorCodes } from '../../../lib/queryParamParser'
 import Link from 'next/link'
@@ -130,19 +132,19 @@ const SignUpForm = (): JSX.Element => {
   )
 }
 
-export function EmailSignup(): JSX.Element {
-  const router = useRouter()
+function EmailSignupContent(): JSX.Element {
+  const searchParams = useSearchParams()
   const recaptchaTokenRef = useRef<HTMLInputElement>(null)
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
 
   useEffect(() => {
-    if (!router.isReady) return
-    const errorCode = parseErrorCodes(router.query)
+    const query = Object.fromEntries(searchParams.entries())
+    const errorCode = parseErrorCodes(query)
     const errorMsg = errorCode
       ? formatMessage({ id: `error.${errorCode}` })
       : undefined
     setErrorMessage(errorMsg)
-  }, [router.isReady, router.query])
+  }, [searchParams])
 
   return (
     <>
@@ -255,5 +257,13 @@ export function EmailSignup(): JSX.Element {
         </VStack>
       </form>
     </>
+  )
+}
+
+export function EmailSignup(): JSX.Element {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EmailSignupContent />
+    </Suspense>
   )
 }

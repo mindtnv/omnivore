@@ -1,3 +1,5 @@
+'use client'
+
 import { Box, VStack, HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { LabelChip } from '../../elements/LabelChip'
 import type { LinkedItemCardProps } from './CardTypes'
@@ -30,11 +32,12 @@ import { CoverImage } from '../../elements/CoverImage'
 import { ProgressBar } from '../../elements/ProgressBar'
 import { theme } from '../../tokens/stitches.config'
 import { ListFallbackImage } from './FallbackImage'
-import { useRouter } from 'next/router'
+import { useRouter, usePathname } from 'next/navigation'
 import { LoadingBar } from '../../elements/LoadingBar'
 
 export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
   const router = useRouter()
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
 
   const { refs, floatingStyles, context } = useFloating({
@@ -103,7 +106,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
           props.setIsChecked(props.item.id, !props.isChecked)
           return
         }
-        window.localStorage.setItem('nav-return', router.asPath)
+        window.localStorage.setItem('nav-return', pathname)
         if (event.metaKey || event.ctrlKey) {
           window.open(
             `/${props.viewer.profile.username}/${props.item.slug}`,

@@ -1,5 +1,7 @@
+'use client'
+
 import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { useCallback, useEffect, useState } from 'react'
 import { ConfirmationModal } from '../patterns/ConfirmationModal'

@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useState } from 'react'
 import { HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { theme } from '../../tokens/stitches.config'
@@ -5,8 +7,8 @@ import { Button } from '../../elements/Button'
 
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { MoreOptionsIcon } from '../../elements/images/MoreOptionsIcon'
-import { PinnedSearch } from '../../../pages/settings/pinned-searches'
-import { useRouter } from 'next/router'
+import { PinnedSearch } from '../../../app/settings/pinned-searches/page'
+import { useRouter } from 'next/navigation'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 import { LayoutType } from './HomeFeedContainer'
 import { MultiSelectMode } from './LibraryHeader'

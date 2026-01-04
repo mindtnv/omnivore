@@ -1,10 +1,12 @@
+'use client'
+
 import { HStack, SpanBox } from '../../../elements/LayoutPrimitives'
 import { theme } from '../../../tokens/stitches.config'
 import { Button } from '../../../elements/Button'
 
 import { Dropdown, DropdownOption } from '../../../elements/DropdownElements'
 import { MoreOptionsIcon } from '../../../elements/images/MoreOptionsIcon'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import { DiscoverFeed } from "../../../../lib/networking/queries/useGetDiscoverFeeds"
 
 type PinnedFeedsProps = {

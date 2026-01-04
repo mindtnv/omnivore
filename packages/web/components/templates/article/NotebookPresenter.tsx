@@ -1,9 +1,11 @@
+'use client'
+
 import { ReadableItem } from '../../../lib/networking/library_items/useLibraryItems'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import 'react-sliding-pane/dist/react-sliding-pane.css'
 import { NotebookContent } from './Notebook'
 import { NotebookHeader } from './NotebookHeader'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import { showErrorToast } from '../../../lib/toastHelpers'
 import { ResizableSidebar } from './ResizableSidebar'
 
@@ -30,23 +32,12 @@ export const NotebookPresenter = (props: NotebookPresenterProps) => {
         viewer={props.viewer}
         item={props.item}
         viewInReader={(highlightId) => {
-          if (!router || !router.isReady || !props.viewer) {
+          if (!router || !props.viewer) {
             showErrorToast('Error navigating to highlight')
             return
           }
           router.push(
-            {
-              pathname: '/[username]/[slug]',
-              query: {
-                username: props.viewer.profile.username,
-                slug: props.item.slug,
-              },
-              hash: highlightId,
-            },
-            `/${props.viewer.profile.username}/${props.item.slug}#${highlightId}`,
-            {
-              scroll: false,
-            }
+            `/${props.viewer.profile.username}/${props.item.slug}#${highlightId}`
           )
         }}
       />

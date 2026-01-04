@@ -1,4 +1,6 @@
-import { useRouter } from 'next/router'
+'use client'
+
+import { useRouter } from 'next/navigation'
 import { HighlighterCircle } from '@phosphor-icons/react'
 import { useCallback, useEffect, useReducer, useState } from 'react'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
@@ -381,7 +383,7 @@ function HighlightList(props: HighlightListProps): JSX.Element {
 
   const viewInReader = useCallback(
     (highlightId: string) => {
-      if (!router || !router.isReady || !props.viewer) {
+      if (!router || !props.viewer) {
         showErrorToast('Error navigating to highlight')
         return
       }
@@ -392,18 +394,7 @@ function HighlightList(props: HighlightListProps): JSX.Element {
         props.item.node.slug
       )
       router.push(
-        {
-          pathname: '/[username]/[slug]',
-          query: {
-            username: props.viewer.profile.username,
-            slug: props.item.node.slug,
-          },
-          hash: highlightId,
-        },
-        `${props.viewer.profile.username}/${props.item.node.slug}#${highlightId}`,
-        {
-          scroll: false,
-        }
+        `${props.viewer.profile.username}/${props.item.node.slug}#${highlightId}`
       )
     },
     [router, props]
