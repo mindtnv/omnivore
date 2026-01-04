@@ -8,45 +8,193 @@ on:
       - 'android/**'
       - '**.md'
   workflow_dispatch:
+    inputs:
+      build_web:
+        description: 'Build web image'
+        type: boolean
+        default: false
+      build_api:
+        description: 'Build api image'
+        type: boolean
+        default: false
+      build_queue_processor:
+        description: 'Build queue-processor image'
+        type: boolean
+        default: false
+      build_content_fetch:
+        description: 'Build content-fetch image'
+        type: boolean
+        default: false
+      build_migrate:
+        description: 'Build migrate image'
+        type: boolean
+        default: false
+      build_all:
+        description: 'Build ALL images'
+        type: boolean
+        default: false
 
 env:
   REGISTRY: ghcr.io
   IMAGE_PREFIX: ${{ github.repository_owner }}/omnivore
 
 jobs:
-  build:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      web: ${{ steps.filter.outputs.web }}
+      api: ${{ steps.filter.outputs.api }}
+      content-fetch: ${{ steps.filter.outputs.content-fetch }}
+      migrate: ${{ steps.filter.outputs.migrate }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            web:
+              - 'packages/web/**'
+              - 'package.json'
+              - 'yarn.lock'
+            api:
+              - 'packages/api/**'
+              - 'packages/utils/**'
+              - 'packages/liqe/**'
+              - 'packages/content-handler/**'
+              - 'packages/text-to-speech/**'
+              - 'packages/readabilityjs/**'
+              - 'package.json'
+              - 'yarn.lock'
+            content-fetch:
+              - 'packages/content-fetch/**'
+              - 'packages/puppeteer-parse/**'
+              - 'packages/readabilityjs/**'
+              - 'package.json'
+              - 'yarn.lock'
+            migrate:
+              - 'packages/db/**'
+
+  build-web:
+    needs: detect-changes
+    if: |
+      github.event_name == 'workflow_dispatch' && (inputs.build_web || inputs.build_all) ||
+      github.event_name == 'push' && needs.detect-changes.outputs.web == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: web
-            dockerfile: packages/web/Dockerfile
-          - name: api
-            dockerfile: packages/api/Dockerfile
-          - name: queue-processor
-            dockerfile: packages/api/queue-processor/Dockerfile
-          - name: content-fetch
-            dockerfile: packages/content-fetch/Dockerfile
-          - name: migrate
-            dockerfile: packages/db/Dockerfile
     steps:
       - uses: actions/checkout@v4
-
       - uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - uses: docker/setup-buildx-action@v3
-
       - uses: docker/build-push-action@v6
         with:
           context: .
-          file: ${{ matrix.dockerfile }}
+          file: packages/web/Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.name }}:latest
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-web:latest
+          build-args: |
+            APP_ENV=prod
+            BASE_URL=${{ secrets.WEB_BASE_URL }}
+            SERVER_BASE_URL=${{ secrets.WEB_SERVER_BASE_URL }}
+            HIGHLIGHTS_BASE_URL=${{ secrets.WEB_BASE_URL }}
+
+  build-api:
+    needs: detect-changes
+    if: |
+      github.event_name == 'workflow_dispatch' && (inputs.build_api || inputs.build_all) ||
+      github.event_name == 'push' && needs.detect-changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: packages/api/Dockerfile
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-api:latest
+
+  build-queue-processor:
+    needs: detect-changes
+    if: |
+      github.event_name == 'workflow_dispatch' && (inputs.build_queue_processor || inputs.build_all) ||
+      github.event_name == 'push' && needs.detect-changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: packages/api/queue-processor/Dockerfile
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-queue-processor:latest
+
+  build-content-fetch:
+    needs: detect-changes
+    if: |
+      github.event_name == 'workflow_dispatch' && (inputs.build_content_fetch || inputs.build_all) ||
+      github.event_name == 'push' && needs.detect-changes.outputs.content-fetch == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: packages/content-fetch/Dockerfile
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-content-fetch:latest
+
+  build-migrate:
+    needs: detect-changes
+    if: |
+      github.event_name == 'workflow_dispatch' && (inputs.build_migrate || inputs.build_all) ||
+      github.event_name == 'push' && needs.detect-changes.outputs.migrate == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: packages/db/Dockerfile
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-migrate:latest
