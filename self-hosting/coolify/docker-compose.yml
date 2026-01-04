@@ -58,7 +58,7 @@ services:
 
   migrate:
     build:
-      context: ../..
+      context: .
       dockerfile: packages/db/Dockerfile
     command: /bin/bash ./packages/db/setup.sh
     environment:
@@ -78,7 +78,7 @@ services:
 
   api:
     build:
-      context: ../..
+      context: .
       dockerfile: packages/api/Dockerfile
     environment:
       API_ENV: ${API_ENV:-local}
@@ -123,8 +123,8 @@ services:
 
   queue-processor:
     build:
-      context: ../..
-      dockerfile: packages/api/queue-processor/Dockerfile
+      context: .
+      dockerfile: packages/api/Dockerfile
     command: ["yarn", "workspace", "@omnivore/api", "start_queue_processor"]
     environment:
       PG_HOST: postgres
@@ -156,7 +156,7 @@ services:
 
   web:
     build:
-      context: ../..
+      context: .
       dockerfile: packages/web/Dockerfile
       args:
         - APP_ENV=prod
@@ -185,7 +185,7 @@ services:
 
   content-fetch:
     build:
-      context: ../..
+      context: .
       dockerfile: packages/content-fetch/Dockerfile
     environment:
       USE_FIREFOX: "true"
