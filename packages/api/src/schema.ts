@@ -415,6 +415,17 @@ const schema = gql`
     folder: String!
     feedContent: String
     directionality: DirectionalityType
+    translatedContent: String
+    translatedLanguage: String
+    translationStatus: TranslationStatus
+    showTranslated: Boolean!
+  }
+
+  enum TranslationStatus {
+    PENDING
+    PROCESSING
+    COMPLETED
+    FAILED
   }
 
   # Query: article
@@ -1099,6 +1110,8 @@ const schema = gql`
     speechVolume: String
     fields: JSON
     digestConfig: DigestConfig
+    preferredLanguage: String
+    autoTranslate: Boolean
   }
 
   # Query: UserPersonalization
@@ -1142,6 +1155,8 @@ const schema = gql`
     speechVolume: String
     fields: JSON
     digestConfig: DigestConfigInput
+    preferredLanguage: String
+    autoTranslate: Boolean
   }
 
   # Type: ArticleSavingRequest
@@ -1681,6 +1696,8 @@ const schema = gql`
     score: Float
     seenAt: Date
     highlightsCount: Int
+    translationStatus: String
+    translatedLanguage: String
   }
 
   type SearchItemEdge {
@@ -2882,6 +2899,23 @@ const schema = gql`
     ALREADY_EXISTS
   }
 
+  # Mutation: setShowTranslated
+  union SetShowTranslatedResult = SetShowTranslatedSuccess | SetShowTranslatedError
+
+  type SetShowTranslatedSuccess {
+    article: Article!
+  }
+
+  type SetShowTranslatedError {
+    errorCodes: [SetShowTranslatedErrorCode!]!
+  }
+
+  enum SetShowTranslatedErrorCode {
+    UNAUTHORIZED
+    NOT_FOUND
+    BAD_REQUEST
+  }
+
   input ScanFeedsInput {
     url: String
     opml: String
@@ -3553,6 +3587,7 @@ const schema = gql`
       input: UpdateSubscriptionInput!
     ): UpdateSubscriptionResult!
     moveToFolder(id: ID!, folder: String!): MoveToFolderResult!
+    setShowTranslated(id: ID!, showTranslated: Boolean!): SetShowTranslatedResult!
     fetchContent(id: ID!): FetchContentResult!
     updateNewsletterEmail(
       input: UpdateNewsletterEmailInput!

@@ -1,4 +1,4 @@
-import { Root, Overlay, Content } from '@radix-ui/react-dialog'
+import { Root, Overlay, Content, Title, Description } from '@radix-ui/react-dialog'
 import { styled, keyframes, theme } from '../tokens/stitches.config'
 import { Button } from './Button'
 import { CloseButton } from './CloseButton'
@@ -105,3 +105,21 @@ export const ModalButtonBar = (props: ModalButtonBarProps) => {
     </HStack>
   )
 }
+
+// Export Dialog primitives for accessibility
+export const ModalTitle = Title
+export const ModalDescription = Description
+
+// VisuallyHidden component for screen reader only content
+export const VisuallyHidden = styled('span', {
+  position: 'absolute',
+  border: 0,
+  width: 1,
+  height: 1,
+  padding: 0,
+  margin: -1,
+  overflow: 'hidden',
+  clip: 'rect(0, 0, 0, 0)',
+  whiteSpace: 'nowrap',
+  wordWrap: 'normal',
+})

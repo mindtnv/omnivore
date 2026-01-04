@@ -4,6 +4,8 @@ import {
   ModalRoot,
   ModalContent,
   ModalOverlay,
+  ModalTitle,
+  VisuallyHidden,
 } from '../../elements/ModalPrimitives'
 import { ReaderSettingsControl } from './ReaderSettingsControl'
 
@@ -36,6 +38,9 @@ export function DisplaySettingsModal(
           props.onOpenChange(false)
         }}
       >
+        <VisuallyHidden>
+          <ModalTitle>Display Settings</ModalTitle>
+        </VisuallyHidden>
         <VStack css={{ width: '100%' }}>
           <ReaderSettingsControl readerSettings={props.readerSettings} />
         </VStack>

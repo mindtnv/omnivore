@@ -17,6 +17,10 @@ import {
 } from '../generated/graphql'
 import { AISummarizeJobData, AI_SUMMARIZE_JOB_NAME } from '../jobs/ai-summarize'
 import {
+  TranslateContentJobData,
+  TRANSLATE_CONTENT_JOB_NAME,
+} from '../jobs/translate-content'
+import {
   CreateDigestData,
   CreateDigestJobResponse,
   CreateDigestJobSchedule,
@@ -725,6 +729,20 @@ export const enqueueAISummarizeJob = async (data: AISummarizeJobData) => {
 
   return queue.add(AI_SUMMARIZE_JOB_NAME, data, {
     priority: getJobPriority(AI_SUMMARIZE_JOB_NAME),
+    attempts: 3,
+  })
+}
+
+export const enqueueTranslateContentJob = async (
+  data: TranslateContentJobData
+) => {
+  const queue = await getQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(TRANSLATE_CONTENT_JOB_NAME, data, {
+    priority: getJobPriority(TRANSLATE_CONTENT_JOB_NAME),
     attempts: 3,
   })
 }

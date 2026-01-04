@@ -69,12 +69,13 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
         }}
         onClick={(event) => {
           // on small screens we want to dismiss the menu after click
-          // if (window.innerWidth <= 768) {
-          //   setDismissed(true)
-          //   setTimeout(() => {
-          //     props.setShowMenu(false)
-          //   }, 100)
-          // }
+          if (window.innerWidth <= 768) {
+            setDismissed(true)
+            setTimeout(() => {
+              props.setShowMenu(false)
+              setDismissed(false)
+            }, 100)
+          }
           event.stopPropagation()
         }}
       >

@@ -70,6 +70,10 @@ export const gqlSearchQuery = (includeTotalCount = false) => gql`
             savedAt
             wordsCount
             highlightsCount
+            language
+            aiSummary
+            translationStatus
+            translatedLanguage
           }
         }
         pageInfo {
@@ -124,6 +128,22 @@ export const GQL_MOVE_ITEM_TO_FOLDER = gql`
         success
       }
       ... on MoveToFolderError {
+        errorCodes
+      }
+    }
+  }
+`
+
+export const GQL_SET_SHOW_TRANSLATED = gql`
+  mutation SetShowTranslated($id: ID!, $showTranslated: Boolean!) {
+    setShowTranslated(id: $id, showTranslated: $showTranslated) {
+      ... on SetShowTranslatedSuccess {
+        article {
+          id
+          showTranslated
+        }
+      }
+      ... on SetShowTranslatedError {
         errorCodes
       }
     }
@@ -231,6 +251,11 @@ export const GQL_GET_LIBRARY_ITEM_CONTENT = gql`
         article {
           ...ArticleFields
           content
+          language
+          translatedContent
+          translatedLanguage
+          translationStatus
+          showTranslated
           highlights(input: { includeFriends: $includeFriendsHighlights }) {
             ...HighlightFields
           }

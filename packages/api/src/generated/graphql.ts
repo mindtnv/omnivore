@@ -150,12 +150,16 @@ export type Article = {
   savedByViewer?: Maybe<Scalars['Boolean']>;
   shareInfo?: Maybe<LinkShareInfo>;
   sharedComment?: Maybe<Scalars['String']>;
+  showTranslated: Scalars['Boolean'];
   siteIcon?: Maybe<Scalars['String']>;
   siteName?: Maybe<Scalars['String']>;
   slug: Scalars['String'];
   state?: Maybe<ArticleSavingRequestStatus>;
   subscription?: Maybe<Scalars['String']>;
   title: Scalars['String'];
+  translatedContent?: Maybe<Scalars['String']>;
+  translatedLanguage?: Maybe<Scalars['String']>;
+  translationStatus?: Maybe<TranslationStatus>;
   unsubHttpUrl?: Maybe<Scalars['String']>;
   unsubMailTo?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['Date']>;
@@ -1893,6 +1897,7 @@ export type Mutation = {
   setLabelsForHighlight: SetLabelsResult;
   setLinkArchived: ArchiveLinkResult;
   setRule: SetRuleResult;
+  setShowTranslated: SetShowTranslatedResult;
   setUserPersonalization: SetUserPersonalizationResult;
   setWebhook: SetWebhookResult;
   subscribe: SubscribeResult;
@@ -2202,6 +2207,12 @@ export type MutationSetLinkArchivedArgs = {
 
 export type MutationSetRuleArgs = {
   input: SetRuleInput;
+};
+
+
+export type MutationSetShowTranslatedArgs = {
+  id: Scalars['ID'];
+  showTranslated: Scalars['Boolean'];
 };
 
 
@@ -3442,6 +3453,24 @@ export type SetShareHighlightSuccess = {
   highlight: Highlight;
 };
 
+export type SetShowTranslatedError = {
+  __typename?: 'SetShowTranslatedError';
+  errorCodes: Array<SetShowTranslatedErrorCode>;
+};
+
+export enum SetShowTranslatedErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type SetShowTranslatedResult = SetShowTranslatedError | SetShowTranslatedSuccess;
+
+export type SetShowTranslatedSuccess = {
+  __typename?: 'SetShowTranslatedSuccess';
+  article: Article;
+};
+
 export type SetUserPersonalizationError = {
   __typename?: 'SetUserPersonalizationError';
   errorCodes: Array<SetUserPersonalizationErrorCode>;
@@ -3453,6 +3482,7 @@ export enum SetUserPersonalizationErrorCode {
 }
 
 export type SetUserPersonalizationInput = {
+  autoTranslate?: InputMaybe<Scalars['Boolean']>;
   digestConfig?: InputMaybe<DigestConfigInput>;
   fields?: InputMaybe<Scalars['JSON']>;
   fontFamily?: InputMaybe<Scalars['String']>;
@@ -3460,6 +3490,7 @@ export type SetUserPersonalizationInput = {
   libraryLayoutType?: InputMaybe<Scalars['String']>;
   librarySortOrder?: InputMaybe<SortOrder>;
   margin?: InputMaybe<Scalars['Int']>;
+  preferredLanguage?: InputMaybe<Scalars['String']>;
   speechRate?: InputMaybe<Scalars['String']>;
   speechSecondaryVoice?: InputMaybe<Scalars['String']>;
   speechVoice?: InputMaybe<Scalars['String']>;
@@ -3680,6 +3711,13 @@ export enum TaskState {
   Pending = 'PENDING',
   Running = 'RUNNING',
   Succeeded = 'SUCCEEDED'
+}
+
+export enum TranslationStatus {
+  Completed = 'COMPLETED',
+  Failed = 'FAILED',
+  Pending = 'PENDING',
+  Processing = 'PROCESSING'
 }
 
 export type TypeaheadSearchError = {
@@ -4235,6 +4273,7 @@ export enum UserErrorCode {
 
 export type UserPersonalization = {
   __typename?: 'UserPersonalization';
+  autoTranslate?: Maybe<Scalars['Boolean']>;
   digestConfig?: Maybe<DigestConfig>;
   fields?: Maybe<Scalars['JSON']>;
   fontFamily?: Maybe<Scalars['String']>;
@@ -4243,6 +4282,7 @@ export type UserPersonalization = {
   libraryLayoutType?: Maybe<Scalars['String']>;
   librarySortOrder?: Maybe<SortOrder>;
   margin?: Maybe<Scalars['Int']>;
+  preferredLanguage?: Maybe<Scalars['String']>;
   speechRate?: Maybe<Scalars['String']>;
   speechSecondaryVoice?: Maybe<Scalars['String']>;
   speechVoice?: Maybe<Scalars['String']>;
@@ -4910,6 +4950,10 @@ export type ResolversTypes = {
   SetShareHighlightInput: SetShareHighlightInput;
   SetShareHighlightResult: ResolversTypes['SetShareHighlightError'] | ResolversTypes['SetShareHighlightSuccess'];
   SetShareHighlightSuccess: ResolverTypeWrapper<SetShareHighlightSuccess>;
+  SetShowTranslatedError: ResolverTypeWrapper<SetShowTranslatedError>;
+  SetShowTranslatedErrorCode: SetShowTranslatedErrorCode;
+  SetShowTranslatedResult: ResolversTypes['SetShowTranslatedError'] | ResolversTypes['SetShowTranslatedSuccess'];
+  SetShowTranslatedSuccess: ResolverTypeWrapper<SetShowTranslatedSuccess>;
   SetUserPersonalizationError: ResolverTypeWrapper<SetUserPersonalizationError>;
   SetUserPersonalizationErrorCode: SetUserPersonalizationErrorCode;
   SetUserPersonalizationInput: SetUserPersonalizationInput;
@@ -4949,6 +4993,7 @@ export type ResolversTypes = {
   SyncUpdatedItemEdge: ResolverTypeWrapper<SyncUpdatedItemEdge>;
   Task: ResolverTypeWrapper<Task>;
   TaskState: TaskState;
+  TranslationStatus: TranslationStatus;
   TypeaheadSearchError: ResolverTypeWrapper<TypeaheadSearchError>;
   TypeaheadSearchErrorCode: TypeaheadSearchErrorCode;
   TypeaheadSearchItem: ResolverTypeWrapper<TypeaheadSearchItem>;
@@ -5468,6 +5513,9 @@ export type ResolversParentTypes = {
   SetShareHighlightInput: SetShareHighlightInput;
   SetShareHighlightResult: ResolversParentTypes['SetShareHighlightError'] | ResolversParentTypes['SetShareHighlightSuccess'];
   SetShareHighlightSuccess: SetShareHighlightSuccess;
+  SetShowTranslatedError: SetShowTranslatedError;
+  SetShowTranslatedResult: ResolversParentTypes['SetShowTranslatedError'] | ResolversParentTypes['SetShowTranslatedSuccess'];
+  SetShowTranslatedSuccess: SetShowTranslatedSuccess;
   SetUserPersonalizationError: SetUserPersonalizationError;
   SetUserPersonalizationInput: SetUserPersonalizationInput;
   SetUserPersonalizationResult: ResolversParentTypes['SetUserPersonalizationError'] | ResolversParentTypes['SetUserPersonalizationSuccess'];
@@ -5700,12 +5748,16 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   savedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   shareInfo?: Resolver<Maybe<ResolversTypes['LinkShareInfo']>, ParentType, ContextType>;
   sharedComment?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  showTranslated?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   siteIcon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   siteName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   state?: Resolver<Maybe<ResolversTypes['ArticleSavingRequestStatus']>, ParentType, ContextType>;
   subscription?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  translatedContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  translatedLanguage?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  translationStatus?: Resolver<Maybe<ResolversTypes['TranslationStatus']>, ParentType, ContextType>;
   unsubHttpUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   unsubMailTo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
@@ -6975,6 +7027,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   setLabelsForHighlight?: Resolver<ResolversTypes['SetLabelsResult'], ParentType, ContextType, RequireFields<MutationSetLabelsForHighlightArgs, 'input'>>;
   setLinkArchived?: Resolver<ResolversTypes['ArchiveLinkResult'], ParentType, ContextType, RequireFields<MutationSetLinkArchivedArgs, 'input'>>;
   setRule?: Resolver<ResolversTypes['SetRuleResult'], ParentType, ContextType, RequireFields<MutationSetRuleArgs, 'input'>>;
+  setShowTranslated?: Resolver<ResolversTypes['SetShowTranslatedResult'], ParentType, ContextType, RequireFields<MutationSetShowTranslatedArgs, 'id' | 'showTranslated'>>;
   setUserPersonalization?: Resolver<ResolversTypes['SetUserPersonalizationResult'], ParentType, ContextType, RequireFields<MutationSetUserPersonalizationArgs, 'input'>>;
   setWebhook?: Resolver<ResolversTypes['SetWebhookResult'], ParentType, ContextType, RequireFields<MutationSetWebhookArgs, 'input'>>;
   subscribe?: Resolver<ResolversTypes['SubscribeResult'], ParentType, ContextType, RequireFields<MutationSubscribeArgs, 'input'>>;
@@ -7678,6 +7731,20 @@ export type SetShareHighlightSuccessResolvers<ContextType = ResolverContext, Par
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type SetShowTranslatedErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetShowTranslatedError'] = ResolversParentTypes['SetShowTranslatedError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['SetShowTranslatedErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SetShowTranslatedResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetShowTranslatedResult'] = ResolversParentTypes['SetShowTranslatedResult']> = {
+  __resolveType: TypeResolveFn<'SetShowTranslatedError' | 'SetShowTranslatedSuccess', ParentType, ContextType>;
+};
+
+export type SetShowTranslatedSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetShowTranslatedSuccess'] = ResolversParentTypes['SetShowTranslatedSuccess']> = {
+  article?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type SetUserPersonalizationErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetUserPersonalizationError'] = ResolversParentTypes['SetUserPersonalizationError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['SetUserPersonalizationErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -8143,6 +8210,7 @@ export type UserErrorResolvers<ContextType = ResolverContext, ParentType extends
 };
 
 export type UserPersonalizationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UserPersonalization'] = ResolversParentTypes['UserPersonalization']> = {
+  autoTranslate?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   digestConfig?: Resolver<Maybe<ResolversTypes['DigestConfig']>, ParentType, ContextType>;
   fields?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   fontFamily?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -8151,6 +8219,7 @@ export type UserPersonalizationResolvers<ContextType = ResolverContext, ParentTy
   libraryLayoutType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   librarySortOrder?: Resolver<Maybe<ResolversTypes['SortOrder']>, ParentType, ContextType>;
   margin?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  preferredLanguage?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   speechRate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   speechSecondaryVoice?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   speechVoice?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -8565,6 +8634,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   SetShareHighlightError?: SetShareHighlightErrorResolvers<ContextType>;
   SetShareHighlightResult?: SetShareHighlightResultResolvers<ContextType>;
   SetShareHighlightSuccess?: SetShareHighlightSuccessResolvers<ContextType>;
+  SetShowTranslatedError?: SetShowTranslatedErrorResolvers<ContextType>;
+  SetShowTranslatedResult?: SetShowTranslatedResultResolvers<ContextType>;
+  SetShowTranslatedSuccess?: SetShowTranslatedSuccessResolvers<ContextType>;
   SetUserPersonalizationError?: SetUserPersonalizationErrorResolvers<ContextType>;
   SetUserPersonalizationResult?: SetUserPersonalizationResultResolvers<ContextType>;
   SetUserPersonalizationSuccess?: SetUserPersonalizationSuccessResolvers<ContextType>;

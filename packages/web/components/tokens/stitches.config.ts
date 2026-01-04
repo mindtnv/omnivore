@@ -139,6 +139,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         highlight: '#FFD234',
         highlightText: '#3D3D3D',
         error: '#FA5E4A',
+        success: '#4CAF50',
 
         discover: '#7274d5',
 
@@ -301,6 +302,7 @@ const darkThemeSpec = {
     highlight: '#FFD234',
     highlightText: 'white',
     error: '#FA5E4A',
+    success: '#66BB6A',
 
     // Reader Colors
     readerBg: '#2A2A2A',

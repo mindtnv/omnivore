@@ -65,6 +65,12 @@ export class UserPersonalization {
   @Column('text', { nullable: true })
   speechVolume?: string | null
 
+  @Column('varchar', { length: 10, default: 'en' })
+  preferredLanguage?: string
+
+  @Column('boolean', { default: false })
+  autoTranslate?: boolean
+
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date
 

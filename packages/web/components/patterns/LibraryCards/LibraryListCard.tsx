@@ -8,6 +8,7 @@ import {
   AuthorInfoStyle,
   CardCheckbox,
   LibraryItemMetadata,
+  LibraryItemIndicators,
   MetaStyle,
   TitleStyle,
   MenuStyle,
@@ -318,8 +319,17 @@ export function LibraryListCardContent(
             right: -10,
             m: '5px',
             visibility: menuOpen ? 'visible' : 'hidden',
+            // Show on touch devices and devices without hover capability
             '@media (hover: none)': {
-              visibility: 'unset',
+              visibility: 'visible',
+            },
+            // Also show on devices that support both touch and hover (hybrid)
+            '@media (pointer: coarse)': {
+              visibility: 'visible',
+            },
+            // Show when parent card is hovered (for desktop)
+            '.linkedItemCard:hover &': {
+              visibility: 'visible',
             },
           }}
         >
@@ -354,6 +364,11 @@ export function LibraryListCardContent(
             {originText}
           </SpanBox>
         )}
+
+        {/* Indicators for language, AI summary, translation */}
+        <Box css={{ mt: '4px' }}>
+          <LibraryItemIndicators item={props.item} />
+        </Box>
 
         <HStack
           distribution="start"

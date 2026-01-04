@@ -21,6 +21,8 @@ type Result = {
 
 export type UserPersonalization = {
   digestConfig?: DigestConfig
+  preferredLanguage?: string
+  autoTranslate?: boolean
 }
 export type DigestConfig = {
   channels?: DigestChannel[]
@@ -61,6 +63,8 @@ export function useGetUserPersonalization(): UserPersonalizationResult {
             digestConfig {
               channels
             }
+            preferredLanguage
+            autoTranslate
           }
         }
         ... on GetUserPersonalizationError {
@@ -77,21 +81,35 @@ export function useGetUserPersonalization(): UserPersonalizationResult {
     !response ||
     !response.getUserPersonalization ||
     response.getUserPersonalization?.errorCodes ||
-    !response.getUserPersonalization?.userPersonalization ||
-    !isDigestConfig(
-      response.getUserPersonalization?.userPersonalization.digestConfig
-    )
+    !response.getUserPersonalization?.userPersonalization
+  ) {
+    return {
+      mutate,
+      isLoading: !error && !data,
+      userPersonalization: undefined,
+    }
+  }
+
+  const userPersonalization = response.getUserPersonalization.userPersonalization
+
+  // Validate digestConfig if present
+  if (
+    userPersonalization.digestConfig &&
+    !isDigestConfig(userPersonalization.digestConfig)
   ) {
     return {
       mutate,
       isLoading: false,
-      userPersonalization: undefined,
+      userPersonalization: {
+        ...userPersonalization,
+        digestConfig: undefined,
+      },
     }
   }
 
   return {
     mutate,
-    userPersonalization: response.getUserPersonalization?.userPersonalization,
+    userPersonalization,
     isLoading: !error && !data,
   }
 }

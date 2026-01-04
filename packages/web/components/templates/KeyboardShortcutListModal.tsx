@@ -4,6 +4,8 @@ import {
   ModalContent,
   ModalOverlay,
   ModalTitleBar,
+  ModalTitle,
+  VisuallyHidden,
 } from '../elements/ModalPrimitives'
 import type { KeyboardCommand } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { VStack, Box } from '../elements/LayoutPrimitives'
@@ -154,6 +156,9 @@ export function KeyboardShortcutListModal(
           event.preventDefault()
         }}
       >
+        <VisuallyHidden>
+          <ModalTitle>Keyboard Shortcuts</ModalTitle>
+        </VisuallyHidden>
         <VStack
           distribution="start"
           css={{

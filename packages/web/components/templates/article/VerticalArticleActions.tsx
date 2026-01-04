@@ -12,6 +12,7 @@ import { ReaderSettingsIcon } from '../../elements/icons/ReaderSettingsIcon'
 import { CircleUtilityMenuIcon } from '../../elements/icons/CircleUtilityMenuIcon'
 import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
 import { State } from '../../../lib/networking/fragments/articleFragment'
+import { LanguageToggle } from '../../elements/LanguageToggle'
 
 export type ArticleActionsMenuLayout = 'top' | 'side'
 
@@ -20,11 +21,27 @@ type ArticleActionsMenuProps = {
   layout: ArticleActionsMenuLayout
   showReaderDisplaySettings?: boolean
   articleActionHandler: (action: string, arg?: unknown) => void
+  // Translation props
+  showTranslation?: boolean
+  onToggleTranslation?: () => void
+  targetLanguage?: string | null
+}
+
+// Check if translation toggle should be shown
+const shouldShowTranslation = (article?: ArticleAttributes): boolean => {
+  if (!article) return false
+  return !!(
+    article.translatedContent ||
+    article.translationStatus === 'PROCESSING' ||
+    article.translationStatus === 'PENDING'
+  )
 }
 
 export function VerticalArticleActionsMenu(
   props: ArticleActionsMenuProps
 ): JSX.Element {
+  const showTranslationToggle = shouldShowTranslation(props.article) && props.onToggleTranslation
+
   return (
     <>
       <HStack
@@ -85,6 +102,19 @@ export function VerticalArticleActionsMenu(
         >
           <LabelIcon size={24} color={theme.colors.thHighContrast.toString()} />
         </Button>
+
+        {/* Language Toggle - shown when translation is available */}
+        {showTranslationToggle && props.article && (
+          <LanguageToggle
+            originalLanguage={props.article.language}
+            translatedLanguage={props.article.translatedLanguage}
+            targetLanguage={props.targetLanguage}
+            hasTranslation={!!props.article.translatedContent}
+            translationStatus={props.article.translationStatus}
+            showTranslation={props.showTranslation ?? false}
+            onToggle={props.onToggleTranslation!}
+          />
+        )}
 
         <Button
           title="Remove (#)"

@@ -70,10 +70,10 @@ export function getTheme(themeId: string) {
 }
 
 export function updateThemeLocally(themeId: string): void {
-  if (typeof window !== 'undefined') {
-    window.localStorage.setItem(themeKey, themeId)
-  }
+  // Note: localStorage is now managed by usePersistedState in useCurrentTheme.tsx
+  // This function only updates DOM classes
 
+  // Remove stitches theme classes
   document.documentElement.classList.remove(
     ...Object.keys(LEGACY_THEMES),
     sepiaTheme,
@@ -82,7 +82,23 @@ export function updateThemeLocally(themeId: string): void {
     blackTheme,
     ...Object.keys(ThemeId)
   )
+
+  // Remove CSS theme classes used by layout.tsx
+  document.documentElement.classList.remove(
+    'theme-light',
+    'theme-dark',
+    'theme-sepia',
+    'theme-apollo',
+    'theme-black'
+  )
+
+  // Add stitches theme class
   document.documentElement.classList.add(getTheme(themeId))
+
+  // Add CSS theme class for layout.tsx styles
+  const visibleTheme = visibleThemeId(themeId)
+  const cssThemeClass = `theme-${visibleTheme.toLowerCase()}`
+  document.documentElement.classList.add(cssThemeClass)
 }
 
 export function currentThemeName(): string {
@@ -106,7 +122,20 @@ export function getCurrentLocalTheme(): ThemeId | undefined {
     return undefined
   }
 
-  const str = window.localStorage.getItem(themeKey)
+  let str = window.localStorage.getItem(themeKey)
+
+  // Handle JSON-encoded values from usePersistedState
+  if (str) {
+    try {
+      const parsed = JSON.parse(str)
+      if (typeof parsed === 'string') {
+        str = parsed
+      }
+    } catch {
+      // Value is not JSON-encoded, use as-is
+    }
+  }
+
   if (str && Object.values(ThemeId).includes(str as ThemeId)) {
     return str as ThemeId
   }
@@ -123,13 +152,27 @@ export function applyStoredTheme(): ThemeId | undefined {
     return undefined
   }
 
-  const theme = (window.themeKey || window.localStorage.getItem(themeKey)) as
-    | ThemeId
-    | undefined
-  if (theme && Object.values(ThemeId).includes(theme)) {
-    updateThemeLocally(theme)
+  // Always read from localStorage as source of truth
+  // Note: window.themeKey is only set on initial page load and never updated
+  let theme = window.localStorage.getItem(themeKey) as string | undefined
+
+  // Handle JSON-encoded values from usePersistedState
+  if (theme) {
+    try {
+      const parsed = JSON.parse(theme)
+      if (typeof parsed === 'string') {
+        theme = parsed
+      }
+    } catch {
+      // Value is not JSON-encoded, use as-is
+    }
   }
-  return theme
+
+  if (theme && Object.values(ThemeId).includes(theme as ThemeId)) {
+    updateThemeLocally(theme)
+    return theme as ThemeId
+  }
+  return undefined
 }
 
 export function isDarkTheme(): boolean {

@@ -4,7 +4,7 @@ import { Button } from '../../elements/Button'
 import { Box, SpanBox } from '../../elements/LayoutPrimitives'
 import { styled, theme } from '../../tokens/stitches.config'
 import { ReaderSettings } from '../../../lib/hooks/useReaderSettings'
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'
 import { NotebookIcon } from '../../elements/icons/NotebookIcon'
 import { TrashIcon } from '../../elements/icons/TrashIcon'
@@ -12,6 +12,7 @@ import { LabelIcon } from '../../elements/icons/LabelIcon'
 import { EditInfoIcon } from '../../elements/icons/EditInfoIcon'
 import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
 import { State } from '../../../lib/networking/fragments/articleFragment'
+import { LanguageToggle } from '../../elements/LanguageToggle'
 
 export type ArticleActionsMenuLayout = 'top' | 'side'
 
@@ -21,6 +22,10 @@ type ArticleActionsMenuProps = {
   showReaderDisplaySettings?: boolean
   readerSettings: ReaderSettings
   articleActionHandler: (action: string, arg?: unknown) => void
+  // Translation props
+  showTranslation?: boolean
+  onToggleTranslation?: () => void
+  targetLanguage?: string | null
 }
 
 type MenuSeparatorProps = {
@@ -37,10 +42,34 @@ const MenuSeparator = (props: MenuSeparatorProps): JSX.Element => {
   return props.layout == 'side' ? <LineSeparator /> : <></>
 }
 
+// Check if translation toggle should be shown
+const shouldShowTranslation = (article?: ArticleAttributes): boolean => {
+  if (!article) return false
+  return !!(
+    article.translatedContent ||
+    article.translationStatus === 'PROCESSING' ||
+    article.translationStatus === 'PENDING'
+  )
+}
+
 export function ArticleActionsMenu(
   props: ArticleActionsMenuProps
 ): JSX.Element {
   const displaySettingsButtonRef = useRef<HTMLElement | null>(null)
+  const showTranslationToggle = shouldShowTranslation(props.article) && props.onToggleTranslation
+
+  // Use mounted state to prevent hydration mismatch
+  // Server and client may have different values for article and theme
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Don't render during SSR to avoid hydration mismatch
+  if (!mounted) {
+    return <></>
+  }
 
   return (
     <>
@@ -54,6 +83,7 @@ export function ArticleActionsMenu(
           paddingTop: '6px',
         }}
       >
+        {/* Labels button - desktop only (sidebar has its own) */}
         <SpanBox
           css={{
             display: 'flex',
@@ -97,6 +127,7 @@ export function ArticleActionsMenu(
           )}
         </SpanBox>
 
+        {/* Labels button - mobile only */}
         <Button
           title="Edit labels (l)"
           style="articleActionIcon"
@@ -112,6 +143,7 @@ export function ArticleActionsMenu(
           <LabelIcon size={24} color={theme.colors.thHighContrast.toString()} />
         </Button>
 
+        {/* Notebook button */}
         <Button
           title="View notebook (t)"
           style="articleActionIcon"
@@ -127,6 +159,7 @@ export function ArticleActionsMenu(
           />
         </Button>
 
+        {/* Edit info button - desktop only */}
         <Button
           title="Edit info (i)"
           style="articleActionIcon"
@@ -145,8 +178,22 @@ export function ArticleActionsMenu(
           />
         </Button>
 
+        {/* Language Toggle - shown when translation is available */}
+        {showTranslationToggle && props.article && (
+          <LanguageToggle
+            originalLanguage={props.article.language}
+            translatedLanguage={props.article.translatedLanguage}
+            targetLanguage={props.targetLanguage}
+            hasTranslation={!!props.article.translatedContent}
+            translationStatus={props.article.translationStatus}
+            showTranslation={props.showTranslation ?? false}
+            onToggle={props.onToggleTranslation!}
+          />
+        )}
+
         <MenuSeparator layout={props.layout} />
 
+        {/* Delete button - desktop only */}
         <Button
           title="Remove (#)"
           style="articleActionIcon"
@@ -164,6 +211,7 @@ export function ArticleActionsMenu(
           <TrashIcon size={24} color={theme.colors.thHighContrast.toString()} />
         </Button>
 
+        {/* Archive/Unarchive button */}
         {props.article?.state !== State.ARCHIVED ? (
           <Button
             title="Archive (e)"
@@ -184,6 +232,10 @@ export function ArticleActionsMenu(
             title="Unarchive (e)"
             style="articleActionIcon"
             onClick={() => props.articleActionHandler('unarchive')}
+            css={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
           >
             <UnarchiveIcon
               size={24}

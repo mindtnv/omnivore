@@ -13,7 +13,6 @@ import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
 import { showSuccessToast } from '../../../lib/toastHelpers'
 import { ReaderSettings } from '../../../lib/hooks/useReaderSettings'
 import { useCallback, useState } from 'react'
-import { updateTheme } from '../../../lib/themeUpdater'
 import { LineHeightIncreaseIcon } from '../../elements/images/LineHeightIncreaseIconProps'
 import { LineHeightDecreaseIcon } from '../../elements/images/LineHeightDecreaseIcon'
 import * as Switch from '@radix-ui/react-switch'
@@ -625,8 +624,7 @@ export function ThemeSelector(): JSX.Element {
           distribution="center"
           css={{ ml: 'auto', gap: '5px', mt: '10px', cursor: 'pointer' }}
           onClick={() => {
-            console.log('clicked use system')
-            updateTheme(ThemeId.System)
+            setCurrentTheme(ThemeId.System)
           }}
         >
           <Label

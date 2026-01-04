@@ -31,8 +31,10 @@ import {
   useArchiveItem,
   useDeleteItem,
   useGetLibraryItemContent,
+  useSetShowTranslated,
   useUpdateItemReadStatus,
 } from '../../../lib/networking/library_items/useLibraryItems'
+import { useGetUserPersonalization } from '../../../lib/networking/queries/useGetUserPersonalization'
 import {
   CreateHighlightInput,
   useCreateHighlight,
@@ -67,6 +69,7 @@ export default function Reader(): JSX.Element {
   const [showEditModal, setShowEditModal] = useState(false)
   const [showHighlightsModal, setShowHighlightsModal] = useState(false)
   const [useNativePdfReader, setUseNativePdfReader] = useState(false)
+  const [showTranslation, setShowTranslation] = useState(false)
   const { data: viewerData } = useGetViewer()
   const readerSettings = useReaderSettings()
   const archiveItem = useArchiveItem()
@@ -76,6 +79,8 @@ export default function Reader(): JSX.Element {
   const deleteHighlight = useDeleteHighlight()
   const updateHighlight = useUpdateHighlight()
   const mergeHighlight = useMergeHighlight()
+  const setShowTranslatedMutation = useSetShowTranslated()
+  const { userPersonalization } = useGetUserPersonalization()
 
   const { data: libraryItem, error: articleFetchError } =
     useGetLibraryItemContent(
@@ -88,6 +93,15 @@ export default function Reader(): JSX.Element {
       labels: libraryItem?.labels ?? [],
     })
   }, [libraryItem])
+
+  // Initialize showTranslation from article's saved preference (only on first load)
+  const [isInitialized, setIsInitialized] = useState(false)
+  useEffect(() => {
+    if (!isInitialized && libraryItem?.showTranslated !== undefined) {
+      setShowTranslation(libraryItem.showTranslated)
+      setIsInitialized(true)
+    }
+  }, [libraryItem?.showTranslated, isInitialized])
 
   const goNextOrHome = useCallback(() => {
     const navReturn = window.localStorage.getItem('nav-return')
@@ -104,6 +118,18 @@ export default function Reader(): JSX.Element {
     const query = window.sessionStorage.getItem('q')
     router.push(`/home?${query}`)
   }, [router, viewerData, libraryItem])
+
+  const handleToggleTranslation = useCallback(() => {
+    if (!libraryItem) return
+    const newValue = !showTranslation
+    setShowTranslation(newValue)
+    // Persist the preference to the server
+    setShowTranslatedMutation.mutate({
+      itemId: libraryItem.id,
+      slug: libraryItem.slug,
+      showTranslated: newValue,
+    })
+  }, [libraryItem, showTranslation, setShowTranslatedMutation])
 
   const actionHandler = useCallback(
     async (action: string, arg?: unknown) => {
@@ -471,6 +497,9 @@ export default function Reader(): JSX.Element {
           showReaderDisplaySettings={libraryItem?.contentReader != 'PDF'}
           readerSettings={readerSettings}
           articleActionHandler={actionHandler}
+          showTranslation={showTranslation}
+          onToggleTranslation={handleToggleTranslation}
+          targetLanguage={userPersonalization?.preferredLanguage}
         />
       }
       alwaysDisplayToolbar={libraryItem?.contentReader == 'PDF'}
@@ -498,6 +527,9 @@ export default function Reader(): JSX.Element {
           layout="top"
           showReaderDisplaySettings={libraryItem?.contentReader != 'PDF'}
           articleActionHandler={actionHandler}
+          showTranslation={showTranslation}
+          onToggleTranslation={handleToggleTranslation}
+          targetLanguage={userPersonalization?.preferredLanguage}
         />
       </ReaderHeader>
 
@@ -524,6 +556,9 @@ export default function Reader(): JSX.Element {
             readerSettings={readerSettings}
             showReaderDisplaySettings={true}
             articleActionHandler={actionHandler}
+            showTranslation={showTranslation}
+            onToggleTranslation={handleToggleTranslation}
+            targetLanguage={userPersonalization?.preferredLanguage}
           />
         ) : null}
       </VStack>
@@ -583,6 +618,7 @@ export default function Reader(): JSX.Element {
               textDirection={
                 libraryItem.directionality ?? readerSettings.textDirection
               }
+              showTranslation={showTranslation}
               articleMutations={{
                 createHighlightMutation: async (
                   input: CreateHighlightInput

@@ -1,4 +1,5 @@
-import { loadSummarizationChain } from 'langchain/chains'
+import { ChatPromptTemplate } from '@langchain/core/prompts'
+import { StringOutputParser } from '@langchain/core/output_parsers'
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { AISummary } from '../entity/AISummary'
 import { LibraryItemState } from '../entity/library_item'
@@ -13,9 +14,32 @@ export interface AISummarizeJobData {
   userId: string
   promptId?: string
   libraryItemId: string
+  language?: string // User's preferred language for summary
 }
 
 export const AI_SUMMARIZE_JOB_NAME = 'ai-summary-job'
+
+// Prompt template for summarization with language support
+const createSummaryPrompt = (language?: string) => {
+  const languageInstruction = language
+    ? `Write the summary in ${language} language.`
+    : 'Write the summary in the same language as the content.'
+
+  return ChatPromptTemplate.fromTemplate(`
+You are a helpful assistant that creates concise summaries of articles.
+
+${languageInstruction}
+
+Create a clear, informative summary of the following article content in 2-4 sentences.
+Focus on the main points and key takeaways.
+Do not include any preamble like "Here is a summary" or "This article discusses".
+Just provide the summary directly.
+
+Article content:
+{content}
+
+Summary:`)
+}
 
 export const aiSummarize = async (jobData: AISummarizeJobData) => {
   try {
@@ -57,26 +81,45 @@ export const aiSummarize = async (jobData: AISummarizeJobData) => {
       return
     }
 
-    const textSplitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 2000,
-    })
-
     const document = htmlToMarkdown(libraryItem.readableContent)
-    const docs = await textSplitter.createDocuments([document])
-    const chain = loadSummarizationChain(llm, {
-      type: 'map_reduce', // you can choose from map_reduce, stuff or refine
-      verbose: true, // to view the steps in the console
-    })
-    const response = await chain.call({
-      input_documents: docs,
+
+    // Skip summarization for short documents (less than 500 characters)
+    // Short content doesn't need a summary - it can be read quickly as-is
+    const MIN_CONTENT_LENGTH = 500
+    if (document.length < MIN_CONTENT_LENGTH) {
+      logger.info(
+        `Skipping AI summary for short document (${document.length} chars < ${MIN_CONTENT_LENGTH}): ${jobData.libraryItemId}`
+      )
+      return
+    }
+
+    const textSplitter = new RecursiveCharacterTextSplitter({
+      chunkSize: 8000,
+      chunkOverlap: 200,
     })
 
-    if (typeof response.text !== 'string') {
+    const docs = await textSplitter.splitText(document)
+
+    // If content is short enough, summarize directly
+    // If long, summarize first chunk (most important content is usually at the beginning)
+    const contentToSummarize = docs.length > 0 ? docs[0] : document
+
+    const prompt = createSummaryPrompt(jobData.language)
+    const chain = prompt.pipe(llm).pipe(new StringOutputParser())
+
+    const summary = await chain.invoke({
+      content: contentToSummarize,
+    })
+
+    if (!summary || typeof summary !== 'string') {
       logger.error(`AI summary did not return text`)
       return
     }
 
-    const summary = response.text
+    logger.info(
+      `Generated summary for item ${jobData.libraryItemId} in language: ${jobData.language || 'auto'}`
+    )
+
     const _ = await authTrx(
       async (t) => {
         return t.getRepository(AISummary).save({
@@ -84,7 +127,7 @@ export const aiSummarize = async (jobData: AISummarizeJobData) => {
           libraryItem: { id: jobData.libraryItemId },
           title: libraryItem.title,
           slug: libraryItem.slug,
-          summary: summary,
+          summary: summary.trim(),
         })
       },
       {

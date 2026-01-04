@@ -714,8 +714,79 @@ export const htmlToMarkdown = (html: string) => {
 export const markdownToHtml = (markdown: string) => {
   const converter = new showdown.Converter({
     backslashEscapesHTMLTags: true,
+    tables: true,
+    tasklists: true,
+    strikethrough: true,
+    ghCodeBlocks: true,
+    emoji: true,
+    underline: true,
+    simpleLineBreaks: true,
   })
   return converter.makeHtml(markdown)
+}
+
+// Post-process HTML: syntax highlighting and anchor indices
+export const postProcessHtml = (html: string): string => {
+  try {
+    const { document } = parseHTML(html)
+    const body = document.body
+
+    if (!body) return html
+
+    // Apply syntax highlighting to code blocks
+    const codeBlocks = body.querySelectorAll('pre code, code')
+    codeBlocks.forEach((e) => {
+      if (!e.textContent) return
+
+      // Skip if already highlighted
+      if (e.className && e.className.includes('hljs')) {
+        return
+      }
+
+      try {
+        const att = hljs.highlightAuto(e.textContent)
+        const langClass =
+          `hljs language-${att.language}` +
+          (att.second_best?.language
+            ? ` language-${att.second_best?.language}`
+            : '')
+        e.setAttribute('class', langClass)
+        e.innerHTML = att.value
+      } catch (err) {
+        // Ignore highlighting errors
+      }
+    })
+
+    // Add anchor indices for navigation (traverse body children only)
+    const nodesToVisitStack: HTMLElement[] = []
+    // Start with body's direct children
+    Array.from(body.children).forEach((child) => {
+      nodesToVisitStack.push(child as HTMLElement)
+    })
+
+    const visitedNodeList: HTMLElement[] = []
+
+    while (nodesToVisitStack.length > 0) {
+      const currentNode = nodesToVisitStack.shift()
+      if (!currentNode || currentNode.nodeType !== 1) {
+        continue
+      }
+      visitedNodeList.push(currentNode)
+      Array.from(currentNode.children).forEach((child) => {
+        nodesToVisitStack.push(child as HTMLElement)
+      })
+    }
+
+    visitedNodeList.forEach((node, index) => {
+      node.setAttribute('data-omnivore-anchor-idx', (index + 1).toString())
+    })
+
+    // Return only the body's inner HTML (the actual content)
+    return body.innerHTML || html
+  } catch (err) {
+    logger.error('Error post-processing HTML:', err)
+    return html
+  }
 }
 
 export const getDistillerResult = async (

@@ -167,6 +167,18 @@ export class LibraryItem {
   @Column('enum', { enum: DirectionalityType, default: DirectionalityType.LTR })
   directionality!: DirectionalityType
 
+  @Column('text', { nullable: true })
+  translatedContent?: string | null
+
+  @Column('varchar', { length: 10, nullable: true })
+  translatedLanguage?: string | null
+
+  @Column('varchar', { length: 20, nullable: true })
+  translationStatus?: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | null
+
+  @Column('boolean', { default: false })
+  showTranslated?: boolean
+
   @OneToMany(() => Highlight, (highlight) => highlight.libraryItem, {
     cascade: true,
   })

@@ -8,9 +8,55 @@ import {
   enqueueProcessYouTubeVideo,
   enqueueThumbnailJob,
   enqueueTriggerRuleJob,
+  enqueueTranslateContentJob,
 } from './utils/createTask'
+import { findUserPersonalization } from './services/user_personalization'
 import { logger } from './utils/logger'
 import { isYouTubeVideoURL } from './utils/youtube'
+
+// Normalize language to lowercase ISO code for comparison
+const normalizeLanguage = (lang: string | null | undefined): string | null => {
+  if (!lang) return null
+
+  const langLower = lang.toLowerCase().trim()
+
+  // Map common language names to ISO codes
+  const languageMap: Record<string, string> = {
+    english: 'en',
+    russian: 'ru',
+    german: 'de',
+    french: 'fr',
+    spanish: 'es',
+    italian: 'it',
+    portuguese: 'pt',
+    chinese: 'zh',
+    japanese: 'ja',
+    korean: 'ko',
+    arabic: 'ar',
+    dutch: 'nl',
+    polish: 'pl',
+    ukrainian: 'uk',
+    turkish: 'tr',
+    swedish: 'sv',
+    norwegian: 'no',
+    danish: 'da',
+    finnish: 'fi',
+    czech: 'cs',
+    hungarian: 'hu',
+    romanian: 'ro',
+    bulgarian: 'bg',
+    greek: 'el',
+    hebrew: 'he',
+    thai: 'th',
+    vietnamese: 'vi',
+    indonesian: 'id',
+    malay: 'ms',
+    hindi: 'hi',
+  }
+
+  // Return mapped code or lowercase original
+  return languageMap[langLower] || langLower
+}
 
 export type EntityEvent = { id: string }
 
@@ -59,11 +105,57 @@ export const createPubSubClient = (): PubsubClient => {
       })
 
       if (type === EntityType.ITEM) {
+        // Get user personalization for language preference
+        let userPreferredLanguage: string | undefined
+        try {
+          const userPersonalization = await findUserPersonalization(userId)
+          userPreferredLanguage = userPersonalization?.preferredLanguage || undefined
+        } catch (err) {
+          logger.error('Error getting user personalization for summary:', err)
+        }
+
         // Trigger AI summarization for new items
         await enqueueAISummarizeJob({
           userId,
           libraryItemId: data.id,
+          language: userPreferredLanguage,
         })
+
+        // Trigger translation if user has auto-translate enabled
+        const hasItemLanguage = (
+          data: any
+        ): data is { itemLanguage: string | null } => {
+          return 'itemLanguage' in data
+        }
+
+        if (hasItemLanguage(data) && data.itemLanguage) {
+          try {
+            const userPersonalization = await findUserPersonalization(userId)
+            const normalizedItemLang = normalizeLanguage(data.itemLanguage)
+            const normalizedUserLang = normalizeLanguage(userPersonalization?.preferredLanguage)
+
+            if (
+              userPersonalization?.autoTranslate &&
+              normalizedUserLang &&
+              normalizedItemLang !== normalizedUserLang
+            ) {
+              await enqueueTranslateContentJob({
+                userId,
+                libraryItemId: data.id,
+                targetLanguage: userPersonalization.preferredLanguage!, // We already checked normalizedUserLang is defined
+              })
+              logger.info(
+                `Queued translation for item ${data.id} from ${normalizedItemLang} to ${normalizedUserLang}`
+              )
+            } else if (normalizedItemLang === normalizedUserLang) {
+              logger.info(
+                `Skipping translation for item ${data.id}: article language (${normalizedItemLang}) matches user preference (${normalizedUserLang})`
+              )
+            }
+          } catch (err) {
+            logger.error('Error checking translation settings:', err)
+          }
+        }
 
         const isItemWithURL = (data: any): data is { originalUrl: string } => {
           return 'originalUrl' in data

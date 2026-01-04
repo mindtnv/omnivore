@@ -7,6 +7,8 @@ import { NewsletterFlairIcon } from '../../elements/icons/NewsletterFlairIcon'
 import { FeedFlairIcon } from '../../elements/icons/FeedFlairIcon'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { timeAgo } from '../../../lib/textFormatting'
+import { Globe, Sparkle, Translate, CircleNotch } from '@phosphor-icons/react'
+import { styled, keyframes, theme } from '../../tokens/stitches.config'
 
 export const MenuStyle = {
   display: 'flex',
@@ -176,5 +178,163 @@ export function CardCheckbox(props: CardCheckBoxProps): JSX.Element {
         }}
       ></input>
     </form>
+  )
+}
+
+// Indicator badge styles
+const spin = keyframes({
+  '0%': { transform: 'rotate(0deg)' },
+  '100%': { transform: 'rotate(360deg)' },
+})
+
+const IndicatorBadge = styled('span', {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '3px',
+  padding: '2px 6px',
+  borderRadius: '4px',
+  fontSize: '10px',
+  fontWeight: '500',
+  fontFamily: '$display',
+  lineHeight: 1,
+  whiteSpace: 'nowrap',
+  variants: {
+    variant: {
+      language: {
+        backgroundColor: '$thBackground4',
+        color: '$thTextSubtle2',
+      },
+      ai: {
+        backgroundColor: 'rgba(147, 51, 234, 0.1)',
+        color: 'rgb(147, 51, 234)',
+      },
+      translation: {
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        color: 'rgb(59, 130, 246)',
+      },
+      translationProcessing: {
+        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+        color: 'rgb(245, 158, 11)',
+      },
+    },
+  },
+})
+
+const SpinningIcon = styled(CircleNotch, {
+  animation: `${spin} 1s linear infinite`,
+})
+
+// Get 2-letter language code from full language name
+const getLanguageCode = (language?: string | null): string => {
+  if (!language) return ''
+
+  const languageMap: Record<string, string> = {
+    english: 'EN',
+    russian: 'RU',
+    german: 'DE',
+    french: 'FR',
+    spanish: 'ES',
+    italian: 'IT',
+    portuguese: 'PT',
+    chinese: 'ZH',
+    japanese: 'JA',
+    korean: 'KO',
+    arabic: 'AR',
+    dutch: 'NL',
+    polish: 'PL',
+    ukrainian: 'UK',
+    turkish: 'TR',
+    swedish: 'SV',
+    norwegian: 'NO',
+    danish: 'DA',
+    finnish: 'FI',
+    czech: 'CS',
+    hungarian: 'HU',
+    romanian: 'RO',
+    bulgarian: 'BG',
+    greek: 'EL',
+    hebrew: 'HE',
+    thai: 'TH',
+    vietnamese: 'VI',
+    indonesian: 'ID',
+    malay: 'MS',
+    hindi: 'HI',
+  }
+
+  const lowerLang = language.toLowerCase()
+  if (languageMap[lowerLang]) {
+    return languageMap[lowerLang]
+  }
+
+  if (language.length === 2) {
+    return language.toUpperCase()
+  }
+
+  return language.slice(0, 2).toUpperCase()
+}
+
+type LibraryItemIndicatorsProps = {
+  item: LibraryItemNode
+}
+
+export function LibraryItemIndicators(
+  props: LibraryItemIndicatorsProps
+): JSX.Element | null {
+  const { item } = props
+  const hasLanguage = !!item.language
+  const hasAiSummary = !!item.aiSummary
+  const hasTranslation = item.translationStatus === 'COMPLETED'
+  const isTranslating =
+    item.translationStatus === 'PROCESSING' ||
+    item.translationStatus === 'PENDING'
+
+  // Don't render if no indicators to show
+  if (!hasLanguage && !hasAiSummary && !hasTranslation && !isTranslating) {
+    return null
+  }
+
+  const languageCode = getLanguageCode(item.language)
+  const translatedCode = getLanguageCode(item.translatedLanguage)
+
+  return (
+    <HStack css={{ gap: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
+      {/* Language indicator */}
+      {hasLanguage && languageCode && (
+        <IndicatorBadge
+          variant="language"
+          title={`Original language: ${item.language}`}
+        >
+          <Globe size={10} weight="bold" />
+          {languageCode}
+        </IndicatorBadge>
+      )}
+
+      {/* AI Summary indicator */}
+      {hasAiSummary && (
+        <IndicatorBadge variant="ai" title="AI Summary available">
+          <Sparkle size={10} weight="fill" />
+          AI
+        </IndicatorBadge>
+      )}
+
+      {/* Translation available indicator */}
+      {hasTranslation && translatedCode && (
+        <IndicatorBadge
+          variant="translation"
+          title={`Translated to ${item.translatedLanguage}`}
+        >
+          <Translate size={10} weight="bold" />
+          {translatedCode}
+        </IndicatorBadge>
+      )}
+
+      {/* Translation in progress indicator */}
+      {isTranslating && (
+        <IndicatorBadge variant="translationProcessing" title="Translation in progress">
+          <SpinningIcon size={10} weight="bold" />
+          ...
+        </IndicatorBadge>
+      )}
+    </HStack>
   )
 }

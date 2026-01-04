@@ -129,12 +129,16 @@ type Article {
   savedByViewer: Boolean
   shareInfo: LinkShareInfo
   sharedComment: String
+  showTranslated: Boolean!
   siteIcon: String
   siteName: String
   slug: String!
   state: ArticleSavingRequestStatus
   subscription: String
   title: String!
+  translatedContent: String
+  translatedLanguage: String
+  translationStatus: TranslationStatus
   unsubHttpUrl: String
   unsubMailTo: String
   updatedAt: Date
@@ -1714,6 +1718,7 @@ type Mutation {
   setLabelsForHighlight(input: SetLabelsForHighlightInput!): SetLabelsResult!
   setLinkArchived(input: ArchiveLinkInput!): ArchiveLinkResult!
   setRule(input: SetRuleInput!): SetRuleResult!
+  setShowTranslated(id: ID!, showTranslated: Boolean!): SetShowTranslatedResult!
   setUserPersonalization(input: SetUserPersonalizationInput!): SetUserPersonalizationResult!
   setWebhook(input: SetWebhookInput!): SetWebhookResult!
   subscribe(input: SubscribeInput!): SubscribeResult!
@@ -2689,6 +2694,22 @@ type SetShareHighlightSuccess {
   highlight: Highlight!
 }
 
+type SetShowTranslatedError {
+  errorCodes: [SetShowTranslatedErrorCode!]!
+}
+
+enum SetShowTranslatedErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union SetShowTranslatedResult = SetShowTranslatedError | SetShowTranslatedSuccess
+
+type SetShowTranslatedSuccess {
+  article: Article!
+}
+
 type SetUserPersonalizationError {
   errorCodes: [SetUserPersonalizationErrorCode!]!
 }
@@ -2699,6 +2720,7 @@ enum SetUserPersonalizationErrorCode {
 }
 
 input SetUserPersonalizationInput {
+  autoTranslate: Boolean
   digestConfig: DigestConfigInput
   fields: JSON
   fontFamily: String
@@ -2706,6 +2728,7 @@ input SetUserPersonalizationInput {
   libraryLayoutType: String
   librarySortOrder: SortOrder
   margin: Int
+  preferredLanguage: String
   speechRate: String
   speechSecondaryVoice: String
   speechVoice: String
@@ -2910,6 +2933,13 @@ enum TaskState {
   PENDING
   RUNNING
   SUCCEEDED
+}
+
+enum TranslationStatus {
+  COMPLETED
+  FAILED
+  PENDING
+  PROCESSING
 }
 
 type TypeaheadSearchError {
@@ -3420,6 +3450,7 @@ enum UserErrorCode {
 }
 
 type UserPersonalization {
+  autoTranslate: Boolean
   digestConfig: DigestConfig
   fields: JSON
   fontFamily: String
@@ -3428,6 +3459,7 @@ type UserPersonalization {
   libraryLayoutType: String
   librarySortOrder: SortOrder
   margin: Int
+  preferredLanguage: String
   speechRate: String
   speechSecondaryVoice: String
   speechVoice: String

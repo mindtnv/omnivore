@@ -21,6 +21,7 @@ import {
   GQL_SAVE_URL,
   GQL_SET_LABELS,
   GQL_SET_LINK_ARCHIVED,
+  GQL_SET_SHOW_TRANSLATED,
   GQL_UPDATE_LIBRARY_ITEM,
 } from './gql'
 
@@ -767,6 +768,80 @@ export const useMoveItemToFolder = () => {
   })
 }
 
+type SetShowTranslatedResult = {
+  article?: { id: string; showTranslated: boolean }
+  errorCodes?: string[]
+}
+
+type SetShowTranslatedData = {
+  setShowTranslated: SetShowTranslatedResult
+}
+
+export const useSetShowTranslated = () => {
+  const queryClient = useQueryClient()
+  const setShowTranslated = async (variables: {
+    itemId: string
+    slug: string | undefined
+    showTranslated: boolean
+  }) => {
+    const result = (await gqlFetcher(GQL_SET_SHOW_TRANSLATED, {
+      id: variables.itemId,
+      showTranslated: variables.showTranslated,
+    })) as SetShowTranslatedData
+    if (result.setShowTranslated.errorCodes?.length) {
+      throw new Error(result.setShowTranslated.errorCodes[0])
+    }
+    return result.setShowTranslated.article
+  }
+  return useMutation({
+    mutationFn: setShowTranslated,
+    onMutate: async (variables: {
+      itemId: string
+      slug: string | undefined
+      showTranslated: boolean
+    }) => {
+      await queryClient.cancelQueries({ queryKey: ['libraryItems'] })
+      const previousState = {
+        previousDetail: queryClient.getQueryData([
+          'libraryItem',
+          variables.slug,
+        ]),
+        previousItems: queryClient.getQueryData(['libraryItems']),
+      }
+      updateItemPropertyInCache(
+        queryClient,
+        variables.itemId,
+        variables.slug,
+        'showTranslated',
+        variables.showTranslated
+      )
+      return previousState
+    },
+    onError: (error, variables, context) => {
+      if (context?.previousItems) {
+        queryClient.setQueryData(['libraryItems'], context.previousItems)
+      }
+      if (context?.previousDetail) {
+        queryClient.setQueryData(
+          ['libraryItem', variables.slug],
+          context.previousDetail
+        )
+      }
+    },
+    onSettled: async (data, error, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['libraryItems'],
+      })
+      // Also invalidate the specific item query so changes persist on reload
+      if (variables.slug) {
+        await queryClient.invalidateQueries({
+          queryKey: ['libraryItem', variables.slug],
+        })
+      }
+    },
+  })
+}
+
 export const useSetItemLabels = () => {
   const queryClient = useQueryClient()
   const setLabels = async (variables: {
@@ -993,6 +1068,11 @@ export type ArticleAttributes = {
   state?: State
   directionality?: TextDirection
   recommendations?: Recommendation[]
+  language?: string | null
+  translatedContent?: string | null
+  translatedLanguage?: string | null
+  translationStatus?: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | null
+  showTranslated?: boolean
 }
 
 type MoveToFolderData = {
@@ -1099,6 +1179,9 @@ export type LibraryItemNode = {
   savedAt?: string
   wordsCount?: number
   aiSummary?: string
+  language?: string | null
+  translationStatus?: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | null
+  translatedLanguage?: string | null
   recommendations?: Recommendation[]
   highlights?: Highlight[]
   highlightsCount?: number

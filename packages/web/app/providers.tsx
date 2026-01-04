@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode, useState } from 'react'
+import { ReactNode, useState, useEffect } from 'react'
 import { QueryClient } from '@tanstack/react-query'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
@@ -19,11 +19,10 @@ import {
   KBarResultsComponents,
   searchStyle,
 } from '../components/elements/KBar'
-import { updateTheme } from '../lib/themeUpdater'
+import { updateTheme, applyStoredTheme } from '../lib/themeUpdater'
 import { ThemeId } from '../components/tokens/stitches.config'
 import { GoogleReCaptchaProvider } from '@google-recaptcha/react'
 import { Toaster } from 'react-hot-toast'
-import { IdProvider } from '@radix-ui/react-id'
 import TopBarProgress from 'react-topbar-progress-indicator'
 
 TopBarProgress.config({
@@ -96,6 +95,19 @@ export function Providers({ children }: { children: ReactNode }) {
     })
   )
 
+  // Apply stored theme and hide initial loader once React has mounted
+  useEffect(() => {
+    // Apply Stitches theme class from localStorage
+    // This ensures theme is consistent after page navigation
+    applyStoredTheme()
+
+    // Show content now that theme is applied
+    document.body.classList.add('app-ready')
+    return () => {
+      document.body.classList.remove('app-ready')
+    }
+  }, [])
+
   return (
     <ConditionalCaptchaProvider>
       <Toaster />
@@ -112,7 +124,7 @@ export function Providers({ children }: { children: ReactNode }) {
               </KBarAnimator>
             </KBarPositioner>
           </KBarPortal>
-          <IdProvider>{children}</IdProvider>
+          {children}
         </KBarProvider>
       </PersistQueryClientProvider>
     </ConditionalCaptchaProvider>

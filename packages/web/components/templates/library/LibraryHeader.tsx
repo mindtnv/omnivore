@@ -256,6 +256,7 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
           <HStack
             alignment="center"
             distribution="center"
+            title="Click to select multiple items for bulk actions"
             css={{
               width: '53px',
               height: '100%',
@@ -263,11 +264,24 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
               bg: props.multiSelectMode !== 'off' ? '$ctaBlue' : 'transparent',
               borderTopLeftRadius: '6px',
               borderBottomLeftRadius: '6px',
+              cursor: 'pointer',
               '--checkbox-color': 'var(--colors-thLibraryMultiselectCheckbox)',
               '&:hover': {
                 bg: '$thLibraryMultiselectHover',
                 '--checkbox-color':
                   'var(--colors-thLibraryMultiselectCheckboxHover)',
+              },
+              // Subtle pulse animation to indicate interactivity on first load
+              '@keyframes subtlePulse': {
+                '0%': { opacity: 1 },
+                '50%': { opacity: 0.7 },
+                '100%': { opacity: 1 },
+              },
+              '&:not(:hover)': {
+                animation:
+                  props.multiSelectMode === 'off'
+                    ? 'subtlePulse 3s ease-in-out 1'
+                    : 'none',
               },
             }}
           >
@@ -329,7 +343,7 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
           >
             <CancelSearchButton
               onClick={() => {
-                setSearchTerm('in:inbox')
+                setSearchTerm('')
                 props.applySearchQuery('')
                 inputRef.current?.blur()
               }}

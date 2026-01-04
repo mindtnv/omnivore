@@ -18,6 +18,8 @@ import {
   ModalOverlay,
   ModalRoot,
   ModalTitleBar,
+  ModalTitle,
+  VisuallyHidden,
 } from '../elements/ModalPrimitives'
 import { theme } from '../tokens/stitches.config'
 
@@ -288,6 +290,9 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
           event.preventDefault()
         }}
       >
+        <VisuallyHidden>
+          <ModalTitle>Upload file</ModalTitle>
+        </VisuallyHidden>
         <VStack distribution="start">
           <ModalTitleBar
             title="Upload file"

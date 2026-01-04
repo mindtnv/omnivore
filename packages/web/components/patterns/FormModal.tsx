@@ -4,6 +4,8 @@ import {
   ModalOverlay,
   ModalRoot,
   ModalTitleBar,
+  ModalTitle,
+  VisuallyHidden,
 } from '../elements/ModalPrimitives'
 import { Box, VStack } from '../elements/LayoutPrimitives'
 import { StyledText } from '../elements/StyledText'
@@ -31,6 +33,9 @@ export function FormModal(props: FormModalProps): JSX.Element {
         }}
         css={{ overflow: 'auto', px: '24px' }}
       >
+        <VisuallyHidden>
+          <ModalTitle>{props.title}</ModalTitle>
+        </VisuallyHidden>
         <VStack>
           <ModalTitleBar
             title={props.title}

@@ -6,6 +6,8 @@ import {
   ModalOverlay,
   ModalContent,
   ModalTitleBar,
+  ModalTitle,
+  VisuallyHidden,
 } from '../../elements/ModalPrimitives'
 import { SetLabelsControl } from './SetLabelsControl'
 import { showSuccessToast } from '../../../lib/toastHelpers'
@@ -214,6 +216,9 @@ export function AddBulkLabelsModal(
           event.preventDefault()
         }}
       >
+        <VisuallyHidden>
+          <ModalTitle>Add labels to selected items</ModalTitle>
+        </VisuallyHidden>
         <VStack distribution="start" css={{ height: '100%' }}>
           <SpanBox css={{ pt: '0px', px: '16px', width: '100%' }}>
             <ModalTitleBar

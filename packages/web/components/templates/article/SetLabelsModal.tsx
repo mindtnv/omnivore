@@ -6,6 +6,8 @@ import {
   ModalOverlay,
   ModalContent,
   ModalTitleBar,
+  ModalTitle,
+  VisuallyHidden,
 } from '../../elements/ModalPrimitives'
 import { LabelsProvider, SetLabelsControl } from './SetLabelsControl'
 import { showSuccessToast } from '../../../lib/toastHelpers'
@@ -195,6 +197,9 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
             event.stopPropagation()
           }}
         >
+          <VisuallyHidden>
+            <ModalTitle>Labels</ModalTitle>
+          </VisuallyHidden>
           <VStack distribution="start" css={{ height: '100%' }}>
             <SpanBox css={{ pt: '0px', px: '16px', width: '100%' }}>
               <ModalTitleBar title="Labels" onOpenChange={props.onOpenChange} />

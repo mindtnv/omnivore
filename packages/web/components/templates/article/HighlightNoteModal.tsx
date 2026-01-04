@@ -4,6 +4,8 @@ import {
   ModalOverlay,
   ModalTitleBar,
   ModalButtonBar,
+  ModalTitle,
+  VisuallyHidden,
 } from './../../elements/ModalPrimitives'
 import { VStack } from '../../elements/LayoutPrimitives'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
@@ -91,6 +93,9 @@ export function HighlightNoteModal(
           }
         }}
       >
+        <VisuallyHidden>
+          <ModalTitle>Notes</ModalTitle>
+        </VisuallyHidden>
         <form
           onSubmit={(event) => {
             event.preventDefault()

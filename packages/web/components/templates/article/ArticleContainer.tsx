@@ -25,6 +25,7 @@ import {
 } from '../../../lib/networking/library_items/useLibraryItems'
 import { Avatar } from '../../elements/Avatar'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import { useGetUserPersonalization } from '../../../lib/networking/queries/useGetUserPersonalization'
 import { State } from '../../../lib/networking/fragments/articleFragment'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 
@@ -46,6 +47,9 @@ type ArticleContainerProps = {
   justifyText?: boolean
   textDirection?: TextDirection
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
+  // Translation state (lifted from parent)
+  showTranslation?: boolean
+  onToggleTranslation?: () => void
 }
 
 type RecommendationCommentsProps = {
@@ -148,6 +152,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [textDirection, setTextDirection] = useState(
     props.textDirection ?? 'LTR'
   )
+  // Use prop if provided, otherwise default to false
+  const showTranslation = props.showTranslation ?? false
+  const { userPersonalization } = useGetUserPersonalization()
 
   const restoreItem = useRestoreItem()
 
@@ -439,6 +446,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
               props.article.createdAt
             }
             wordsCount={props.article.wordsCount}
+            language={props.article.language}
           />
           <StyledText
             style="articleTitle"
@@ -528,6 +536,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
                 </Button>
               </VStack>
             )}
+          {/* Show AI Summary for both original and translated content */}
           <AISummary
             libraryItemId={props.article.id}
             idx="latest"
@@ -539,12 +548,17 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         </VStack>
         <Article
           articleId={props.article.id}
-          content={props.article.content}
+          content={
+            showTranslation && props.article.translatedContent
+              ? props.article.translatedContent
+              : props.article.content
+          }
           highlightHref={highlightHref}
           initialAnchorIndex={props.article.readingProgressAnchorIndex}
           initialReadingProgressTop={props.article.readingProgressTopPercent}
           articleMutations={props.articleMutations}
           isAppleAppEmbed={props.isAppleAppEmbed}
+          isTranslatedContent={showTranslation && !!props.article.translatedContent}
         />
         <Button
           style="ghost"
@@ -577,6 +591,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         setShowHighlightsModal={props.setShowHighlightsModal}
         highlightOnRelease={highlightOnRelease}
         articleMutations={props.articleMutations}
+        isTranslatedContent={showTranslation && !!props.article.translatedContent}
       />
       {showReportIssuesModal ? (
         <ReportIssuesModal

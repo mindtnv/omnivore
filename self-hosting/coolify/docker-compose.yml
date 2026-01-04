@@ -157,11 +157,6 @@ services:
     image: ghcr.io/omnivore-app/sh-image-proxy:latest
     environment:
       IMAGE_PROXY_SECRET: ${IMAGE_PROXY_SECRET:-some-secret}
-    healthcheck:
-      test: ["CMD-SHELL", "nc -z 0.0.0.0 8080 || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   content-fetch:
     image: ghcr.io/omnivore-app/sh-content-fetch:latest
@@ -182,12 +177,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "nc -z 0.0.0.0 8080 || exit 1"]
-      interval: 15s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
 
 volumes:
   pgdata:

@@ -36,6 +36,8 @@ export type ArticleProps = {
   highlightHref: MutableRefObject<string | null>
   articleMutations: ArticleMutations
   isAppleAppEmbed: boolean
+  // Track if we're showing translated content (for progress tracking)
+  isTranslatedContent?: boolean
 }
 
 type PageCoordinates = {
@@ -59,6 +61,10 @@ export function Article(props: ArticleProps): JSX.Element {
     useState(true)
 
   const articleContentRef = useRef<HTMLDivElement | null>(null)
+
+  // Track previous content to detect content switches (original <-> translated)
+  const previousContentRef = useRef<string | null>(null)
+  const previousScrollPercentRef = useRef<number | null>(null)
 
   const clampToPercent = (float: number) => {
     return Math.floor(Math.max(0, Math.min(100, float)))
@@ -204,6 +210,52 @@ export function Article(props: ArticleProps): JSX.Element {
     props.initialReadingProgress,
     shouldScrollToInitialPosition,
   ])
+
+  // Handle content changes (switching between original and translated)
+  // Re-parse DOM and restore scroll position based on percentage
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!articleContentRef.current) return
+
+    // Skip on initial render
+    if (previousContentRef.current === null) {
+      previousContentRef.current = props.content
+      return
+    }
+
+    // Content changed (toggled between original and translated)
+    if (previousContentRef.current !== props.content) {
+      // Store current scroll percentage before content changes
+      if (window.document.scrollingElement) {
+        const scrollPercent =
+          window.scrollY / window.document.scrollingElement.scrollHeight
+        previousScrollPercentRef.current = scrollPercent
+      }
+
+      // Update ref to new content
+      previousContentRef.current = props.content
+
+      // Re-parse DOM for new content after React renders it
+      // Use requestAnimationFrame to ensure DOM is updated
+      requestAnimationFrame(() => {
+        if (!articleContentRef.current) return
+
+        // Re-parse DOM to assign new anchor indices
+        parseDomTree(articleContentRef.current)
+
+        // Restore scroll position based on percentage
+        if (
+          previousScrollPercentRef.current !== null &&
+          window.document.scrollingElement
+        ) {
+          const newScrollTop =
+            previousScrollPercentRef.current *
+            window.document.scrollingElement.scrollHeight
+          window.document.documentElement.scroll(0, newScrollTop)
+        }
+      })
+    }
+  }, [props.content])
 
   useEffect(() => {
     if (typeof window?.MathJax?.typeset === 'function') {

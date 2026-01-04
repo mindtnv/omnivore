@@ -404,6 +404,8 @@ export default function Account(): JSX.Element {
           </VStack>
           <DigestSection />
 
+          <TranslationSection />
+
           <VStack
             css={{
               padding: '24px',
@@ -843,6 +845,147 @@ const DigestSection = (): JSX.Element => {
           Enable Digest
         </Button>
       )}
+    </VStack>
+  )
+}
+
+const SUPPORTED_LANGUAGES = [
+  { code: 'en', name: 'English' },
+  { code: 'ru', name: 'Русский' },
+  { code: 'de', name: 'Deutsch' },
+  { code: 'fr', name: 'Français' },
+  { code: 'es', name: 'Español' },
+  { code: 'it', name: 'Italiano' },
+  { code: 'pt', name: 'Português' },
+  { code: 'zh', name: '中文' },
+  { code: 'ja', name: '日本語' },
+  { code: 'ko', name: '한국어' },
+]
+
+const TranslationSection = (): JSX.Element => {
+  const {
+    userPersonalization,
+    isLoading,
+    mutate: mutatePersonalization,
+  } = useGetUserPersonalization()
+
+  const [preferredLanguage, setPreferredLanguage] = useState('en')
+  const [autoTranslate, setAutoTranslate] = useState(false)
+
+  useEffect(() => {
+    if (userPersonalization) {
+      setPreferredLanguage(userPersonalization.preferredLanguage || 'en')
+      setAutoTranslate(userPersonalization.autoTranslate || false)
+    }
+  }, [userPersonalization])
+
+  const handleLanguageChange = useCallback(
+    async (newLanguage: string) => {
+      setPreferredLanguage(newLanguage)
+      const { updateTranslationSettingsMutation } = await import(
+        '../../../lib/networking/mutations/updateTranslationSettingsMutation'
+      )
+      const result = await updateTranslationSettingsMutation({
+        preferredLanguage: newLanguage,
+      })
+      if (result) {
+        showSuccessToast('Language preference updated')
+        mutatePersonalization()
+      } else {
+        showErrorToast('Error updating language preference')
+      }
+    },
+    [mutatePersonalization]
+  )
+
+  const handleAutoTranslateChange = useCallback(
+    async (enabled: boolean) => {
+      setAutoTranslate(enabled)
+      const { updateTranslationSettingsMutation } = await import(
+        '../../../lib/networking/mutations/updateTranslationSettingsMutation'
+      )
+      const result = await updateTranslationSettingsMutation({
+        autoTranslate: enabled,
+      })
+      if (result) {
+        showSuccessToast(
+          enabled ? 'Auto-translate enabled' : 'Auto-translate disabled'
+        )
+        mutatePersonalization()
+      } else {
+        showErrorToast('Error updating translation settings')
+      }
+    },
+    [mutatePersonalization]
+  )
+
+  return (
+    <VStack
+      css={{
+        padding: '24px',
+        width: '100%',
+        height: '100%',
+        bg: '$grayBg',
+        gap: '10px',
+        borderRadius: '5px',
+      }}
+    >
+      <StyledLabel>Translation</StyledLabel>
+      <StyledText
+        style="footnote"
+        css={{
+          display: 'flex',
+          gap: '5px',
+          lineHeight: '22px',
+          mt: '0px',
+        }}
+      >
+        Automatically translate articles to your preferred language using AI.
+        Translations are generated when you save an article in a different
+        language.
+      </StyledText>
+
+      <VStack css={{ gap: '15px', mt: '10px' }}>
+        <VStack css={{ gap: '5px' }}>
+          <StyledText style="footnote" css={{ fontWeight: 600, m: '0px' }}>
+            Preferred Language
+          </StyledText>
+          <select
+            value={preferredLanguage}
+            onChange={(e) => handleLanguageChange(e.target.value)}
+            disabled={isLoading}
+            style={{
+              padding: '8px 12px',
+              borderRadius: '5px',
+              border: '1px solid var(--colors-grayBorder)',
+              backgroundColor: 'var(--colors-grayBg)',
+              color: 'var(--colors-grayTextContrast)',
+              fontSize: '14px',
+              width: '200px',
+            }}
+          >
+            {SUPPORTED_LANGUAGES.map((lang) => (
+              <option key={lang.code} value={lang.code}>
+                {lang.name}
+              </option>
+            ))}
+          </select>
+        </VStack>
+
+        <StyledText
+          style="footnote"
+          css={{ display: 'flex', gap: '8px', m: '0px', alignItems: 'center' }}
+        >
+          <input
+            type="checkbox"
+            name="auto-translate"
+            checked={autoTranslate}
+            disabled={isLoading}
+            onChange={(event) => handleAutoTranslateChange(event.target.checked)}
+          />
+          Automatically translate articles in other languages
+        </StyledText>
+      </VStack>
     </VStack>
   )
 }

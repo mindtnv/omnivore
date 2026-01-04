@@ -115,6 +115,7 @@ import {
   moveFilterResolver,
   moveLabelResolver,
   moveToFolderResolver,
+  setShowTranslatedResolver,
   newsletterEmailsResolver,
   recommendHighlightsResolver,
   recommendResolver,
@@ -318,6 +319,7 @@ export const functionResolvers = {
     saveDiscoverArticle: saveDiscoverArticleResolver,
     deleteDiscoverArticle: deleteDiscoverArticleResolver,
     moveToFolder: moveToFolderResolver,
+    setShowTranslated: setShowTranslatedResolver,
     updateNewsletterEmail: updateNewsletterEmailResolver,
     addDiscoverFeed: addDiscoverFeedResolver,
     deleteDiscoverFeed: deleteDiscoverFeedsResolver,
@@ -487,6 +489,7 @@ export const functionResolvers = {
     isArchived: (item: LibraryItem) => !!item.archivedAt,
     uploadFileId: (item: LibraryItem) => item.uploadFile?.id,
     pageType: (item: LibraryItem) => item.itemType,
+    language: (item: LibraryItem) => item.itemLanguage,
     ...readingProgressHandlers,
   },
   Highlight: {
@@ -578,6 +581,7 @@ export const functionResolvers = {
     highlightsCount: (item: LibraryItem) => item.highlightAnnotations?.length,
     ...readingProgressHandlers,
     content: (item: LibraryItem) => item.readableContent,
+    language: (item: LibraryItem) => item.itemLanguage,
   },
   PageInfo: {
     async totalCount(

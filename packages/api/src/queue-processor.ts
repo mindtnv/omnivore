@@ -17,6 +17,10 @@ import { appDataSource } from './data_source'
 import { env } from './env'
 import { TaskState } from './generated/graphql'
 import { aiSummarize, AI_SUMMARIZE_JOB_NAME } from './jobs/ai-summarize'
+import {
+  translateContent,
+  TRANSLATE_CONTENT_JOB_NAME,
+} from './jobs/translate-content'
 import { createDigest, CREATE_DIGEST_JOB } from './jobs/ai/create_digest'
 import { bulkAction, BULK_ACTION_JOB_NAME } from './jobs/bulk_action'
 import { callWebhook, CALL_WEBHOOK_JOB_NAME } from './jobs/call_webhook'
@@ -197,6 +201,8 @@ export const createWorker = (connection: ConnectionOptions) =>
             return exportItem(job.data)
           case AI_SUMMARIZE_JOB_NAME:
             return aiSummarize(job.data)
+          case TRANSLATE_CONTENT_JOB_NAME:
+            return translateContent(job.data)
           case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
             return processYouTubeVideo(job.data)
           case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:

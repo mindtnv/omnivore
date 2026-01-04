@@ -31,6 +31,10 @@ import {
   MoveToFolderErrorCode,
   MoveToFolderSuccess,
   MutationBulkActionArgs,
+  MutationSetShowTranslatedArgs,
+  SetShowTranslatedError,
+  SetShowTranslatedErrorCode,
+  SetShowTranslatedSuccess,
   MutationCreateArticleArgs,
   MutationFetchContentArgs,
   MutationMoveToFolderArgs,
@@ -920,6 +924,67 @@ export const moveToFolderResolver = authorized<
 
   return {
     success: true,
+  }
+})
+
+export const setShowTranslatedResolver = authorized<
+  Merge<SetShowTranslatedSuccess, { article: LibraryItem }>,
+  SetShowTranslatedError,
+  MutationSetShowTranslatedArgs
+>(async (_, { id, showTranslated }, { log, uid }) => {
+  analytics.capture({
+    distinctId: uid,
+    event: 'set_show_translated',
+    properties: {
+      id,
+      showTranslated,
+    },
+  })
+
+  const item = await authTrx(
+    (tx) =>
+      tx.getRepository(LibraryItem).findOne({
+        where: { id },
+        relations: ['user'],
+      }),
+    { replicationMode: 'replica' }
+  )
+
+  if (!item) {
+    return { errorCodes: [SetShowTranslatedErrorCode.NotFound] }
+  }
+
+  if (item.user.id !== uid) {
+    return { errorCodes: [SetShowTranslatedErrorCode.Unauthorized] }
+  }
+
+  try {
+    await authTrx(
+      (tx) =>
+        tx.getRepository(LibraryItem).update(id, {
+          showTranslated,
+        }),
+      { uid }
+    )
+
+    const updatedItem = await authTrx(
+      (tx) =>
+        tx.getRepository(LibraryItem).findOne({
+          where: { id },
+        }),
+      { uid, replicationMode: 'replica' }
+    )
+
+    if (!updatedItem) {
+      return { errorCodes: [SetShowTranslatedErrorCode.NotFound] }
+    }
+
+    return {
+      article: updatedItem,
+    }
+  } catch (error) {
+    log.error('setShowTranslatedResolver error', error)
+    return { errorCodes: [SetShowTranslatedErrorCode.BadRequest] }
   }
 })
 

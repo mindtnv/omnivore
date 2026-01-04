@@ -11,6 +11,7 @@ import {
   AuthorInfoStyle,
   CardCheckbox,
   LibraryItemMetadata,
+  LibraryItemIndicators,
   MetaStyle,
   TitleStyle,
   MenuStyle,
@@ -282,13 +283,17 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
           css={{
             ...AuthorInfoStyle,
             mt: '5px',
-            mb: '15px',
           }}
         >
           {props.item.author}
           {props.item.author && originText && ' | '}
           {originText}
         </SpanBox>
+
+        {/* Indicators for language, AI summary, translation */}
+        <Box css={{ mt: '8px', mb: '8px' }}>
+          <LibraryItemIndicators item={props.item} />
+        </Box>
 
         <HStack
           distribution="start"

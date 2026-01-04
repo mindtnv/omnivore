@@ -3,7 +3,7 @@ import { usePersistedState } from './usePersistedState'
 import { getCurrentLocalTheme, updateThemeLocally } from '../themeUpdater'
 import { useDarkModeListener } from './useDarkModeListener'
 
-const themeKey = 'currentTheme'
+const themeKey = 'theme'
 const preferredDarkThemeKey = 'preferredDarkThemeKey'
 const preferredLightThemeKey = 'preferredLightThemeKey'
 

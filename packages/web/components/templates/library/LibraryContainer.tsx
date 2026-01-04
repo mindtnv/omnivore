@@ -1266,10 +1266,13 @@ function LibraryItemsList(props: LibraryItemsProps): JSX.Element {
         overflow: 'visible',
         px: '70px',
         '@xlgDown': {
-          px: '0px',
+          px: '40px',
+        },
+        '@lgDown': {
+          px: '20px',
         },
         '@mdDown': {
-          px: '0px',
+          px: '10px',
           gap: '0px',
         },
         gridTemplateColumns:
@@ -1289,6 +1292,12 @@ function LibraryItemsList(props: LibraryItemsProps): JSX.Element {
             width: '100%',
             '&:focus-visible': {
               outline: 'none',
+              '> div': {
+                outline: '2px solid $ctaBlue',
+                outlineOffset: '2px',
+                bg: '$thBackgroundActive',
+                borderRadius: '6px',
+              },
             },
             '&> div': {
               // bg: '$thLeftMenuBackground',

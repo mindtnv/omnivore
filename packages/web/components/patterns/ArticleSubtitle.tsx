@@ -46,9 +46,38 @@ export function ArticleSubtitle(props: ArticleSubtitleProps): JSX.Element {
 type ReaderSavedInfoProps = {
   wordsCount?: number
   rawDisplayDate: string
+  language?: string | null
+}
+
+// Map language codes to display names
+const getLanguageDisplayName = (lang?: string | null): string | null => {
+  if (!lang) return null
+
+  const languageNames: Record<string, string> = {
+    en: 'English',
+    ru: 'Russian',
+    de: 'German',
+    fr: 'French',
+    es: 'Spanish',
+    it: 'Italian',
+    pt: 'Portuguese',
+    zh: 'Chinese',
+    ja: 'Japanese',
+    ko: 'Korean',
+    ar: 'Arabic',
+    hi: 'Hindi',
+    nl: 'Dutch',
+    pl: 'Polish',
+    uk: 'Ukrainian',
+  }
+
+  const code = lang.toLowerCase().slice(0, 2)
+  return languageNames[code] || lang
 }
 
 export function ReaderSavedInfo(props: ReaderSavedInfoProps): JSX.Element {
+  const languageName = getLanguageDisplayName(props.language)
+
   return (
     <Box>
       <StyledText
@@ -66,6 +95,7 @@ export function ReaderSavedInfo(props: ReaderSavedInfoProps): JSX.Element {
               Math.round((props.wordsCount ?? 0) / 235)
             )} min read`
           : null}
+        {languageName && ` • ${languageName}`}
       </StyledText>
     </Box>
   )

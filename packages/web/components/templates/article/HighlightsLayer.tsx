@@ -44,6 +44,8 @@ type HighlightsLayerProps = {
   showHighlightsModal: boolean
   highlightOnRelease?: boolean
   scrollToHighlight: MutableRefObject<string | null>
+  /** When true, highlights may not render correctly (translated content has different DOM structure) */
+  isTranslatedContent?: boolean
 
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
   articleMutations: ArticleMutations
@@ -70,6 +72,11 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   const [highlights, setHighlights] = useState(props.highlights)
   const [highlightModalAction, setHighlightModalAction] =
     useState<HighlightActionProps>({ highlightModalAction: 'none' })
+
+  // Sync highlights from props when they change
+  useEffect(() => {
+    setHighlights(props.highlights)
+  }, [props.highlights])
 
   const [highlightLocations, setHighlightLocations] = useState<
     HighlightLocation[]
@@ -144,34 +151,43 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
 
   // Load the highlights
   useEffect(() => {
-    const res: HighlightLocation[] = []
-    highlights
-      .filter((h) => h.type == 'HIGHLIGHT')
-      .forEach((highlight) => {
-        try {
-          const offset = makeHighlightStartEndOffset(highlight)
-          res.push(offset)
-        } catch (err) {
-          console.error(err)
-        }
-      })
-    setHighlightLocations(res)
-
-    // If we were given an initial highlight to scroll to we do
-    // that now that all the content has been injected into the
-    // page.
-    if (props.scrollToHighlight.current) {
-      const anchorElement = document.querySelector(
-        `[omnivore-highlight-id="${props.scrollToHighlight.current}"]`
-      )
-      if (anchorElement) {
-        anchorElement.scrollIntoView({
-          block: 'center',
-          behavior: 'auto',
+    // Small delay to ensure DOM is ready after content render
+    const timeoutId = setTimeout(() => {
+      const res: HighlightLocation[] = []
+      highlights
+        .filter((h) => h.type == 'HIGHLIGHT')
+        .forEach((highlight) => {
+          try {
+            const offset = makeHighlightStartEndOffset(highlight)
+            res.push(offset)
+          } catch (err) {
+            // Silently fail for highlights that can't be rendered
+            // (e.g., on translated content where text differs)
+            if (!props.isTranslatedContent) {
+              console.error('Error rendering highlight:', err)
+            }
+          }
         })
+      setHighlightLocations(res)
+
+      // If we were given an initial highlight to scroll to we do
+      // that now that all the content has been injected into the
+      // page.
+      if (props.scrollToHighlight.current) {
+        const anchorElement = document.querySelector(
+          `[omnivore-highlight-id="${props.scrollToHighlight.current}"]`
+        )
+        if (anchorElement) {
+          anchorElement.scrollIntoView({
+            block: 'center',
+            behavior: 'auto',
+          })
+        }
       }
-    }
-  }, [highlights, setHighlightLocations, props.scrollToHighlight])
+    }, 100)
+
+    return () => clearTimeout(timeoutId)
+  }, [highlights, setHighlightLocations, props.scrollToHighlight, props.isTranslatedContent])
 
   const removeHighlightCallback = useCallback(
     async (id?: string) => {
