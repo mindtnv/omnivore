@@ -17,17 +17,17 @@ ENV FIREFOX_PATH=/usr/bin/firefox
 ENV LAUNCH_HEADLESS=true
 
 COPY package.json yarn.lock tsconfig.json .prettierrc .eslintrc ./
-COPY /packages/content-fetch/package.json ./packages/content-fetch/package.json
-COPY /packages/content-handler/package.json ./packages/content-handler/package.json
-COPY /packages/puppeteer-parse/package.json ./packages/puppeteer-parse/package.json
-COPY /packages/utils/package.json ./packages/utils/package.json
+COPY packages/content-fetch/package.json ./packages/content-fetch/package.json
+COPY packages/content-handler/package.json ./packages/content-handler/package.json
+COPY packages/puppeteer-parse/package.json ./packages/puppeteer-parse/package.json
+COPY packages/utils/package.json ./packages/utils/package.json
 
 RUN yarn install --pure-lockfile --network-timeout=300000
 
-COPY /packages/content-fetch ./packages/content-fetch
-COPY /packages/content-handler ./packages/content-handler
-COPY /packages/puppeteer-parse ./packages/puppeteer-parse
-COPY /packages/utils ./packages/utils
+COPY packages/content-fetch ./packages/content-fetch
+COPY packages/content-handler ./packages/content-handler
+COPY packages/puppeteer-parse ./packages/puppeteer-parse
+COPY packages/utils ./packages/utils
 
 RUN yarn workspace @omnivore/utils build && \
     yarn workspace @omnivore/content-handler build && \
@@ -67,7 +67,7 @@ COPY --from=build /app /app
 EXPOSE 8080
 
 # In Firefox we can't use the adblocking sites. Adding them to the hosts file of the docker seems to work.
-COPY /packages/content-fetch/start.sh .
+COPY packages/content-fetch/start.sh .
 RUN wget https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts && \
     chmod +x start.sh
 
