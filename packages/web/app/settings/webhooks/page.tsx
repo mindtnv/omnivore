@@ -2,14 +2,14 @@
 
 export const dynamic = 'force-dynamic'
 
-import { SettingsLayout } from '../../../components/templates/SettingsLayout'
+
 import { VStack } from '../../../components/elements/LayoutPrimitives'
 import Link from 'next/link'
 import { StyledText } from '../../../components/elements/StyledText'
 
 export default function Webhooks(): JSX.Element {
   return (
-    <SettingsLayout>
+    <>
       <VStack
         css={{ width: '100%', height: '100%' }}
         distribution="start"
@@ -32,6 +32,6 @@ export default function Webhooks(): JSX.Element {
           </StyledText>
         </VStack>
       </VStack>
-    </SettingsLayout>
+    </>
   )
 }

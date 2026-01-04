@@ -13,7 +13,7 @@ import {
 } from '../../../../components/elements/LayoutPrimitives'
 import { StyledText } from '../../../../components/elements/StyledText'
 import { PageMetaData } from '../../../../components/patterns/PageMetaData'
-import { SettingsLayout } from '../../../../components/templates/SettingsLayout'
+
 import { subscribeMutation } from '../../../../lib/networking/mutations/subscribeMutation'
 import { SubscriptionType } from '../../../../lib/networking/queries/useGetSubscriptionsQuery'
 import { showSuccessToast } from '../../../../lib/toastHelpers'
@@ -85,7 +85,7 @@ export default function AddRssFeed(): JSX.Element {
   return (
     <>
       <PageMetaData title="Add new Feed" path="/settings/feeds/add" />
-      <SettingsLayout>
+      <>
         <VStack
           distribution={'start'}
           alignment={'center'}
@@ -147,7 +147,7 @@ export default function AddRssFeed(): JSX.Element {
             </Button>
           </HStack>
         </VStack>
-      </SettingsLayout>
+      </>
       <div data-testid="settings-feeds-subscribe-page-tag" />
     </>
   )

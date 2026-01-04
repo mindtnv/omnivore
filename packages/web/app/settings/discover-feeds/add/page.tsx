@@ -79,7 +79,7 @@ export default function AddDiscoverFeed(): JSX.Element {
   return (
     <>
       <PageMetaData title="Add new Discover Feed" path="/settings/discover-feeds/add" />
-      <SettingsLayout>
+      <>
         <VStack
           distribution={'start'}
           alignment={'center'}
@@ -141,7 +141,7 @@ export default function AddDiscoverFeed(): JSX.Element {
             </Button>
           </HStack>
         </VStack>
-      </SettingsLayout>
+      </>
       <div data-testid="settings-feeds-subscribe-page-tag" />
     </>
   )

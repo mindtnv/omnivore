@@ -13,7 +13,7 @@ import {
 import { ProgressBar } from '../../../components/elements/ProgressBar'
 import { StyledText } from '../../../components/elements/StyledText'
 import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
-import { SettingsLayout } from '../../../components/templates/SettingsLayout'
+
 import { styled, theme } from '../../../components/tokens/stitches.config'
 import { userHasFeature } from '../../../lib/featureFlag'
 import { useGetLibraryItems } from '../../../lib/networking/library_items/useLibraryItems'
@@ -234,7 +234,7 @@ export default function Account(): JSX.Element {
   applyStoredTheme()
 
   return (
-    <SettingsLayout>
+    <>
       <VStack
         css={{ width: '100%', height: '100%' }}
         distribution="start"
@@ -482,7 +482,7 @@ export default function Account(): JSX.Element {
           onOpenChange={() => setShowUpdateEmailConfirmation(false)}
         />
       ) : null}
-    </SettingsLayout>
+    </>
   )
 }
 

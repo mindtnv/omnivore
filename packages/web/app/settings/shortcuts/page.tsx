@@ -17,7 +17,7 @@ import {
   VStack,
 } from '../../../components/elements/LayoutPrimitives'
 import { StyledText } from '../../../components/elements/StyledText'
-import { SettingsLayout } from '../../../components/templates/SettingsLayout'
+
 import { useGetLabels } from '../../../lib/networking/labels/useLabels'
 import { SubscriptionType } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
 import { useGetSavedSearches } from '../../../lib/networking/savedsearches/useSavedSearches'
@@ -132,7 +132,7 @@ export default function Shortcuts(): JSX.Element {
   }, [data])
 
   return (
-    <SettingsLayout>
+    <>
       <VStack
         css={{
           p: '25px',
@@ -145,7 +145,7 @@ export default function Shortcuts(): JSX.Element {
         <Subscriptions shortcutIds={shortcutIds} dispatchList={dispatchList} />
         <Labels shortcutIds={shortcutIds} dispatchList={dispatchList} />
       </VStack>
-    </SettingsLayout>
+    </>
   )
 }
 

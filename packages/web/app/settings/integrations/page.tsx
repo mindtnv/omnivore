@@ -18,7 +18,7 @@ import {
   SpanBox,
   VStack,
 } from '../../../components/elements/LayoutPrimitives'
-import { SettingsLayout } from '../../../components/templates/SettingsLayout'
+
 import { fetchEndpoint } from '../../../lib/appConfig'
 import { deleteIntegrationMutation } from '../../../lib/networking/mutations/deleteIntegrationMutation'
 import { importFromIntegrationMutation } from '../../../lib/networking/mutations/importFromIntegrationMutation'
@@ -320,7 +320,7 @@ function IntegrationsContent(): JSX.Element {
   }, [getIntegration, router])
 
   return (
-    <SettingsLayout>
+    <>
       <VStack css={{ width: '100%', height: '100%' }}>
         <Header css={{ textAlign: 'center', width: '100%' }}>
           Integrations
@@ -455,7 +455,7 @@ function IntegrationsContent(): JSX.Element {
           })}
         </VStack>
       </VStack>
-    </SettingsLayout>
+    </>
   )
 }
 

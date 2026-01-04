@@ -9,7 +9,7 @@ import {
   NavigationSection,
 } from '../../../components/templates/NavigationLayout'
 import { LibraryContainer } from '../../../components/templates/library/LibraryContainer'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { HighlightsContainer } from '../../../components/nav-containers/HighlightsContainer'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 import { State } from '../../../lib/networking/fragments/articleFragment'
@@ -23,11 +23,18 @@ export default function Home(): JSX.Element {
     usePersistedState<boolean>({
       key: 'nav-show-menu',
       isSessionStorage: false,
-      initialValue: false,
-      defaultEvaluator: () => {
-        return window.innerWidth > 1000
-      },
+      initialValue: true, // SSR-safe default (show menu)
     })
+
+  // Adjust for mobile after hydration
+  useEffect(() => {
+    if (!isShowNavigationLoading && typeof window !== 'undefined') {
+      const isMobile = window.innerWidth <= 1000
+      if (isMobile && showNavigationMenu) {
+        setShowNavigationMenu(false)
+      }
+    }
+  }, [isShowNavigationLoading])
 
   const section: NavigationSection | undefined = useMemo(() => {
     const res = params?.section

@@ -16,7 +16,7 @@ import {
   VStack,
 } from '../../../components/elements/LayoutPrimitives'
 import { StyledText } from '../../../components/elements/StyledText'
-import { SettingsLayout } from '../../../components/templates/SettingsLayout'
+
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { CheckSquare, Circle, Square } from '@phosphor-icons/react'
@@ -146,7 +146,7 @@ export default function PinnedSearches(): JSX.Element {
   applyStoredTheme()
 
   return (
-    <SettingsLayout>
+    <>
       <VStack
         css={{ width: '100%', height: '100%' }}
         distribution="start"
@@ -257,7 +257,7 @@ export default function PinnedSearches(): JSX.Element {
           </VStack>
         </VStack>
       </VStack>
-    </SettingsLayout>
+    </>
   )
 }
 

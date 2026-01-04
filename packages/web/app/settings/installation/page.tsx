@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import React from 'react'
-import { SettingsLayout } from '../../../components/templates/SettingsLayout'
+
 import IOSInstallHelp from '../../../components/elements/IOSInstallHelp'
 import ExtensionInstallHelp from '../../../components/elements/ExtensionsInstallHelp'
 import { Box } from '../../../components/elements/LayoutPrimitives'
@@ -48,6 +48,6 @@ export default function Installation(): JSX.Element {
         <Divider />
         <ExtensionInstallHelp />
       </Box>
-    </SettingsLayout>
+    </>
   )
 }

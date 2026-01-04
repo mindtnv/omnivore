@@ -6,7 +6,7 @@ import { Button, Form, Input, Modal, Select, Space, Table, Tag } from 'antd'
 import 'antd/dist/reset.css'
 import { useCallback, useMemo, useState } from 'react'
 import { Box, HStack } from '../../../components/elements/LayoutPrimitives'
-import { SettingsLayout } from '../../../components/templates/SettingsLayout'
+
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { deleteRuleMutation } from '../../../lib/networking/mutations/deleteRuleMutation'
 import { setRuleMutation } from '../../../lib/networking/mutations/setRuleMutation'
@@ -435,7 +435,7 @@ export default function Rules(): JSX.Element {
   ]
 
   return (
-    <SettingsLayout>
+    <>
       <CreateRuleModal
         revalidate={revalidate}
         isModalOpen={isCreateRuleModalOpen}
@@ -472,6 +472,6 @@ export default function Rules(): JSX.Element {
           // expandable={{ expandedRowRender, indentSize: 30 }}
         />
       </Box>
-    </SettingsLayout>
+    </>
   )
 }

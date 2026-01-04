@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useEffect, useMemo, useState } from 'react'
-import { SettingsLayout } from '../../../components/templates/SettingsLayout'
+
 import { Button } from '../../../components/elements/Button'
 import { styled } from '../../../components/tokens/stitches.config'
 import {
@@ -263,7 +263,7 @@ export default function LabelsPage(): JSX.Element {
   }
 
   return (
-    <SettingsLayout>
+    <>
       <HStack css={{ width: '100%', height: '100%' }}>
         <VStack
           css={{
@@ -445,7 +445,7 @@ export default function LabelsPage(): JSX.Element {
         </VStack>
       </HStack>
       <Box css={{ height: '120px' }} />
-    </SettingsLayout>
+    </>
   )
 }
 

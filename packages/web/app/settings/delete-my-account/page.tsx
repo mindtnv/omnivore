@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 
-import { SettingsLayout } from '../../../components/templates/SettingsLayout'
+
 
 import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
 import { Button } from '../../../components/elements/Button'
@@ -50,7 +50,7 @@ export default function DeleteMyAccount(): JSX.Element {
   }
 
   return (
-    <SettingsLayout>
+    <>
       <VStack
         css={{ width: '100%', height: '100%' }}
         distribution="start"
@@ -114,6 +114,6 @@ export default function DeleteMyAccount(): JSX.Element {
           </VStack>
         </VStack>
       </VStack>
-    </SettingsLayout>
+    </>
   )
 }

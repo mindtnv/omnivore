@@ -10,7 +10,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { HStack, VStack } from '../../../../components/elements/LayoutPrimitives'
 import { PageMetaData } from '../../../../components/patterns/PageMetaData'
 import { Header } from '../../../../components/templates/settings/SettingsTable'
-import { SettingsLayout } from '../../../../components/templates/SettingsLayout'
+
 import { deleteIntegrationMutation } from '../../../../lib/networking/mutations/deleteIntegrationMutation'
 import {
   exportToIntegrationMutation,
@@ -145,7 +145,7 @@ export default function Notion(): JSX.Element {
     <>
       {contextHolder}
       <PageMetaData title="Notion" path="/integrations/notion" />
-      <SettingsLayout>
+      <>
         <VStack
           distribution="start"
           alignment="start"
@@ -243,7 +243,7 @@ export default function Notion(): JSX.Element {
             </Spin>
           </div>
         </VStack>
-      </SettingsLayout>
+      </>
     </>
   )
 }
