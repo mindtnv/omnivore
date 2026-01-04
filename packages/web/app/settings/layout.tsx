@@ -110,19 +110,7 @@ export default function SettingsLayout({
 
         <HStack css={{ width: '100%', height: '100%' }} distribution="start">
           <SettingsMenu />
-          <VStack css={{ width: '100%', height: '100%' }}>
-            <SpanBox
-              css={{
-                marginTop: '-50px',
-                '@mdDown': {
-                  display: 'none',
-                },
-              }}
-            >
-              <ReturnButton />
-            </SpanBox>
-            {children}
-          </VStack>
+          {children}
         </HStack>
         <Box css={{ height: '120px', width: '100%' }} />
       </VStack>

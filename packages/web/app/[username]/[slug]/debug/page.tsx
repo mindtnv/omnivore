@@ -17,7 +17,7 @@ type ArticleAttribute = {
   value: string
 }
 
-export default function Debug(): JSX.Element {
+export default function Debug() {
   const params = useParams()
   const { data: article } = useGetLibraryItemContent(
     params?.username as string,

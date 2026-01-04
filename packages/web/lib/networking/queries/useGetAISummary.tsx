@@ -8,6 +8,7 @@ export interface AISummary {
 
 export interface AISummaryResponse {
   error: any
+  isLoading: boolean
   isValidating: boolean
   summary: string | undefined
 }
@@ -17,7 +18,7 @@ export function useGetAISummary(params: {
   libraryItemId: string
 }): AISummaryResponse {
   const { idx, libraryItemId } = params
-  const { data, error, isValidating } = useSWR(
+  const { data, error, isLoading, isValidating } = useSWR(
     `/api/ai-summary/library-item/${libraryItemId}/${idx}`,
     apiFetcher
   )
@@ -27,6 +28,7 @@ export function useGetAISummary(params: {
     console.log('ai summary result: ', result)
     return {
       error,
+      isLoading,
       isValidating,
       summary: result.summary,
     }
@@ -34,6 +36,7 @@ export function useGetAISummary(params: {
     console.log('error', error)
     return {
       error,
+      isLoading: false,
       isValidating: false,
       summary: undefined,
     }

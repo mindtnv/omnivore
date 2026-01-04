@@ -1,3 +1,12 @@
+import React from 'react'
+
+declare global {
+  namespace JSX {
+    type Element = React.ReactElement
+    type IntrinsicElements = React.JSX.IntrinsicElements
+  }
+}
+
 export {}
 
 declare type AndroidWebKitMessenger = {

@@ -38,7 +38,7 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
   )
-  const errorTimeoutRef = useRef<NodeJS.Timeout | undefined>()
+  const errorTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const [highlightLastLabel, setHighlightLastLabel] = useState(false)
 
   const createLabel = useCreateLabel()

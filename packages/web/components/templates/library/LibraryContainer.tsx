@@ -852,7 +852,7 @@ export type HomeFeedContentProps = {
   folder: string | undefined
   items: LibraryItem[]
   searchTerm?: string
-  gridContainerRef: React.RefObject<HTMLDivElement>
+  gridContainerRef: React.RefObject<HTMLDivElement | null>
   applySearchQuery: (searchQuery: string) => void
   hasMore: boolean
   hasData: boolean
@@ -1232,7 +1232,7 @@ type LibraryItemsProps = {
   layout: LayoutType
   viewer: UserBasicData | undefined
 
-  gridContainerRef: React.RefObject<HTMLDivElement>
+  gridContainerRef: React.RefObject<HTMLDivElement | null>
 
   setShowEditTitleModal: (show: boolean) => void
   setLinkToEdit: (set: LibraryItem | undefined) => void

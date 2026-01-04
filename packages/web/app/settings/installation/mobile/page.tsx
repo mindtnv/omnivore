@@ -8,7 +8,7 @@ import IOSInstallHelp from '../../../../components/elements/IOSInstallHelp'
 
 export default function Mobile(): JSX.Element {
   return (
-    <SettingsLayout title="Mobile Installation">
+    <>
       <IOSInstallHelp />
     </>
   )

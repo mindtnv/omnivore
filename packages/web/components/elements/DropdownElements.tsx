@@ -8,7 +8,6 @@ import {
   Label,
   Portal,
 } from '@radix-ui/react-dropdown-menu'
-import { PopperContentProps } from '@radix-ui/react-popover'
 import { CSS } from '@stitches/react'
 import { styled } from './../tokens/stitches.config'
 
@@ -120,6 +119,7 @@ type DropdownProps = {
   align?: DropdownAlignment
   side?: DropdownSide
   sideOffset?: number
+  alignOffset?: number
   disabled?: boolean
   css?: CSS
   modal?: boolean
@@ -154,9 +154,7 @@ export function DropdownOption(props: DropdownOptionProps): JSX.Element {
   )
 }
 
-export function Dropdown(
-  props: DropdownProps & PopperContentProps
-): JSX.Element {
+export function Dropdown(props: DropdownProps): JSX.Element {
   const {
     children,
     align,

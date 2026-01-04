@@ -26,7 +26,7 @@ const Divider = (): JSX.Element => {
 
 export default function Installation(): JSX.Element {
   return (
-    <SettingsLayout title="Installation">
+    <>
       <Box
         css={{
           maxWidth: '50rem',

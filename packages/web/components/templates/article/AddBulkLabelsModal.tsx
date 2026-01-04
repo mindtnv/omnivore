@@ -36,7 +36,7 @@ export function AddBulkLabelsModal(
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
   )
-  const errorTimeoutRef = useRef<NodeJS.Timeout | undefined>()
+  const errorTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const [highlightLastLabel, setHighlightLastLabel] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 

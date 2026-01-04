@@ -40,7 +40,7 @@ type LabelsPickerProps = {
 }
 
 export const LabelsPicker = (props: LabelsPickerProps): JSX.Element => {
-  const inputRef = useRef<HTMLInputElement | null>()
+  const inputRef = useRef<HTMLInputElement | null>(null)
   const { data: availableLabels } = useGetLabels()
   const [isStackExpanded, setIsStackExpanded] = useState(false)
   const {

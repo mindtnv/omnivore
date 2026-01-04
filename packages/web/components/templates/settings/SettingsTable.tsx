@@ -6,7 +6,6 @@ import { InfoLink } from '../../elements/InfoLink'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
 import { styled, theme } from '../../tokens/stitches.config'
-import { SettingsLayout } from '../SettingsLayout'
 
 // Styles
 export const Header = styled(Box, {
@@ -280,7 +279,7 @@ const CreateButton = (props: CreateButtonProps): JSX.Element => {
 
 export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
   return (
-    <SettingsLayout>
+    <>
       <HStack css={{ width: '100%' }} alignment="center">
         <VStack
           alignment="start"
@@ -355,6 +354,6 @@ export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
         </VStack>
       </HStack>
       <Box css={{ height: '120px' }} />
-    </SettingsLayout>
+    </>
   )
 }
