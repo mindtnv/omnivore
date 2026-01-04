@@ -27,6 +27,9 @@ WORKDIR /app
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
+# Install build dependencies for native modules
+RUN apk add --no-cache g++ make python3 py3-setuptools
+
 # Copy package.json for yarn workspace
 COPY package.json yarn.lock ./
 
