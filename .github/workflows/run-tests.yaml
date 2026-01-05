@@ -42,43 +42,27 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Initialize the database
         run: |
           cp ./packages/api/.env.test ./packages/api/.env
           psql --host localhost --port ${{ job.services.postgres.ports[5432] }} --user postgres --password -c "CREATE DATABASE omnivore_test;"
         env:
           PGPASSWORD: postgres
-
-      - name: Setup Node.js
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: 22
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
+          node-version: 22.12.0
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(source ~/.nvm/nvm.sh && yarn cache dir)"
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
+        run: |
+          source ~/.nvm/nvm.sh
+          yarn install --frozen-lockfile --network-timeout=300000
       - name: Database Migration
         run: |
           psql -h localhost -p ${{ job.services.postgres.ports[5432] }} -U postgres -c "CREATE USER app_user WITH ENCRYPTED PASSWORD 'app_pass';"
-          pnpm --filter @omnivore/db migrate
+          yarn workspace @omnivore/db migrate
           psql -h localhost -p ${{ job.services.postgres.ports[5432] }} -U postgres -c "GRANT omnivore_user to app_user;"
         env:
           PG_HOST: localhost
@@ -86,16 +70,17 @@ jobs:
           PG_USER: postgres
           PG_PASSWORD: postgres
           PG_DB: omnivore_test
-          PGPASSWORD: postgres
+          PGPASSWORD: postgres # This is required for the psql command to work without a password prompt
           PG_EXTRA_OPTIONS: '-c lock_timeout=2000'
-
       - name: TypeScript Build and Lint
         run: |
-          pnpm build
-          pnpm lint
-
+          source ~/.nvm/nvm.sh
+          yarn build
+          yarn lint
       - name: Tests
-        run: pnpm test
+        run: |
+          source ~/.nvm/nvm.sh
+          yarn test
         timeout-minutes: 10
         env:
           PG_HOST: localhost
