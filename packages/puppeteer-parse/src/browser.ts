@@ -44,6 +44,7 @@ export const getBrowser = async (): Promise<Browser> => {
       '--disable-background-networking',
       '--disable-gpu',
       '--disable-software-rasterizer',
+      '--ignore-certificate-errors',
     ],
     defaultViewport: {
       deviceScaleFactor: 1,
@@ -53,7 +54,7 @@ export const getBrowser = async (): Promise<Browser> => {
       isMobile: false,
       width: 1920,
     },
-    ignoreHTTPSErrors: true,
+    acceptInsecureCerts: true,
     executablePath:
       process.env.USE_FIREFOX == 'true'
         ? process.env.FIREFOX_PATH
@@ -61,7 +62,6 @@ export const getBrowser = async (): Promise<Browser> => {
     // run in shell mode if headless
     headless: true,
     browser: process.env['USE_FIREFOX'] == 'true' ? 'firefox' : 'chrome',
-    product: process.env['USE_FIREFOX'] == 'true' ? 'firefox' : 'chrome',
     timeout: 30000,
     dumpio: true,
 
