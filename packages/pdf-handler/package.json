@@ -10,7 +10,7 @@
   "license": "Apache-2.0",
   "keywords": [],
   "scripts": {
-    "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "test": "pnpm mocha -r ts-node/register --config mocha-config.json",
     "test:typecheck": "tsc --noEmit",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
@@ -18,7 +18,7 @@
     "start": "functions-framework --source=build/src/ --target=pdfHandler",
     "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\"",
     "gcloud-deploy": "gcloud functions deploy pdfHandler --region=$npm_config_region --runtime nodejs14 --trigger-bucket=$npm_config_bucket --env-vars-file=../gcf-shared/env-$npm_config_env.yaml",
-    "deploy": "yarn build && yarn gcloud-deploy"
+    "deploy": "pnpm build && yarn gcloud-deploy"
   },
   "devDependencies": {
     "@types/node": "^14.11.2",
@@ -30,7 +30,7 @@
     "@google-cloud/functions-framework": "3.4.5",
     "@google-cloud/pubsub": "^4.0.0",
     "@google-cloud/storage": "^7.0.1",
-    "@omnivore/utils": "1.0.0",
+    "@omnivore/utils": "workspace:*",
     "@sentry/serverless": "^7.77.0",
     "axios": "^0.30.0",
     "bullmq": "^5.1.4",

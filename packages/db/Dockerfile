@@ -1,19 +1,39 @@
 # Optimized Dockerfile for Omnivore DB migrations
+# Uses turbo prune + pnpm for minimal dependencies
 
-FROM node:22.12-alpine
+# Stage 1: Prune monorepo
+FROM node:22.12-alpine AS pruner
+RUN apk add --no-cache libc6-compat
+RUN npm install -g turbo@2.7.2
+WORKDIR /app
+COPY . .
+RUN turbo prune @omnivore/db --docker
+
+# Stage 2: Install and prepare
+FROM node:22.12-alpine AS builder
 WORKDIR /app
 
-# Install dependencies (bash required for setup.sh, postgresql-client for psql, util-linux for uuidgen)
 RUN apk add --no-cache postgresql-client util-linux bash
+RUN npm install -g pnpm@9
 
-# Copy package files
-COPY package.json yarn.lock tsconfig.json ./
-COPY packages/db/package.json ./packages/db/
+COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY pnpm-workspace.yaml .npmrc ./
 
-# Install dependencies
-RUN yarn install --frozen-lockfile --network-timeout=300000
+RUN pnpm install --frozen-lockfile
 
-# Copy migration files
-COPY packages/db ./packages/db
+COPY --from=pruner /app/out/full/ .
 
-CMD ["yarn", "workspace", "@omnivore/db", "migrate"]
+# Stage 3: Runner
+FROM node:22.12-alpine AS runner
+WORKDIR /app
+
+RUN apk add --no-cache postgresql-client util-linux bash
+RUN npm install -g pnpm@9
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/packages/db ./packages/db
+
+CMD ["pnpm", "--filter", "@omnivore/db", "migrate"]

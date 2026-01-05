@@ -4,7 +4,7 @@ This workspace is dedicated to API server that uses Apollo GraphQL server and Kn
 
 ## GraphQL schema
 
-GraphQL schema is located in `schema.ts`. In order to use new types, queries or mutations you need to declare them there and then run `yarn gql-typegen` from the application root to create the necessary typings in order to write GQL queries from the app.
+GraphQL schema is located in `schema.ts`. In order to use new types, queries or mutations you need to declare them there and then run `pnpm gql-typegen` from the application root to create the necessary typings in order to write GQL queries from the app.
 
 ## Apollo resolvers and data sources
 
@@ -50,4 +50,4 @@ Refer the [using locally](../db/README.md#using-locally) section from db README.
 
 ### Run the app
 
-    yarn dev
+    pnpm dev

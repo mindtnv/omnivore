@@ -18,34 +18,34 @@ make qp                              # Run queue processor
 make content_fetch                   # Build and run content-fetch service
 ```
 
-### Package Commands (yarn workspaces)
+### Package Commands (pnpm workspaces)
 ```bash
-yarn workspace @omnivore/api dev     # API dev server with hot reload
-yarn workspace @omnivore/api dev_qp  # Queue processor dev mode
-yarn workspace @omnivore/web dev     # Next.js dev server
-yarn workspace @omnivore/db migrate  # Run database migrations
+pnpm --filter @omnivore/api dev      # API dev server with hot reload
+pnpm --filter @omnivore/api dev_qp   # Queue processor dev mode
+pnpm --filter @omnivore/web dev      # Next.js dev server
+pnpm --filter @omnivore/db migrate   # Run database migrations
 ```
 
 ### Testing
 ```bash
-yarn test                                    # Run all tests (parallel)
-yarn workspace @omnivore/api test            # API tests (Mocha + NYC coverage)
-yarn workspace @omnivore/content-fetch test  # Content-fetch tests
+pnpm test                                     # Run all tests (parallel)
+pnpm --filter @omnivore/api test              # API tests (Mocha + NYC coverage)
+pnpm --filter @omnivore/content-fetch test    # Content-fetch tests
 ```
 
 ### Code Quality
 ```bash
-yarn lint                            # Lint all packages
-yarn gql-typegen                     # Generate GraphQL types
+pnpm lint                            # Lint all packages
+pnpm gql-typegen                     # Generate GraphQL types
 ```
 
 ## Architecture
 
-### Monorepo Structure (Lerna + Yarn Workspaces)
+### Monorepo Structure (Turbo + pnpm Workspaces)
 
 **Core Packages:**
 - `packages/api` - Apollo GraphQL server (Express), TypeORM, BullMQ jobs
-- `packages/web` - Next.js 14 frontend, TanStack Query, Radix UI, Stitches CSS-in-JS
+- `packages/web` - Next.js 16 frontend, TanStack Query, Radix UI, Stitches CSS-in-JS
 - `packages/db` - PostgreSQL migrations (Postgrator)
 
 **Content Processing:**
@@ -88,13 +88,13 @@ packages/api/src/
 - **No semicolons** - enforced by Prettier
 - **Single quotes** for strings
 - **TypeScript strict mode** enabled
-- Run `yarn lint` before committing
+- Run `pnpm lint` before committing
 
 ## Key Technologies
 
 | Layer | Stack |
 |-------|-------|
-| Frontend | Next.js 14, React 18, TanStack Query, Radix UI |
+| Frontend | Next.js 16, React 19, TanStack Query, Radix UI |
 | API | Apollo Server 3, Express, GraphQL, TypeORM |
 | Database | PostgreSQL + pgvector |
 | Queue | BullMQ + Redis |

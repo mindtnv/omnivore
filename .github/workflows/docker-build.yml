@@ -55,7 +55,7 @@ jobs:
             web:
               - 'packages/web/**'
               - 'package.json'
-              - 'yarn.lock'
+              - 'pnpm-lock.yaml'
             api:
               - 'packages/api/**'
               - 'packages/utils/**'
@@ -64,13 +64,13 @@ jobs:
               - 'packages/text-to-speech/**'
               - 'packages/readabilityjs/**'
               - 'package.json'
-              - 'yarn.lock'
+              - 'pnpm-lock.yaml'
             content-fetch:
               - 'packages/content-fetch/**'
               - 'packages/puppeteer-parse/**'
               - 'packages/readabilityjs/**'
               - 'package.json'
-              - 'yarn.lock'
+              - 'pnpm-lock.yaml'
             migrate:
               - 'packages/db/**'
 
@@ -97,6 +97,8 @@ jobs:
           file: packages/web/Dockerfile
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-web:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           build-args: |
             APP_ENV=prod
             BASE_URL=${{ secrets.WEB_BASE_URL }}
@@ -126,6 +128,8 @@ jobs:
           file: packages/api/Dockerfile
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-api:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   build-queue-processor:
     needs: detect-changes
@@ -150,6 +154,8 @@ jobs:
           file: packages/api/queue-processor/Dockerfile
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-queue-processor:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   build-content-fetch:
     needs: detect-changes
@@ -174,6 +180,8 @@ jobs:
           file: packages/content-fetch/Dockerfile
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-content-fetch:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   build-migrate:
     needs: detect-changes
@@ -198,3 +206,5 @@ jobs:
           file: packages/db/Dockerfile
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-migrate:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

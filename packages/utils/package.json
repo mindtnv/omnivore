@@ -5,7 +5,7 @@
   "main": "./build/src/index.js",
   "types": "./build/src/index.d.ts",
   "scripts": {
-    "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "test": "pnpm mocha -r ts-node/register --config mocha-config.json",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "build": "tsc"
   },

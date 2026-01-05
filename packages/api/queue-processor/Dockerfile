@@ -1,55 +1,65 @@
 # Optimized Dockerfile for Omnivore Queue Processor
-# Uses 3-stage build for better caching and smaller images
+# Uses turbo prune + pnpm for minimal dependencies and fast installs
 
+# Stage 1: Prune monorepo to only needed packages
+FROM node:22.12-alpine AS pruner
+RUN apk add --no-cache libc6-compat
+RUN npm install -g turbo@2.7.2
+WORKDIR /app
+COPY . .
+RUN turbo prune @omnivore/api --docker
+
+# Stage 2: Install dependencies with pnpm
 FROM node:22.12-alpine AS deps
 WORKDIR /app
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
-# Install build dependencies
 RUN apk add --no-cache g++ make python3 py3-setuptools
+RUN npm install -g pnpm@9
 
-# Copy package files for better caching
-COPY package.json yarn.lock ./
-COPY packages/readabilityjs/package.json ./packages/readabilityjs/
-COPY packages/api/package.json ./packages/api/
-COPY packages/text-to-speech/package.json ./packages/text-to-speech/
-COPY packages/content-handler/package.json ./packages/content-handler/
-COPY packages/liqe/package.json ./packages/liqe/
-COPY packages/utils/package.json ./packages/utils/
+COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY pnpm-workspace.yaml .npmrc ./
 
-# Install all dependencies
-RUN yarn install --frozen-lockfile --network-timeout=300000
+RUN pnpm install --frozen-lockfile
 
-
+# Stage 3: Build
 FROM node:22.12-alpine AS builder
 WORKDIR /app
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
-# Copy package.json for yarn workspace
-COPY package.json yarn.lock ./
+RUN npm install -g pnpm@9
 
-# Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
-
-# Copy source files
+COPY --from=deps /app/packages ./packages
+COPY --from=pruner /app/out/full/ .
 COPY tsconfig.json .prettierrc .eslintrc ./
-COPY packages/readabilityjs ./packages/readabilityjs
-COPY packages/api ./packages/api
-COPY packages/text-to-speech ./packages/text-to-speech
-COPY packages/content-handler ./packages/content-handler
-COPY packages/liqe ./packages/liqe
-COPY packages/utils ./packages/utils
 
-# Build all workspaces in order
-RUN yarn workspace @omnivore/utils build && \
-    yarn workspace @omnivore/text-to-speech-handler build && \
-    yarn workspace @omnivore/content-handler build && \
-    yarn workspace @omnivore/liqe build && \
-    yarn workspace @omnivore/api build
+RUN pnpm --filter @omnivore/utils build && \
+    pnpm --filter @omnivore/text-to-speech-handler build && \
+    pnpm --filter @omnivore/content-handler build && \
+    pnpm --filter @omnivore/liqe build && \
+    pnpm --filter @omnivore/api build
 
+# Stage 4: Production dependencies only
+FROM node:22.12-alpine AS prod-deps
+WORKDIR /app
 
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV NODE_ENV=production
+
+RUN apk add --no-cache g++ make python3 py3-setuptools
+RUN npm install -g pnpm@9
+
+COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY pnpm-workspace.yaml .npmrc ./
+
+RUN pnpm install --frozen-lockfile --prod
+
+# Stage 5: Runner
 FROM node:22.12-alpine AS runner
 LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
 
@@ -58,14 +68,13 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NODE_OPTIONS=--max-old-space-size=4096
 
-# Install runtime dependencies and create user
 RUN apk add --no-cache netcat-openbsd && \
     addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 omnivore
 
-# Copy built artifacts
-COPY --from=builder --chown=omnivore:nodejs /app/package.json ./
-COPY --from=builder --chown=omnivore:nodejs /app/node_modules ./node_modules
+COPY --from=prod-deps --chown=omnivore:nodejs /app/node_modules ./node_modules
+COPY --from=prod-deps --chown=omnivore:nodejs /app/package.json ./
+
 COPY --from=builder --chown=omnivore:nodejs /app/packages/api/dist ./packages/api/dist
 COPY --from=builder --chown=omnivore:nodejs /app/packages/api/package.json ./packages/api/
 COPY --from=builder --chown=omnivore:nodejs /app/packages/readabilityjs ./packages/readabilityjs
@@ -80,4 +89,4 @@ COPY --from=builder --chown=omnivore:nodejs /app/packages/utils/package.json ./p
 
 USER omnivore
 
-CMD ["yarn", "workspace", "@omnivore/api", "start_queue_processor"]
+CMD ["node", "packages/api/dist/src/queue-processor.js"]

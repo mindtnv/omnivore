@@ -10,13 +10,13 @@ Project currently uses PostgreSQL 11. Make sure you use the correct version.
 
 Never commit changed files for migrations that already had been performed elsewhere, - it will break the migrations. 
 
-To migrate to latest version: `yarn migrate`
+To migrate to latest version: `pnpm migrate`
 
-To migrate up/down to specific version: `yarn migrate <version>`
+To migrate up/down to specific version: `pnpm migrate <version>`
 
-To migrate down to empty state: `yarn migrate 0000`
+To migrate down to empty state: `pnpm migrate 0000`
 
-To generate new migration: `yarn generate`
+To generate new migration: `pnpm generate`
 
 _* At the moment, version numbers expect to be padded to 4 digits_
 
@@ -63,7 +63,7 @@ needing to be logged in locally as `postgres`. For simplicity, set the method to
 - Copy .env.example file to .env file: `cp .env.example .env`
 - Modify `.env` and set `PG_USER` to `postgres`
 
-- Run migration: `yarn migrate`
+- Run migration: `pnpm migrate`
 
 ## Accessing the database locally
 

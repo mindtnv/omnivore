@@ -9,7 +9,7 @@
   "keywords": [],
   "license": "Apache-2.0",
   "scripts": {
-    "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "test": "pnpm mocha -r ts-node/register --config mocha-config.json",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
     "build": "tsc",

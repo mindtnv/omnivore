@@ -1,2 +1,2 @@
 
-Run `yarn && yarn cypress open`
+Run `pnpm install && pnpm cypress open`

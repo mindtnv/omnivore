@@ -9,7 +9,7 @@
   "keywords": [],
   "license": "Apache-2.0",
   "scripts": {
-    "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "test": "pnpm mocha -r ts-node/register --config mocha-config.json",
     "test:typecheck": "tsc --noEmit",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
@@ -27,7 +27,7 @@
     "@google-cloud/functions-framework": "3.4.5",
     "@google-cloud/storage": "^7.0.1",
     "@omnivore-app/api": "^1.0.4",
-    "@omnivore/utils": "1.0.0",
+    "@omnivore/utils": "workspace:*",
     "@sentry/serverless": "^7.77.0",
     "archiver": "^7.0.1",
     "dotenv": "^16.0.1",

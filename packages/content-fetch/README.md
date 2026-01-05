@@ -6,7 +6,7 @@ This workspace is used to provide the GCF for the app to handle requests for the
 
 Copy .env.example file to .env file: `cp .env.example .env`
 
-Run `yarn start` to start the Google Cloud Function locally (Works without hot reloading).
+Run `pnpm start` to start the Google Cloud Function locally (Works without hot reloading).
 
 After this, you should be able to access the function on [http://localhost:8080/puppeteer](http://localhost:8080/puppeteer)
 

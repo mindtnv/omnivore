@@ -1,6 +1,6 @@
 📝 **Guidelines for Contribution**
 
-Hello there! When contributing to Omnivore, it's essential to maintain a style consistent with the file you're editing. You can quickly check if your code aligns with our style by running `yarn lint`. Your attention to detail here is appreciated! 😊
+Hello there! When contributing to Omnivore, it's essential to maintain a style consistent with the file you're editing. You can quickly check if your code aligns with our style by running `pnpm lint`. Your attention to detail here is appreciated! 😊
 
 📜 **License**
 
