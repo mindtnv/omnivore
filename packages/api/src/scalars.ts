@@ -20,22 +20,23 @@ export class SanitizedString extends GraphQLScalarType {
       ),
       description: 'Source string that was sanitized',
 
-      serialize(value: string) {
-        return value
+      serialize(value: unknown) {
+        return String(value)
       },
 
       // invoked when a query is passed as a JSON object (for example, when Apollo Client makes a request
-      parseValue(value) {
-        checkLength(value)
-        if (pattern && !new RegExp(pattern).test(value)) {
+      parseValue(value: unknown) {
+        const strValue = String(value)
+        checkLength(strValue)
+        if (pattern && !new RegExp(pattern).test(strValue)) {
           throw new Error(`Specified value does not match pattern`)
         }
-        return sanitize(value, { allowedTags: allowedTags || [] })
+        return sanitize(strValue, { allowedTags: allowedTags || [] })
       },
 
       // invoked when a query is passed as a string
       parseLiteral(ast) {
-        const value = type.parseLiteral(ast, {})
+        const value = String(type.parseLiteral(ast, {}))
         checkLength(value)
         if (pattern && !new RegExp(pattern).test(value)) {
           throw new Error(`Specified value does not match pattern`)
@@ -63,8 +64,8 @@ const ScalarResolvers = {
   Date: new GraphQLScalarType({
     name: 'Date',
     description: 'Date',
-    serialize(value) {
-      const timestamp = Date.parse(value)
+    serialize(value: unknown) {
+      const timestamp = Date.parse(String(value))
       if (!isNaN(timestamp)) {
         return new Date(timestamp).toJSON()
       } else {
