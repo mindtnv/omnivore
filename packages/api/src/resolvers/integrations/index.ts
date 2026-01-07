@@ -24,14 +24,19 @@ import {
   MutationExportToIntegrationArgs,
   MutationImportFromIntegrationArgs,
   MutationSetIntegrationArgs,
+  MutationTestAnkiConnectionArgs,
   QueryIntegrationArgs,
   SetIntegrationError,
   SetIntegrationErrorCode,
   SetIntegrationSuccess,
   TaskState,
+  TestAnkiConnectionError,
+  TestAnkiConnectionErrorCode,
+  TestAnkiConnectionSuccess,
 } from '../../generated/graphql'
 import { createIntegrationToken } from '../../routers/auth/jwt_helpers'
 import {
+  AnkiConnectClient,
   findIntegration,
   findIntegrationByName,
   findIntegrations,
@@ -54,8 +59,27 @@ export const setIntegrationResolver = authorized<
   SetIntegrationError,
   MutationSetIntegrationArgs
 >(async (_, { input }, { uid, log }) => {
+  // Handle settings - can be JSON string or already parsed object
+  let parsedSettings: Record<string, unknown> | undefined
+  if (input.settings) {
+    if (typeof input.settings === 'string') {
+      try {
+        parsedSettings = JSON.parse(input.settings)
+      } catch (e) {
+        log.error('Failed to parse settings JSON', { settings: input.settings, error: e })
+        return {
+          errorCodes: [SetIntegrationErrorCode.BadRequest],
+        }
+      }
+    } else if (typeof input.settings === 'object') {
+      // Already an object (from GraphQL)
+      parsedSettings = input.settings as Record<string, unknown>
+    }
+  }
+
   const integrationToSave: DeepPartial<Integration> = {
     ...input,
+    settings: parsedSettings,
     user: { id: uid },
     id: input.id || undefined,
     type: input.type || undefined,
@@ -79,15 +103,61 @@ export const setIntegrationResolver = authorized<
     integrationToSave.taskName = existingIntegration.taskName
   } else {
     // Create
-    const integrationService = getIntegrationClient(input.name, input.token)
-    // authorize and get access token
-    const token = await integrationService.accessToken()
-    if (!token) {
+    if (input.name.toLowerCase() === 'anki') {
+      integrationToSave.token = input.token || ''
+    } else {
+      const integrationService = getIntegrationClient(input.name, input.token)
+      // authorize and get access token
+      const token = await integrationService.accessToken()
+      if (!token) {
+        return {
+          errorCodes: [SetIntegrationErrorCode.InvalidToken],
+        }
+      }
+      integrationToSave.token = token
+    }
+  }
+
+  // Validate Anki settings BEFORE saving
+  if (input.name.toLowerCase() === 'anki') {
+    const settings = parsedSettings as {
+      ankiConnectUrl?: string
+      targetLanguage?: string
+      defaultDeck?: string
+      autoCreate?: boolean
+    } | undefined
+
+    if (!settings?.ankiConnectUrl) {
+      log.error('Anki integration missing ankiConnectUrl')
       return {
-        errorCodes: [SetIntegrationErrorCode.InvalidToken],
+        errorCodes: [SetIntegrationErrorCode.BadRequest],
       }
     }
-    integrationToSave.token = token
+
+    // Test connection to AnkiConnect before saving
+    try {
+      const tempIntegration = { settings: parsedSettings } as Integration
+      const ankiClient = getIntegrationClient(
+        'anki',
+        input.token || '',
+        tempIntegration
+      ) as AnkiConnectClient
+      const isAvailable = await ankiClient.ping()
+
+      if (!isAvailable) {
+        log.error('Cannot connect to AnkiConnect', { url: settings.ankiConnectUrl })
+        return {
+          errorCodes: [SetIntegrationErrorCode.BadRequest],
+        }
+      }
+
+      log.info('Anki connection validated successfully', { userId: uid })
+    } catch (error) {
+      log.error('Failed to connect to AnkiConnect', { error })
+      return {
+        errorCodes: [SetIntegrationErrorCode.BadRequest],
+      }
+    }
   }
 
   // save integration
@@ -308,5 +378,48 @@ export const exportToIntegrationResolver = authorized<
       runningTime: 0,
       cancellable: true,
     },
+  }
+})
+
+export const testAnkiConnectionResolver = authorized<
+  TestAnkiConnectionSuccess,
+  TestAnkiConnectionError,
+  MutationTestAnkiConnectionArgs
+>(async (_, { input }, { log }) => {
+  const { ankiConnectUrl, apiKey } = input
+
+  if (!ankiConnectUrl) {
+    return {
+      errorCodes: [TestAnkiConnectionErrorCode.BadRequest],
+    }
+  }
+
+  try {
+    const ankiClient = new AnkiConnectClient(
+      apiKey && apiKey !== 'no-token' ? apiKey : '',
+      ankiConnectUrl
+    )
+
+    const isAvailable = await ankiClient.ping()
+
+    if (!isAvailable) {
+      log.error('AnkiConnect test connection failed', { url: ankiConnectUrl })
+      return {
+        errorCodes: [TestAnkiConnectionErrorCode.ConnectionFailed],
+      }
+    }
+
+    // Get version for success response
+    const version = await ankiClient.getVersion()
+
+    return {
+      success: true,
+      version,
+    }
+  } catch (error) {
+    log.error('AnkiConnect test connection error', { error, url: ankiConnectUrl })
+    return {
+      errorCodes: [TestAnkiConnectionErrorCode.ConnectionFailed],
+    }
   }
 })

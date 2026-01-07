@@ -1,4 +1,4 @@
-import { countTokens } from './tokens'
+import { countTokens, truncateToTokenLimit } from './tokens'
 
 export interface ContentChunk {
   html: string
@@ -80,8 +80,21 @@ const extractBlocks = (root: Node): Element[] => {
       }
 
       if (BLOCK_ELEMENTS.has(element.tagName) && hasTranslatableContent(element)) {
-        blocks.push(element)
-        return // Don't traverse children, we got the whole block
+        // Check if this block has child block elements
+        const hasChildBlocks = Array.from(element.childNodes).some(
+          child => child.nodeType === 1 && BLOCK_ELEMENTS.has((child as Element).tagName)
+        )
+
+        if (hasChildBlocks) {
+          // Traverse children to extract child blocks instead
+          for (const child of Array.from(element.childNodes)) {
+            traverse(child)
+          }
+        } else {
+          // This is a leaf block, use it
+          blocks.push(element)
+        }
+        return
       }
 
       // Not a block element or empty, traverse children
@@ -128,7 +141,7 @@ export const chunkHTMLContent = (
         const chunkHTML = currentChunkBlocks.map(b => (b as Element).outerHTML).join('\n')
         chunks.push({
           html: chunkHTML,
-          tokenCount: currentTokenCount,
+          tokenCount: countTokens(chunkHTML),
           nodeIndices: Array.from({ length: currentChunkBlocks.length }, (_, idx) =>
             i - currentChunkBlocks.length + idx
           ),
@@ -152,7 +165,7 @@ export const chunkHTMLContent = (
       const chunkHTML = currentChunkBlocks.map(b => (b as Element).outerHTML).join('\n')
       chunks.push({
         html: chunkHTML,
-        tokenCount: currentTokenCount,
+        tokenCount: countTokens(chunkHTML),
         nodeIndices: Array.from({ length: currentChunkBlocks.length }, (_, idx) =>
           i - currentChunkBlocks.length + idx
         ),
@@ -171,7 +184,7 @@ export const chunkHTMLContent = (
     const chunkHTML = currentChunkBlocks.map(b => (b as Element).outerHTML).join('\n')
     chunks.push({
       html: chunkHTML,
-      tokenCount: currentTokenCount,
+      tokenCount: countTokens(chunkHTML),
       nodeIndices: Array.from({ length: currentChunkBlocks.length }, (_, idx) =>
         blocks.length - currentChunkBlocks.length + idx
       ),
@@ -216,10 +229,8 @@ export const createTranslationContext = (
     // If still too large, truncate
     const tokens = countTokens(context)
     if (tokens > maxContextTokens) {
-      // Simple truncation - take last maxContextTokens worth of text
-      const ratio = maxContextTokens / tokens
-      const truncateAt = Math.floor(context.length * ratio)
-      context = '...' + context.slice(context.length - truncateAt)
+      const { text: truncatedContext } = truncateToTokenLimit(context, maxContextTokens)
+      context = truncatedContext
     }
   }
 
