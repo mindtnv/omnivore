@@ -6,6 +6,9 @@ import { libraryItemRepository } from '../repository/library_item'
 import { createLLM } from '../utils/ai'
 import { logger } from '../utils/logger'
 import { parseHTML } from 'linkedom'
+import { enqueueGenerateAnkiCards } from '../utils/createTask'
+import { findIntegrationByName } from '../services/integrations'
+import { chunkHTMLContent, createTranslationContext } from '../utils/content-chunker'
 
 export interface TranslateContentJobData {
   userId: string
@@ -15,106 +18,75 @@ export interface TranslateContentJobData {
 
 export const TRANSLATE_CONTENT_JOB_NAME = 'translate-content-job'
 
-// Prompt for translating text while preserving technical terms
-const TRANSLATE_TEXT_PROMPT = ChatPromptTemplate.fromTemplate(`
-Translate the following text to {language}.
+// Prompt for translating HTML content blocks with context
+const TRANSLATE_BLOCK_PROMPT = ChatPromptTemplate.fromTemplate(`
+You are translating an article to {language}.
+
+{context_section}
 
 CRITICAL RULES:
-1. Translate ONLY the human-readable text
-2. DO NOT translate:
-   - Code snippets or technical commands
+1. Translate ONLY the human-readable text within HTML tags
+2. PRESERVE all HTML structure, tags, and attributes exactly
+3. DO NOT translate:
+   - Code snippets within <code>, <pre>, <kbd>, <samp> tags
    - Variable names, function names, class names
    - URLs, email addresses, file paths
    - Numbers, dates in standard formats
    - Brand names and product names (keep original)
-3. Preserve any special characters or punctuation
-4. Do not add any explanations or notes
-5. Output ONLY the translated text, nothing else
+4. Maintain consistency with terminology from the context above
+5. Output ONLY the translated HTML, nothing else (no explanations, no markdown)
 
-Text to translate:
-{text}
+HTML content to translate:
+{content}
 `)
 
-// Elements that should not have their text translated
-const SKIP_ELEMENTS = new Set([
-  'SCRIPT',
-  'STYLE',
-  'CODE',
-  'PRE',
-  'KBD',
-  'SAMP',
-  'VAR',
-  'NOSCRIPT',
-  'TEMPLATE',
-])
-
-// Check if text is mostly code/technical content
-const isCodeLikeText = (text: string): boolean => {
-  // Skip if text is very short
-  if (text.trim().length < 3) return false
-
-  // Check for common code patterns
-  const codePatterns = [
-    /^[a-zA-Z_$][a-zA-Z0-9_$]*\s*\(/, // function call
-    /^[a-zA-Z_$][a-zA-Z0-9_$]*\s*=/, // assignment
-    /^\s*\/\//, // comment
-    /^\s*[{}[\]();,]/, // brackets/punctuation only
-    /^https?:\/\//, // URL
-    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, // email
-    /^\d+$/, // numbers only
-  ]
-
-  return codePatterns.some((pattern) => pattern.test(text.trim()))
-}
-
-// Collect translatable text segments from HTML
-const collectTextSegments = (
-  node: Node,
-  segments: { node: Node; text: string }[]
-): void => {
-  if (node.nodeType === 3) {
-    // Text node
-    const text = node.textContent || ''
-    if (text.trim().length > 0 && !isCodeLikeText(text)) {
-      segments.push({ node, text })
-    }
-  } else if (node.nodeType === 1) {
-    // Element node
-    const element = node as Element
-    if (!SKIP_ELEMENTS.has(element.tagName)) {
-      for (const child of Array.from(node.childNodes)) {
-        collectTextSegments(child, segments)
-      }
-    }
+/**
+ * Build context section for prompt
+ */
+const buildContextSection = (context: string): string => {
+  if (!context) {
+    return 'This is the beginning of the article.'
   }
+
+  return `
+CONTEXT FROM PREVIOUS SECTIONS (already translated):
+---
+${context}
+---
+
+Use this context to maintain consistency in terminology and style.
+`.trim()
 }
 
-// Batch translate multiple text segments
-const translateBatch = async (
+/**
+ * Translate a single content chunk with context
+ */
+const translateChunk = async (
   llm: ReturnType<typeof createLLM>,
-  texts: string[],
+  content: string,
+  context: string,
   targetLanguage: string
-): Promise<string[]> => {
-  if (!llm || texts.length === 0) return texts
-
-  const chain = TRANSLATE_TEXT_PROMPT.pipe(llm).pipe(new StringOutputParser())
-
-  // Translate each text segment
-  const results: string[] = []
-  for (const text of texts) {
-    try {
-      const translated = await chain.invoke({
-        language: targetLanguage,
-        text: text,
-      })
-      results.push(translated.trim())
-    } catch (err) {
-      logger.error('Error translating text segment:', err)
-      results.push(text) // Keep original on error
-    }
+): Promise<string> => {
+  if (!llm) {
+    return content
   }
 
-  return results
+  const chain = TRANSLATE_BLOCK_PROMPT.pipe(llm).pipe(new StringOutputParser())
+
+  try {
+    const contextSection = buildContextSection(context)
+
+    const translated = await chain.invoke({
+      language: targetLanguage,
+      content: content,
+      context_section: contextSection,
+    })
+
+    return translated.trim()
+  } catch (err) {
+    logger.error('Error translating content chunk:', err)
+    return content // Return original on error
+  }
 }
 
 export const translateContent = async (
@@ -172,7 +144,6 @@ export const translateContent = async (
     }
 
     // Parse the original HTML content
-    // linkedom uses documentElement for fragments without html/body tags
     const { document } = parseHTML(libraryItem.readableContent)
     const root = document.body?.childNodes?.length
       ? document.body
@@ -180,45 +151,68 @@ export const translateContent = async (
 
     if (!root) {
       logger.error('No root element found in HTML content')
+      await authTrx(
+        async (tx) => {
+          await tx
+            .getRepository(LibraryItem)
+            .update(libraryItemId, { translationStatus: 'FAILED' })
+        },
+        { uid: userId }
+      )
       return
     }
 
-    // Collect all translatable text segments
-    const segments: { node: Node; text: string }[] = []
-    collectTextSegments(root, segments)
+    // Chunk the HTML content
+    const chunks = chunkHTMLContent(root, 3000)
 
-    logger.info(
-      `Found ${segments.length} text segments to translate for item ${libraryItemId}`
-    )
-
-    // Translate in batches to avoid overwhelming the API
-    const BATCH_SIZE = 20
-    for (let i = 0; i < segments.length; i += BATCH_SIZE) {
-      const batch = segments.slice(i, i + BATCH_SIZE)
-      const texts = batch.map((s) => s.text)
-      const translated = await translateBatch(llm, texts, targetLanguage)
-
-      // Update the DOM nodes with translated text
-      for (let j = 0; j < batch.length; j++) {
-        batch[j].node.textContent = translated[j]
-      }
-
-      logger.info(
-        `Translated batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(segments.length / BATCH_SIZE)}`
+    if (chunks.length === 0) {
+      logger.info(`No translatable content found for item ${libraryItemId}`)
+      await authTrx(
+        async (tx) => {
+          await tx.getRepository(LibraryItem).update(libraryItemId, {
+            translationStatus: 'COMPLETED',
+          })
+        },
+        { uid: userId }
       )
+      return
     }
 
-    // Get the translated HTML (preserves all original structure)
-    // Use outerHTML for documentElement (fragment), innerHTML for body
-    let translatedHtml =
-      root === document.documentElement
-        ? (root as Element).outerHTML
-        : (root as Element).innerHTML
+    logger.info(
+      `Chunked content into ${chunks.length} blocks for item ${libraryItemId}`
+    )
 
-    // linkedom may insert spurious <head></head><body></body> - remove them
-    translatedHtml = translatedHtml
-      .replace(/<head><\/head>/g, '')
-      .replace(/<body><\/body>/g, '')
+    // Translate chunks with context window
+    const translatedChunks: { original: string; translated: string }[] = []
+
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i]
+
+      // Build context from previous translated chunks
+      const context = createTranslationContext(translatedChunks, 2, 2000)
+
+      logger.info(
+        `Translating chunk ${i + 1}/${chunks.length} (${chunk.tokenCount} tokens)`
+      )
+
+      // Translate this chunk
+      const translatedHTML = await translateChunk(
+        llm,
+        chunk.html,
+        context,
+        targetLanguage
+      )
+
+      translatedChunks.push({
+        original: chunk.html,
+        translated: translatedHTML,
+      })
+    }
+
+    // Combine translated chunks
+    // Each chunk is already a complete HTML block that was translated as a unit.
+    // Simply joining them preserves the structure without duplication.
+    const translatedHtml = translatedChunks.map(c => c.translated).join('\n')
 
     // Save translated content
     await authTrx(
@@ -233,6 +227,25 @@ export const translateContent = async (
     )
 
     logger.info(`Translation completed for item ${libraryItemId}`)
+
+    // Check if auto-create is enabled for Anki integration
+    try {
+      const ankiIntegration = await findIntegrationByName('ANKI', userId)
+      const settings = ankiIntegration?.settings as { autoCreate?: boolean } | undefined
+      if (ankiIntegration?.enabled && settings?.autoCreate) {
+        logger.info('Auto-creating Anki cards after translation', { libraryItemId })
+        await enqueueGenerateAnkiCards({
+          userId,
+          libraryItemId,
+        })
+      }
+    } catch (ankiError) {
+      // Don't fail the translation job if Anki card generation fails to enqueue
+      logger.error('Failed to enqueue Anki card generation after translation', {
+        error: ankiError,
+        libraryItemId,
+      })
+    }
   } catch (err) {
     logger.error('Error translating content:', err)
 
