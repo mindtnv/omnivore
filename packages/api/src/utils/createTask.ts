@@ -21,6 +21,10 @@ import {
   TRANSLATE_CONTENT_JOB_NAME,
 } from '../jobs/translate-content'
 import {
+  GenerateAnkiCardsJobData,
+  GENERATE_ANKI_CARDS_JOB_NAME,
+} from '../jobs/generate-anki-cards'
+import {
   CreateDigestData,
   CreateDigestJobResponse,
   CreateDigestJobSchedule,
@@ -116,6 +120,8 @@ export const getJobPriority = (jobName: string): number => {
     case `${FETCH_CONTENT_JOB}_rss_low`:
     case TRIGGER_RULE_JOB_NAME:
     case THUMBNAIL_JOB:
+    case GENERATE_ANKI_CARDS_JOB_NAME:
+    case TRANSLATE_CONTENT_JOB_NAME:
       return 10
     case `${REFRESH_FEED_JOB_NAME}_low`:
     case CREATE_DIGEST_JOB:
@@ -741,9 +747,42 @@ export const enqueueTranslateContentJob = async (
     return undefined
   }
 
+  // Create unique jobId for deduplication
+  const jobId = `${TRANSLATE_CONTENT_JOB_NAME}_${data.libraryItemId}_${data.targetLanguage}_${JOB_VERSION}`
+
   return queue.add(TRANSLATE_CONTENT_JOB_NAME, data, {
+    jobId, // deduplication by libraryItemId + targetLanguage
+    removeOnComplete: true,
+    removeOnFail: true,
     priority: getJobPriority(TRANSLATE_CONTENT_JOB_NAME),
     attempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 2000,
+    },
+  })
+}
+
+export const enqueueGenerateAnkiCards = async (
+  data: GenerateAnkiCardsJobData
+) => {
+  const queue = await getQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  const jobId = `${GENERATE_ANKI_CARDS_JOB_NAME}_${data.libraryItemId}_${JOB_VERSION}`
+
+  return queue.add(GENERATE_ANKI_CARDS_JOB_NAME, data, {
+    jobId, // deduplication by libraryItemId
+    removeOnComplete: true,
+    removeOnFail: true,
+    priority: getJobPriority(GENERATE_ANKI_CARDS_JOB_NAME),
+    attempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 2000,
+    },
   })
 }
 
