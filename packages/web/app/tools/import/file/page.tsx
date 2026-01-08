@@ -2,7 +2,6 @@
 
 export const dynamic = 'force-dynamic'
 
-import 'antd/dist/reset.css'
 import { ChangeEvent, useState } from 'react'
 import { SyncLoader } from 'react-spinners'
 import { Button } from '../../../../components/elements/Button'

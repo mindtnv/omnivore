@@ -15,6 +15,9 @@ body {
   background-color: #F8F8F8;
   /* Smooth transition when theme is applied */
   transition: background-color 0.1s ease-out;
+  /* Prevent double scrollbar - layouts handle their own scrolling */
+  overflow: hidden;
+  height: 100%;
 }
 
 /* Theme-specific backgrounds applied before JS hydration */
@@ -68,7 +71,7 @@ html.theme-black body {
   width: 32px;
   height: 32px;
   border: 3px solid #E1E1E1;
-  border-top-color: #007AFF;
+  border-top-color: #FFD234;
   border-radius: 50%;
   animation: initial-spin 0.8s linear infinite;
 }
@@ -77,7 +80,7 @@ html.theme-dark .initial-loader-spinner,
 html.theme-apollo .initial-loader-spinner,
 html.theme-black .initial-loader-spinner {
   border-color: #3D3D3D;
-  border-top-color: #007AFF;
+  border-top-color: #FFD234;
 }
 
 /* Hide initial loader once React has mounted */

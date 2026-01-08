@@ -161,7 +161,7 @@ services:
       context: .
       dockerfile: ./packages/api/Dockerfile
     container_name: "omnivore-queue-processor"
-    command: ["yarn", "workspace", "@omnivore/api", "start_queue_processor"]
+    command: ["node", "packages/api/dist/src/queue-processor.js"]
     environment:
       - API_ENV=local
       - PG_HOST=postgres
@@ -206,6 +206,8 @@ services:
     ports:
       - "3000:8080"
     environment:
+      - NODE_ENV=development
+      - SSO_JWT_SECRET=some_sso_secret
       - NEXT_PUBLIC_APP_ENV=prod
       - NEXT_PUBLIC_BASE_URL=http://localhost:3000
       - NEXT_PUBLIC_SERVER_BASE_URL=http://localhost:4000

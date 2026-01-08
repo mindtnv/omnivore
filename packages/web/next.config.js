@@ -16,7 +16,7 @@ const ContentSecurityPolicy = `
 
 const moduleExports = {
   output: 'standalone',
-  transpilePackages: ["antd", "@ant-design", "rc-util", "rc-pagination", "rc-picker", "rc-notification", "rc-tooltip", "rc-tree", "rc-table"],
+  transpilePackages: [],
   // Turbopack config for monorepo
   turbopack: {
     root: '../..',

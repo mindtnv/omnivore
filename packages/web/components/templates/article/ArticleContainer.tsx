@@ -434,7 +434,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           },
           '@mdDown': {
             maxWidth: maxWidthStyles.small,
-            padding: 15,
+            padding: 20,
           },
         }}
       >
@@ -518,6 +518,12 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
                 manually empty your trash.
                 <Button
                   style="ctaBlue"
+                  css={{
+                    '@mdDown': {
+                      minHeight: '44px',
+                      width: '100%',
+                    },
+                  }}
                   onClick={async (event) => {
                     try {
                       const item = await restoreItem.mutateAsync({
@@ -572,6 +578,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             },
             '@media print': {
               display: 'none',
+            },
+            '@mdDown': {
+              minHeight: '44px',
             },
           }}
           onClick={() => setShowReportIssuesModal(true)}

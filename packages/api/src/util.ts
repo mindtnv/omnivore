@@ -147,6 +147,7 @@ export interface BackendEnv {
       baseUrl: string
       model: string
     }
+    translationEnabled: boolean
   }
 }
 
@@ -223,6 +224,7 @@ const nullableEnvVars = [
   'OPENAI_API_KEY',
   'OPENAI_BASE_URL',
   'OPENAI_MODEL',
+  'AI_TRANSLATION_ENABLED',
 ] // Allow some vars to be null/empty
 
 const envParser =
@@ -241,6 +243,14 @@ const envParser =
 
 interface Dict<T> {
   [key: string]: T | undefined
+  }
+
+const parseOptionalBoolean = (value: string, fallback: boolean): boolean => {
+  if (!value) {
+    return fallback
+  }
+
+  return value === 'true' || value === '1'
 }
 
 export function getEnv(): BackendEnv {
@@ -406,6 +416,10 @@ export function getEnv(): BackendEnv {
       baseUrl: parse('OPENAI_BASE_URL') || 'https://api.openai.com/v1',
       model: parse('OPENAI_MODEL') || 'gpt-4o-mini',
     },
+    translationEnabled: parseOptionalBoolean(
+      parse('AI_TRANSLATION_ENABLED'),
+      !dev.isLocal
+    ),
   }
 
   return {

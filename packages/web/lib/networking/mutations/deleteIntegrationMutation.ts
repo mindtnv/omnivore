@@ -7,12 +7,8 @@ type DeleteIntegrationResult = {
 }
 
 type DeleteIntegrationData = {
-  deleteIntegration?: DeleteIntegrationSuccess
+  integration?: Integration
   errorCodes?: unknown[]
-}
-
-type DeleteIntegrationSuccess = {
-  integration: Integration
 }
 
 type Integration = {
@@ -43,10 +39,13 @@ export async function deleteIntegrationMutation(
   `
 
   const data = (await gqlFetcher(mutation, { id })) as DeleteIntegrationResult
-  const output = data as any
   const error = data.deleteIntegration?.errorCodes?.find(() => true)
   if (error) {
     throw error
   }
-  return output.deleteIntegration?.deleteIntegration?.integration
+  const integration = data.deleteIntegration?.integration
+  if (!integration) {
+    throw new Error('Failed to delete integration')
+  }
+  return integration
 }

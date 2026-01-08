@@ -69,6 +69,7 @@ export const ModalTitleBar = (props: ModalTitleBarProps) => {
 
 type ModalButtonBarProps = {
   acceptButtonLabel?: string
+  onAccept?: () => void
   onOpenChange: (open: boolean) => void
 }
 
@@ -99,7 +100,15 @@ export const ModalButtonBar = (props: ModalButtonBarProps) => {
       >
         {'Cancel'}
       </Button>
-      <Button style={'ctaDarkYellow'}>
+      <Button
+        style={'ctaDarkYellow'}
+        onClick={(event) => {
+          event.preventDefault()
+          if (props.onAccept) {
+            props.onAccept()
+          }
+        }}
+      >
         {props.acceptButtonLabel || 'Submit'}
       </Button>
     </HStack>

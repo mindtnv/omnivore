@@ -19,6 +19,9 @@ import {
   isFileExists,
   uploadToSignedUrl,
 } from '../utils/uploads'
+import { enqueueGenerateAnkiCards } from '../utils/createTask'
+import { findIntegrationByName } from '../services/integrations'
+import { findUserPersonalization } from '../services/user_personalization'
 
 const signToken = promisify(jwt.sign)
 
@@ -283,6 +286,39 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
 
     isImported = true
     isSaved = true
+
+    // Auto-create Anki cards if enabled (but only if translation is not pending)
+    try {
+      const ankiIntegration = await findIntegrationByName('ANKI', userId)
+      const settings = ankiIntegration?.settings as { autoCreate?: boolean } | undefined
+
+      if (ankiIntegration?.enabled && settings?.autoCreate) {
+        // Check if user has auto-translate enabled
+        // If so, skip Anki card creation now - it will be triggered after translation completes
+        const userPersonalization = await findUserPersonalization(userId)
+
+        if (env.ai.translationEnabled && userPersonalization?.autoTranslate) {
+          logger.info('Skipping Anki card creation after save - will create after translation', {
+            libraryItemId: articleSavingRequestId,
+          })
+        } else {
+          // No auto-translate, create Anki cards immediately
+          logger.info('Auto-creating Anki cards after save', {
+            libraryItemId: articleSavingRequestId,
+          })
+          await enqueueGenerateAnkiCards({
+            userId,
+            libraryItemId: articleSavingRequestId,
+          })
+        }
+      }
+    } catch (ankiError) {
+      // Don't fail the save job if Anki card generation fails to enqueue
+      logger.error('Failed to enqueue Anki card generation after save', {
+        error: ankiError,
+        libraryItemId: articleSavingRequestId,
+      })
+    }
   } catch (e) {
     logError(e)
 

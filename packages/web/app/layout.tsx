@@ -101,7 +101,7 @@ export default function RootLayout({
                 width: 32px;
                 height: 32px;
                 border: 3px solid #E1E1E1;
-                border-top-color: #007AFF;
+                border-top-color: #FFD234;
                 border-radius: 50%;
                 animation: initial-spin 0.8s linear infinite;
               }
@@ -109,7 +109,7 @@ export default function RootLayout({
               html.theme-apollo .initial-loader-spinner,
               html.theme-black .initial-loader-spinner {
                 border-color: #3D3D3D;
-                border-top-color: #007AFF;
+                border-top-color: #FFD234;
               }
               /* Hide loader when app is ready */
               body.app-ready .initial-loader {

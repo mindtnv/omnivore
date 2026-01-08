@@ -1,6 +1,6 @@
 import { ChatPromptTemplate } from '@langchain/core/prompts'
 import { StringOutputParser } from '@langchain/core/output_parsers'
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
+import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters'
 import { AISummary } from '../entity/AISummary'
 import { LibraryItemState } from '../entity/library_item'
 import { authTrx } from '../repository'
@@ -15,6 +15,7 @@ export interface AISummarizeJobData {
   promptId?: string
   libraryItemId: string
   language?: string // User's preferred language for summary
+  itemLanguage?: string | null // Original item language for translation decision
 }
 
 export const AI_SUMMARIZE_JOB_NAME = 'ai-summary-job'
@@ -134,6 +135,7 @@ export const aiSummarize = async (jobData: AISummarizeJobData) => {
         uid: jobData.userId,
       }
     )
+
   } catch (err) {
     console.log('error creating summary: ', err)
   }

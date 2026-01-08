@@ -7,7 +7,6 @@ import { applyStoredTheme } from '../../../../lib/themeUpdater'
 
 import { Box, VStack } from '../../../../components/elements/LayoutPrimitives'
 
-import 'antd/dist/reset.css'
 import { StyledText } from '../../../../components/elements/StyledText'
 import { ProfileLayout } from '../../../../components/templates/ProfileLayout'
 import {

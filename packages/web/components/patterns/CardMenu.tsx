@@ -16,6 +16,7 @@ export type CardMenuDropdownAction =
   | 'showOriginal'
   | 'unsubscribe'
   | 'editTitle'
+  | 'create-anki-cards'
 
 type CardMenuProps = {
   item: LibraryItemNode
@@ -23,6 +24,7 @@ type CardMenuProps = {
   triggerElement: ReactNode
   actionHandler: (action: CardMenuDropdownAction) => void
   onOpenChange?: (open: boolean) => void
+  ankiEnabled?: boolean
 }
 
 export function CardMenu(props: CardMenuProps): JSX.Element {
@@ -102,6 +104,14 @@ export function CardMenu(props: CardMenuProps): JSX.Element {
         }}
         title="Remove"
       />
+      {props.ankiEnabled && (
+        <DropdownOption
+          onSelect={() => {
+            props.actionHandler('create-anki-cards')
+          }}
+          title="Create Anki Cards"
+        />
+      )}
       {/* {!!props.item.subscription && (
         <DropdownOption
           onSelect={() => {

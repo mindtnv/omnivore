@@ -1,10 +1,13 @@
 import { DeepPartial, FindOptionsWhere } from 'typeorm'
 import { Integration } from '../../entity/integration'
 import { authTrx } from '../../repository'
+import { AnkiConnectClient } from './anki'
 import { IntegrationClient } from './integration'
 import { NotionClient } from './notion'
 import { PocketClient } from './pocket'
 import { ReadwiseClient } from './readwise'
+
+export { AnkiConnectClient } from './anki'
 
 export const getIntegrationClient = (
   name: string,
@@ -18,6 +21,16 @@ export const getIntegrationClient = (
       return new PocketClient(token)
     case 'notion':
       return new NotionClient(token, integrationData)
+    case 'anki': {
+      const settings = integrationData?.settings as {
+        ankiConnectUrl?: string
+      } | undefined
+      return new AnkiConnectClient(
+        token,
+        settings?.ankiConnectUrl || 'http://localhost:8765',
+        integrationData
+      )
+    }
     default:
       throw new Error(`Integration client not found: ${name}`)
   }

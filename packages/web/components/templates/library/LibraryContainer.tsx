@@ -57,6 +57,8 @@ import { State } from '../../../lib/networking/fragments/articleFragment'
 import { useHandleAddUrl } from '../../../lib/hooks/useHandleAddUrl'
 import { useGetViewer } from '../../../lib/networking/viewer/useGetViewer'
 import { Spinner } from '@phosphor-icons/react/dist/ssr'
+import { AnkiCardsModal } from '../anki/AnkiCardsModal'
+import { generateAnkiCardsMutation } from '../../../lib/networking/mutations/generateAnkiCardsMutation'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -107,6 +109,7 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
   const [linkToEdit, setLinkToEdit] = useState<LibraryItem>()
   const [linkToUnsubscribe, setLinkToUnsubscribe] = useState<LibraryItem>()
+  const [ankiModalTarget, setAnkiModalTarget] = useState<LibraryItem | undefined>(undefined)
 
   const archiveItem = useArchiveItem()
   const deleteItem = useDeleteItem()
@@ -434,6 +437,22 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
         break
       case 'unsubscribe':
         // setLinkToUnsubscribe(item.node)
+        break
+      case 'create-anki-cards':
+        try {
+          await generateAnkiCardsMutation(item.node.id)
+          showSuccessToast('Generating Anki cards...', {
+            position: 'bottom-right',
+          })
+        } catch (err) {
+          console.log('Error generating Anki cards: ', err)
+          showErrorToast('Error generating Anki cards', {
+            position: 'bottom-right',
+          })
+        }
+        break
+      case 'view-anki-cards':
+        setAnkiModalTarget(item)
         break
       default:
         console.warn('unknown action: ', action)
@@ -844,6 +863,8 @@ export function LibraryContainer(props: LibraryContainerProps): JSX.Element {
       linkToUnsubscribe={linkToUnsubscribe}
       setLinkToUnsubscribe={setLinkToUnsubscribe}
       numItemsSelected={checkedItems.length}
+      ankiModalTarget={ankiModalTarget}
+      setAnkiModalTarget={setAnkiModalTarget}
     />
   )
 }
@@ -893,6 +914,9 @@ export type HomeFeedContentProps = {
   numItemsSelected: number
 
   performMultiSelectAction: (action: BulkAction, labelIds?: string[]) => void
+
+  ankiModalTarget: LibraryItem | undefined
+  setAnkiModalTarget: (target: LibraryItem | undefined) => void
 }
 
 function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
@@ -994,6 +1018,9 @@ type LibraryItemsLayoutProps = {
 
   isChecked: (itemId: string) => boolean
   setIsChecked: (itemId: string, set: boolean) => void
+
+  ankiModalTarget: LibraryItem | undefined
+  setAnkiModalTarget: (target: LibraryItem | undefined) => void
 } & HomeFeedContentProps
 
 export function LibraryItemsLayout(
@@ -1222,6 +1249,17 @@ export function LibraryItemsLayout(
       {showUploadModal && (
         <UploadModal onOpenChange={() => setShowUploadModal(false)} />
       )}
+      {props.ankiModalTarget?.node.id && (
+        <AnkiCardsModal
+          libraryItemId={props.ankiModalTarget.node.id}
+          open={!!props.ankiModalTarget}
+          onOpenChange={(open) => {
+            if (!open) {
+              props.setAnkiModalTarget(undefined)
+            }
+          }}
+        />
+      )}
     </>
   )
 }
@@ -1330,6 +1368,8 @@ function LibraryItemsList(props: LibraryItemsProps): JSX.Element {
               isChecked={props.isChecked(linkedItem.node.id)}
               setIsChecked={props.setIsChecked}
               multiSelectMode={props.multiSelectMode}
+              ankiCardCount={linkedItem.node.ankiCardCount ?? undefined}
+              ankiCardStatus={linkedItem.node.ankiCardCount ? 'COMPLETED' : undefined}
               handleAction={(action: LinkedItemCardAction) => {
                 if (action === 'editTitle') {
                   props.setShowEditTitleModal(true)

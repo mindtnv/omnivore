@@ -131,7 +131,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayBorderHover: 'hsl(0 0% 78.0%)',
         grayText: '#6A6968',
 
-        ctaBlue: '#007AFF',
+        ctaBlue: 'rgb(255, 210, 52)',
         modalBackground: '#FFFFFF',
 
         highlightBackground: '255, 210, 52',

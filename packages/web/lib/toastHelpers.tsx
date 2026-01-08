@@ -1,5 +1,5 @@
 import { toast, ToastOptions } from 'react-hot-toast'
-import { CheckCircle, WarningCircle, X } from '@phosphor-icons/react'
+import { CheckCircle, WarningCircle, X, Info } from '@phosphor-icons/react'
 import { Box, HStack } from '../components/elements/LayoutPrimitives'
 import { styled } from '@stitches/react'
 import { Button } from '../components/elements/Button'
@@ -29,7 +29,7 @@ const FullWidthContainer = styled(HStack, {
   width: '100%',
 })
 
-type ToastType = 'success' | 'error'
+type ToastType = 'success' | 'error' | 'info'
 
 const showToast = (
   message: string,
@@ -42,6 +42,8 @@ const showToast = (
       <FullWidthContainer alignment="center">
         {type === 'success' ? (
           <CheckCircle size={24} color="white" />
+        ) : type === 'info' ? (
+          <Info size={24} color="white" />
         ) : (
           <WarningCircle size={24} color="white" />
         )}
@@ -178,4 +180,43 @@ export const showSuccessToastWithAction = (
   return showToastWithAction(message, '#55B938', actionName, action, {
     position: 'bottom-right',
   })
+}
+
+export const showInfoToast = (message: string, options?: ToastOptions) => {
+  return showToast(message, '#FFD234', 'info', {
+    position: 'bottom-right',
+    ...options,
+  })
+}
+
+export const showLoadingToast = (message: string) => {
+  return toast.loading(
+    ({ id }) => (
+      <FullWidthContainer alignment="center">
+        <Box
+          css={{
+            border: '3px solid rgba(255, 255, 255, 0.3)',
+            borderTop: '3px solid white',
+            borderRadius: '50%',
+            width: '20px',
+            height: '20px',
+            animation: 'spin 0.8s linear infinite',
+            '@keyframes spin': {
+              '0%': { transform: 'rotate(0deg)' },
+              '100%': { transform: 'rotate(360deg)' }
+            }
+          }}
+        />
+        <MessageContainer>{message}</MessageContainer>
+      </FullWidthContainer>
+    ),
+    {
+      style: {
+        ...toastStyles,
+        background: '#6A6968',
+      },
+      duration: Infinity,
+      position: 'bottom-right',
+    }
+  )
 }

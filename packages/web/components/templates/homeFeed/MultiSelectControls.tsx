@@ -8,7 +8,7 @@ import { LabelIcon } from '../../elements/icons/LabelIcon'
 import { TrashIcon } from '../../elements/icons/TrashIcon'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { AddBulkLabelsModal } from '../article/AddBulkLabelsModal'
-import { X } from '@phosphor-icons/react'
+import { X, Cards } from '@phosphor-icons/react'
 import { MultiSelectMode } from './LibraryHeader'
 import { HeaderCheckboxIcon } from '../../elements/icons/HeaderCheckboxIcon'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
@@ -29,6 +29,8 @@ export type MultiSelectProps = {
   setMultiSelectMode: (mode: MultiSelectMode) => void
 
   performMultiSelectAction: (action: BulkAction, labelIds?: string[]) => void
+
+  ankiEnabled?: boolean
 }
 
 export const MultiSelectControls = (props: MultiSelectProps): JSX.Element => {
@@ -50,6 +52,10 @@ export const MultiSelectControls = (props: MultiSelectProps): JSX.Element => {
         borderRadius: '6px',
         boxShadow:
           '0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06);',
+        '@mdDown': {
+          minHeight: '44px',
+          height: '44px',
+        },
       }}
       onMouseLeave={(event) => {
         setHoveredOut(true)
@@ -138,6 +144,7 @@ export const MultiSelectControls = (props: MultiSelectProps): JSX.Element => {
             <RemoveItemsButton setShowConfirmDelete={setShowConfirmDelete} />
           )}
           <MarkAsReadButton {...props} />
+          {props.ankiEnabled && <CreateAnkiCardsButton {...props} />}
           {showConfirmDelete && (
             <ConfirmationModal
               message={`You are about to delete ${props.numItemsSelected} items. All associated notes and highlights will be deleted.`}
@@ -208,6 +215,11 @@ export const ArchiveButton = (props: MultiSelectProps): JSX.Element => {
           borderRadius: '100px',
           opacity: 1.0,
         },
+        '@mdDown': {
+          minHeight: '44px',
+          minWidth: '44px',
+          p: '12px',
+        },
       }}
       onMouseEnter={(event) => {
         setColor('white')
@@ -243,6 +255,11 @@ export const MarkAsReadButton = (props: MultiSelectProps): JSX.Element => {
           borderRadius: '100px',
           opacity: 1.0,
         },
+        '@mdDown': {
+          minHeight: '44px',
+          minWidth: '44px',
+          p: '12px',
+        },
       }}
       onMouseEnter={(event) => {
         setColor('white')
@@ -277,6 +294,11 @@ export const MoveToLibraryButton = (props: MultiSelectProps): JSX.Element => {
           bg: '$ctaBlue',
           borderRadius: '100px',
           opacity: 1.0,
+        },
+        '@mdDown': {
+          minHeight: '44px',
+          minWidth: '44px',
+          p: '12px',
         },
       }}
       onMouseEnter={(event) => {
@@ -316,6 +338,11 @@ export const AddLabelsButton = (props: AddLabelsButtonProps): JSX.Element => {
           bg: '$ctaBlue',
           borderRadius: '100px',
           opacity: 1.0,
+        },
+        '@mdDown': {
+          minHeight: '44px',
+          minWidth: '44px',
+          p: '12px',
         },
       }}
       onMouseEnter={(event) => {
@@ -358,6 +385,11 @@ export const RemoveItemsButton = (
           borderRadius: '100px',
           opacity: 1.0,
         },
+        '@mdDown': {
+          minHeight: '44px',
+          minWidth: '44px',
+          p: '12px',
+        },
       }}
       onMouseEnter={(event) => {
         setColor('white')
@@ -378,6 +410,46 @@ export const RemoveItemsButton = (
   )
 }
 
+export const CreateAnkiCardsButton = (props: MultiSelectProps): JSX.Element => {
+  const [color, setColor] = useState<string>(
+    theme.colors.thTextContrast2.toString()
+  )
+  return (
+    <Button
+      title="Create Anki Cards"
+      css={{
+        p: '5px',
+        display: 'flex',
+        '&:hover': {
+          bg: '$ctaBlue',
+          borderRadius: '100px',
+          opacity: 1.0,
+        },
+        '@mdDown': {
+          minHeight: '44px',
+          minWidth: '44px',
+          p: '12px',
+        },
+      }}
+      onMouseEnter={(event) => {
+        setColor('white')
+        event.preventDefault()
+      }}
+      onMouseLeave={(event) => {
+        setColor(theme.colors.thTextContrast2.toString())
+        event.preventDefault()
+      }}
+      style="plainIcon"
+      onClick={(e) => {
+        props.performMultiSelectAction(BulkAction.CREATE_ANKI_CARDS)
+        e.preventDefault()
+      }}
+    >
+      <Cards size={20} color={color} weight="bold" />
+    </Button>
+  )
+}
+
 export const CancelButton = (props: MultiSelectProps): JSX.Element => {
   const [color, setColor] = useState<string>(
     theme.colors.thTextContrast2.toString()
@@ -392,6 +464,11 @@ export const CancelButton = (props: MultiSelectProps): JSX.Element => {
           bg: '$ctaBlue',
           borderRadius: '100px',
           opacity: 1.0,
+        },
+        '@mdDown': {
+          minHeight: '44px',
+          minWidth: '44px',
+          p: '12px',
         },
       }}
       onMouseEnter={(event) => {

@@ -204,6 +204,7 @@ function IntegrationsContent(): JSX.Element {
     const pocket = getIntegration('POCKET')
     const readwise = getIntegration('READWISE')
     const notion = getIntegration('NOTION')
+    const anki = getIntegration('ANKI')
 
     const integrationsArray = [
       {
@@ -295,6 +296,20 @@ function IntegrationsContent(): JSX.Element {
             readwise
               ? deleteIntegration(readwise.id)
               : router.push('/settings/integrations/readwise')
+          },
+        },
+      },
+      {
+        icon: '/static/icons/anki.svg',
+        title: 'Anki',
+        subText:
+          'Anki is a powerful spaced repetition flashcard app. Use our Anki integration to automatically generate flashcards from your articles and sync them to Anki.',
+        button: {
+          text: anki ? 'Settings' : 'Connect to Anki',
+          icon: <Link size={16} weight={'bold'} />,
+          style: anki ? 'ctaWhite' : 'ctaDarkYellow',
+          action: () => {
+            router.push('/settings/integrations/anki')
           },
         },
       },

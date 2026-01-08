@@ -85,6 +85,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         },
         '@mdDown': {
           width: '100%',
+          minHeight: '280px',
         },
       }}
       alignment="start"
@@ -239,7 +240,10 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
             m: '5px',
             visibility: menuOpen ? 'visible' : 'hidden',
             '@media (hover: none)': {
-              visibility: 'unset',
+              visibility: 'visible',
+            },
+            '@media (pointer: coarse)': {
+              visibility: 'visible',
             },
           }}
         >
@@ -248,6 +252,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
             viewer={props.viewer}
             onOpenChange={(open) => setMenuOpen(open)}
             actionHandler={props.handleAction}
+            ankiEnabled={props.ankiEnabled}
             triggerElement={
               <DotsThree size={25} weight="bold" color="#ADADAD" />
             }
@@ -269,7 +274,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
       <VStack
         alignment="start"
         distribution="start"
-        css={{ height: '100%', width: '100%', px: '15px' }}
+        css={{ height: '100%', width: '100%', px: '15px', '@mdDown': { px: '20px' } }}
       >
         <Box
           css={{
@@ -290,9 +295,14 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
           {originText}
         </SpanBox>
 
-        {/* Indicators for language, AI summary, translation */}
+        {/* Indicators for language, AI summary, translation, Anki */}
         <Box css={{ mt: '8px', mb: '8px' }}>
-          <LibraryItemIndicators item={props.item} />
+          <LibraryItemIndicators
+            item={props.item}
+            ankiCardStatus={props.ankiCardStatus}
+            ankiCardCount={props.ankiCardCount}
+            onAnkiBadgeClick={() => props.handleAction('view-anki-cards')}
+          />
         </Box>
 
         <HStack

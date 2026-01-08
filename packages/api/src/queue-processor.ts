@@ -21,6 +21,10 @@ import {
   translateContent,
   TRANSLATE_CONTENT_JOB_NAME,
 } from './jobs/translate-content'
+import {
+  generateAnkiCards,
+  GENERATE_ANKI_CARDS_JOB_NAME,
+} from './jobs/generate-anki-cards'
 import { createDigest, CREATE_DIGEST_JOB } from './jobs/ai/create_digest'
 import { bulkAction, BULK_ACTION_JOB_NAME } from './jobs/bulk_action'
 import { callWebhook, CALL_WEBHOOK_JOB_NAME } from './jobs/call_webhook'
@@ -203,6 +207,8 @@ export const createWorker = (connection: ConnectionOptions) =>
             return aiSummarize(job.data)
           case TRANSLATE_CONTENT_JOB_NAME:
             return translateContent(job.data)
+          case GENERATE_ANKI_CARDS_JOB_NAME:
+            return generateAnkiCards(job.data)
           case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
             return processYouTubeVideo(job.data)
           case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:

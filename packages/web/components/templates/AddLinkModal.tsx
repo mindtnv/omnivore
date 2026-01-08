@@ -287,7 +287,7 @@ const UploadPDFTab = (): JSX.Element => {
             alignment="center"
             css={{ gap: '5px', whiteSpace: 'pre-line' }}
           >
-            <Info size={14} color="#007AFF" />
+            <Info size={14} color="#FFD234" />
             PDFs have a maximum size of 8MB.{' '}
           </HStack>
         }
@@ -314,13 +314,13 @@ const UploadImportTab = (props: AddLinkModalProps): JSX.Element => {
             alignment="center"
             css={{ gap: '5px', whiteSpace: 'pre-line' }}
           >
-            <Info size={14} color="#007AFF" />
+            <Info size={14} color="#FFD234" />
             Imports must be in a supported format.{' '}
             <a
               href="https://docs.omnivore.work/using/importing.html"
               target="_blank"
               rel="noreferrer"
-              style={{ color: '#007AFF' }}
+              style={{ color: '#FFD234' }}
             >
               Read more
             </a>
@@ -592,7 +592,7 @@ const UploadPad = (props: UploadPadProps): JSX.Element => {
           alignment="start"
           css={{
             width: '100%',
-            bg: '#007AFF10',
+            bg: '#FFD23410',
             p: '5px',
             pl: '10px',
             fontSize: '12px',

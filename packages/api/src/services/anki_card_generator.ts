@@ -207,8 +207,8 @@ const formatAsAnkiNotes = (
       deckName: 'Omnivore', // Will be overridden in job
       modelName: OMNIVORE_MODEL_NAME,
       fields: {
-        Front: questionHtml,
-        Back: answerHtml,
+        Question: questionHtml,
+        Answer: answerHtml,
         Context: contextHtml,
         Source: `<a href="${metadata.articleUrl}" target="_blank">${metadata.articleTitle}</a>`,
       },

@@ -74,6 +74,7 @@ export const gqlSearchQuery = (includeTotalCount = false) => gql`
             aiSummary
             translationStatus
             translatedLanguage
+            ankiCardCount
           }
         }
         pageInfo {

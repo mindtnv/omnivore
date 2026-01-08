@@ -128,11 +128,21 @@ function ControlButtonBox(props: ReaderHeaderProps): JSX.Element {
           gap: '20px',
           minWidth: '121px',
           pointerEvents: 'all',
+          '@mdDown': {
+            gap: '25px',
+          },
         }}
       >
         <Button
           title="Reader preferences (d)"
           style="articleActionIcon"
+          css={{
+            '@mdDown': {
+              minHeight: '44px',
+              minWidth: '44px',
+              p: '12px',
+            },
+          }}
           onClick={() => {
             props.showDisplaySettingsModal(true)
           }}

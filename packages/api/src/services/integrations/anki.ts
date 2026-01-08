@@ -20,8 +20,10 @@ export interface AnkiNote {
   deckName: string
   modelName: string
   fields: {
-    Front: string
-    Back: string
+    Question?: string
+    Answer?: string
+    Front?: string
+    Back?: string
     Source?: string
     Context?: string
   }
@@ -163,6 +165,30 @@ export class AnkiConnectClient implements IntegrationClient {
 
   async deckNames(): Promise<string[]> {
     return await this._request<string[]>('deckNames', {})
+  }
+
+  async modelNames(): Promise<string[]> {
+    return await this._request<string[]>('modelNames', {})
+  }
+
+  async modelFieldNames(modelName: string): Promise<string[]> {
+    return await this._request<string[]>('modelFieldNames', {
+      modelName,
+    })
+  }
+
+  async createModel(
+    modelName: string,
+    inOrderFields: string[],
+    css: string,
+    cardTemplates: Array<{ Name: string; Front: string; Back: string }>
+  ): Promise<{ sortf: number; did: number; latexPre: string; latexPost: string; mod: number; usn: number; vers: number[]; type: number; css: string; name: string; flds: Array<unknown>; tmpls: Array<unknown>; tags: string[]; id: string; req: Array<unknown> }> {
+    return await this._request('createModel', {
+      modelName,
+      inOrderFields,
+      css,
+      cardTemplates,
+    })
   }
 
   accessToken = async (): Promise<string | null> => {

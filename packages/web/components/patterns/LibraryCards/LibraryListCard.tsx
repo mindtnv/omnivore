@@ -98,6 +98,9 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
         '&:hover': {
           borderBottom: 'unset',
         },
+        '@mdDown': {
+          py: '20px',
+        },
         ...layoutWidths,
       }}
       alignment="start"
@@ -292,7 +295,7 @@ export function LibraryListCardContent(
           handleChanged={handleCheckChanged}
         />
       </SpanBox>
-      <Box css={{ position: 'relative', width: '55px' }}>
+      <Box css={{ position: 'relative', width: '55px', minHeight: '55px', minWidth: '55px' }}>
         <ListImage
           src={props.item.image}
           title={props.item.title}
@@ -338,6 +341,7 @@ export function LibraryListCardContent(
             viewer={props.viewer}
             onOpenChange={(open) => setMenuOpen(open)}
             actionHandler={props.handleAction}
+            ankiEnabled={props.ankiEnabled}
             triggerElement={
               <DotsThree size={25} weight="bold" color="#ADADAD" />
             }
@@ -365,9 +369,14 @@ export function LibraryListCardContent(
           </SpanBox>
         )}
 
-        {/* Indicators for language, AI summary, translation */}
+        {/* Indicators for language, AI summary, translation, Anki */}
         <Box css={{ mt: '4px' }}>
-          <LibraryItemIndicators item={props.item} />
+          <LibraryItemIndicators
+            item={props.item}
+            ankiCardStatus={props.ankiCardStatus}
+            ankiCardCount={props.ankiCardCount}
+            onAnkiBadgeClick={() => props.handleAction('view-anki-cards')}
+          />
         </Box>
 
         <HStack

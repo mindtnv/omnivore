@@ -190,9 +190,10 @@ export function NavigationLayout(props: NavigationLayoutProps): JSX.Element {
   return (
     <HStack
       css={{
-        width: '100vw',
+        width: '100%',
         height: '100vh',
         bg: '$thBackground',
+        overflow: 'hidden',
       }}
       distribution="start"
       alignment="start"

@@ -15,8 +15,8 @@ export class HeaderSearchIcon extends React.Component<IconProps> {
           '--ring-color': 'var(--colors-thHeaderIconRing)',
           '&:hover': {
             '--inner-color': 'white',
-            '--ring-fill': '#007AFF',
-            '--ring-color': '#007AFF',
+            '--ring-fill': '#FFD234',
+            '--ring-color': '#FFD234',
           },
         }}
       >

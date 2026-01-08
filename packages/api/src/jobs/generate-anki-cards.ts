@@ -3,6 +3,7 @@ import { AnkiCardBatch, AnkiCardStatus } from '../entity/anki_card_batch'
 import { authTrx } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { ankiCardBatchRepository } from '../repository/anki_card_batch'
+import { env } from '../env'
 import {
   findIntegrationByName,
   getIntegrationClient,
@@ -116,9 +117,12 @@ export const generateAnkiCards = async (
       }
     }
 
+    const translationEnabled = env.ai.translationEnabled
+
     // Determine content source
     let content: string
     const useTranslatedContent =
+      translationEnabled &&
       libraryItem.translatedLanguage === targetLanguage &&
       libraryItem.translatedContent
 
@@ -129,6 +133,7 @@ export const generateAnkiCards = async (
         language: targetLanguage,
       })
     } else if (
+      translationEnabled &&
       targetLanguage !== (libraryItem.itemLanguage || 'en') &&
       !libraryItem.translatedContent
     ) {
@@ -190,7 +195,10 @@ export const generateAnkiCards = async (
       return
     } else {
       content = libraryItem.readableContent
-      logger.info('Using original content', { libraryItemId })
+      logger.info('Using original content', {
+        libraryItemId,
+        translationEnabled,
+      })
     }
 
     if (!content || content.trim().length === 0) {
@@ -203,12 +211,17 @@ export const generateAnkiCards = async (
     if (regenerate) {
       // For regenerate, find the completed or processing batch
       existingBatch = existingBatches.find(
-        (b) => b.status === AnkiCardStatus.Completed || b.status === AnkiCardStatus.Processing
+        (b) =>
+          b.status === AnkiCardStatus.Completed ||
+          b.status === AnkiCardStatus.Processing
       )
     } else {
       // For new generation, find the pending batch created by the resolver
-      existingBatch = existingBatches.find(
-        (b) => b.status === AnkiCardStatus.Pending
+      const pendingStatuses = translationEnabled
+        ? [AnkiCardStatus.Pending]
+        : [AnkiCardStatus.Pending, AnkiCardStatus.WaitingForTranslation]
+      existingBatch = existingBatches.find((b) =>
+        pendingStatuses.includes(b.status)
       )
     }
 
@@ -329,8 +342,8 @@ export const generateAnkiCards = async (
 
         // Update batch with card details
         const cardDetails = notesWithDeck.map((note) => ({
-          question: note.fields.Front,
-          answer: note.fields.Back,
+          question: note.fields.Question ?? note.fields.Front,
+          answer: note.fields.Answer ?? note.fields.Back,
           context: note.fields.Context,
         }))
 
@@ -403,8 +416,8 @@ export const generateAnkiCards = async (
     // Prepare card details for storage - only for successfully created notes
     const validNoteIds = successfulNotes.map((s) => s.noteId)
     const cardDetails = successfulNotes.map((s) => ({
-      question: s.note.fields.Front,
-      answer: s.note.fields.Back,
+      question: s.note.fields.Question ?? s.note.fields.Front,
+      answer: s.note.fields.Answer ?? s.note.fields.Back,
       context: s.note.fields.Context,
     }))
 

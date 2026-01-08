@@ -47,6 +47,9 @@ import {
   generateDownloadSignedUrl,
   generateUploadFilePathName,
 } from '../utils/uploads'
+import { ankiCardBatchRepository } from '../repository/anki_card_batch'
+import { AnkiCardStatus } from '../entity/anki_card_batch'
+import { authTrx } from '../repository'
 import {
   ArticleFormat,
   emptyTrashResolver,
@@ -134,6 +137,7 @@ import {
   setDeviceTokenResolver,
   setFavoriteArticleResolver,
   setIntegrationResolver,
+  testAnkiConnectionResolver,
   setLabelsForHighlightResolver,
   setLabelsResolver,
   setLinkArchivedResolver,
@@ -165,6 +169,14 @@ import {
   postsResolver,
   updatePostResolver,
 } from './posts'
+import {
+  generateAnkiCardsResolver,
+  generateAnkiCardsBatchResolver,
+  regenerateAnkiCardsResolver,
+  ankiCardsResolver,
+  ankiCardBatchesResolver,
+  ankiIntegrationResolver,
+} from './anki'
 import {
   markEmailAsItemResolver,
   recentEmailsResolver,
@@ -296,6 +308,7 @@ export const functionResolvers = {
     setLabelsForHighlight: setLabelsForHighlightResolver,
     moveLabel: moveLabelResolver,
     setIntegration: setIntegrationResolver,
+    testAnkiConnection: testAnkiConnectionResolver,
     deleteIntegration: deleteIntegrationResolver,
     optInFeature: optInFeatureResolver,
     setRule: setRuleResolver,
@@ -334,6 +347,9 @@ export const functionResolvers = {
     createPost: createPostResolver,
     updatePost: updatePostResolver,
     deletePost: deletePostResolver,
+    generateAnkiCards: generateAnkiCardsResolver,
+    generateAnkiCardsBatch: generateAnkiCardsBatchResolver,
+    regenerateAnkiCards: regenerateAnkiCardsResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -370,6 +386,9 @@ export const functionResolvers = {
     folderPolicies: folderPoliciesResolver,
     posts: postsResolver,
     post: postResolver,
+    ankiCards: ankiCardsResolver,
+    ankiCardBatches: ankiCardBatchesResolver,
+    ankiIntegration: ankiIntegrationResolver,
   },
   User: {
     async intercomHash(user: User) {
@@ -582,6 +601,22 @@ export const functionResolvers = {
     ...readingProgressHandlers,
     content: (item: LibraryItem) => item.readableContent,
     language: (item: LibraryItem) => item.itemLanguage,
+    async ankiCardCount(item: LibraryItem, _: unknown, ctx: ResolverContext) {
+      if (!ctx.claims) return null
+
+      const batches = await authTrx(
+        async (tx) =>
+          tx.withRepository(ankiCardBatchRepository).findByLibraryItemId(item.id),
+        { uid: ctx.claims.uid, replicationMode: 'replica' }
+      )
+      const completedBatch = batches.find(
+        (b) => b.status === AnkiCardStatus.Completed
+      )
+      if (!completedBatch) return null
+      // Use cardCount if set, otherwise fallback to cardDetails length
+      const count = completedBatch.cardCount || (completedBatch.cardDetails?.length ?? 0)
+      return count > 0 ? count : null
+    },
   },
   PageInfo: {
     async totalCount(
@@ -946,4 +981,11 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('CreatePost'),
   ...resultResolveTypeResolver('UpdatePost'),
   ...resultResolveTypeResolver('DeletePost'),
+  ...resultResolveTypeResolver('GenerateAnkiCards'),
+  ...resultResolveTypeResolver('GenerateAnkiCardsBatch'),
+  ...resultResolveTypeResolver('RegenerateAnkiCards'),
+  ...resultResolveTypeResolver('AnkiCards'),
+  ...resultResolveTypeResolver('AnkiCardBatches'),
+  ...resultResolveTypeResolver('AnkiIntegration'),
+  ...resultResolveTypeResolver('TestAnkiConnection'),
 }

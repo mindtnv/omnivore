@@ -2,6 +2,7 @@ import { LayoutType } from '../../templates/homeFeed/HomeFeedContainer'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import type { LibraryItemNode } from '../../../lib/networking/library_items/useLibraryItems'
 import { MultiSelectMode } from '../../templates/homeFeed/LibraryHeader'
+import type { AnkiCardStatusType } from './LibraryCardStyles'
 
 export type LinkedItemCardAction =
   | 'showDetail'
@@ -19,6 +20,8 @@ export type LinkedItemCardAction =
   | 'move-to-inbox'
   | 'refresh'
   | 'restore'
+  | 'create-anki-cards'
+  | 'view-anki-cards'
 
 export type LinkedItemCardProps = {
   item: LibraryItemNode
@@ -36,4 +39,9 @@ export type LinkedItemCardProps = {
   isLoading?: boolean
 
   legacyLayout?: boolean
+
+  // Anki integration props
+  ankiEnabled?: boolean
+  ankiCardStatus?: AnkiCardStatusType | null
+  ankiCardCount?: number
 }

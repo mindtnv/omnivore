@@ -12,7 +12,18 @@ import { User } from './user'
 export enum IntegrationType {
   Export = 'EXPORT',
   Import = 'IMPORT',
+  Anki = 'ANKI',
 }
+
+/**
+ * Settings structure for ANKI integration type:
+ * {
+ *   ankiConnectUrl: string    - URL to AnkiConnect API (default: 'http://localhost:8765')
+ *   targetLanguage: string    - Target language code for translations (e.g., 'en', 'ru')
+ *   defaultDeck: string       - Default Anki deck name for new cards
+ *   autoCreate: boolean       - Whether to automatically create cards from highlights
+ * }
+ */
 
 export enum ImportItemState {
   Unread = 'UNREAD',

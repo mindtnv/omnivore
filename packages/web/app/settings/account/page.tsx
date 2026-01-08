@@ -65,6 +65,9 @@ export const FormInput = styled('input', {
     border: '1px solid transparent',
     outline: '2px solid $omnivoreCtaYellow',
   },
+  '@mdDown': {
+    height: '44px',
+  },
 })
 
 export default function Account(): JSX.Element {
@@ -289,7 +292,16 @@ export default function Account(): JSX.Element {
                 Your name is displayed on your profile and is used when
                 communicating with you.
               </StyledText>
-              <Button type="submit" style="ctaDarkYellow">
+              <Button
+                type="submit"
+                style="ctaDarkYellow"
+                css={{
+                  '@mdDown': {
+                    minHeight: '44px',
+                    width: '100%',
+                  },
+                }}
+              >
                 Update Name
               </Button>
             </form>
@@ -350,7 +362,17 @@ export default function Account(): JSX.Element {
                 * Changing your username may break some links from external
                 apps.
               </StyledText>
-              <Button style="ctaDarkYellow">Update Username</Button>
+              <Button
+                style="ctaDarkYellow"
+                css={{
+                  '@mdDown': {
+                    minHeight: '44px',
+                    width: '100%',
+                  },
+                }}
+              >
+                Update Username
+              </Button>
             </form>
           </VStack>
 
@@ -390,14 +412,34 @@ export default function Account(): JSX.Element {
                 Your email is used for account recovery and notifications.
               </StyledText>
               {source == 'EMAIL' ? (
-                <Button style="ctaDarkYellow">Update Email</Button>
+                <Button
+                  style="ctaDarkYellow"
+                  css={{
+                    '@mdDown': {
+                      minHeight: '44px',
+                      width: '100%',
+                    },
+                  }}
+                >
+                  Update Email
+                </Button>
               ) : (
                 <VStack>
                   <StyledText style="footnote" css={{ mt: '10px', mb: '20px' }}>
                     {`You are currently logged in with a ${source} account. To
                     convert to an email login, please click the button below.`}
                   </StyledText>
-                  <Button style="ctaDarkYellow">Convert to email login</Button>
+                  <Button
+                    style="ctaDarkYellow"
+                    css={{
+                      '@mdDown': {
+                        minHeight: '44px',
+                        width: '100%',
+                      },
+                    }}
+                  >
+                    Convert to email login
+                  </Button>
                 </VStack>
               )}
             </form>
@@ -435,6 +477,12 @@ export default function Account(): JSX.Element {
                 </StyledText>
                 <Button
                   style="ctaDarkYellow"
+                  css={{
+                    '@mdDown': {
+                      minHeight: '44px',
+                      width: '100%',
+                    },
+                  }}
                   onClick={(event) => {
                     event.preventDefault()
                     emptyTrash()
@@ -462,7 +510,14 @@ export default function Account(): JSX.Element {
             <StyledLabel>Danger Zone</StyledLabel>
             <Button
               style="ctaDarkYellow"
-              css={{ color: 'white', background: 'red' }}
+              css={{
+                color: 'white',
+                background: 'red',
+                '@mdDown': {
+                  minHeight: '44px',
+                  width: '100%',
+                },
+              }}
               onClick={(event) => {
                 window.location.href = '/settings/delete-my-account'
               }}
@@ -524,6 +579,12 @@ const ExportSection = (): JSX.Element => {
       </StyledText>
       <Button
         style="ctaDarkYellow"
+        css={{
+          '@mdDown': {
+            minHeight: '44px',
+            width: '100%',
+          },
+        }}
         onClick={(event) => {
           doExport()
           event.preventDefault()
@@ -837,6 +898,12 @@ const DigestSection = (): JSX.Element => {
       {!hasDigest && (
         <Button
           style="ctaDarkYellow"
+          css={{
+            '@mdDown': {
+              minHeight: '44px',
+              width: '100%',
+            },
+          }}
           onClick={(event) => {
             requestDigestAccess()
             event.preventDefault()

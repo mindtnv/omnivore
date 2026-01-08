@@ -105,7 +105,7 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
       <Box
         css={{
           height: '100%',
-          width: '100vw',
+          width: '100%',
           bg: '$thBackground2',
         }}
       >

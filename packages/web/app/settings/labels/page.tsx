@@ -105,6 +105,9 @@ const inputStyles = {
     outlineColor: '$omnivoreYellow',
     outlineStyle: 'solid',
   },
+  '@mdDown': {
+    height: '44px',
+  },
 }
 
 const ActionsWrapper = styled(Box, {
@@ -112,6 +115,8 @@ const ActionsWrapper = styled(Box, {
   display: 'flex',
   width: 40,
   height: 40,
+  minHeight: '44px',
+  minWidth: '44px',
   alignItems: 'center',
   bg: 'transparent',
   cursor: 'pointer',
@@ -138,6 +143,8 @@ const IconButton = styled(Button, {
         borderRadius: 6,
         width: 40,
         height: 40,
+        minHeight: '44px',
+        minWidth: '44px',
       },
     },
   },
@@ -813,7 +820,7 @@ function MobileEditCard(props: any) {
         borderBottomRightRadius: isLastChild ? '5px' : '',
       }}
     >
-      <VStack distribution="center" css={{ width: '100%', margin: '8px' }}>
+      <VStack distribution="center" css={{ width: '100%', margin: '8px', '@mdDown': { margin: '12px' } }}>
         {nameInputText && (
           <SpanBox css={{ ml: '-2px', mt: '0px' }}>
             <LabelChip color={labelColorHex} text={nameInputText} />

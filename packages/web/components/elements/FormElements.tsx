@@ -1,5 +1,5 @@
 import { styled } from '../tokens/stitches.config'
-import { useState } from 'react'
+import { useState, ReactNode } from 'react'
 import Checkbox from './Checkbox'
 import { HStack, VStack } from './LayoutPrimitives'
 import { Label } from '@radix-ui/react-dropdown-menu'
@@ -43,6 +43,7 @@ export const FormInput = styled('input', {
   },
   '@mdDown': {
     pl: '5px',
+    height: '44px',
   },
 })
 
@@ -74,6 +75,9 @@ export const BorderedFormInput = styled(FormInput, {
   '&:focus': {
     border: '1px solid transparent',
     outline: '2px solid $omnivoreCtaYellow',
+  },
+  '@mdDown': {
+    height: '44px',
   },
 })
 
@@ -200,4 +204,79 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
       />
     )
   }
+}
+
+export const FormGroup = styled('div', {
+  display: 'flex',
+  gap: '$2',
+  mb: '$3',
+
+  variants: {
+    layout: {
+      horizontal: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        '& label': {
+          minWidth: '120px',
+          flex: '0 0 auto'
+        },
+        '& > div': {
+          flex: '1'
+        }
+      },
+      vertical: {
+        flexDirection: 'column',
+        '& label': {
+          mb: '$1'
+        }
+      }
+    }
+  },
+
+  defaultVariants: {
+    layout: 'vertical'
+  }
+})
+
+export const FormError = styled('span', {
+  fontSize: '12px',
+  color: '$error',
+  mt: '4px',
+  display: 'block'
+})
+
+export const FormHelp = styled('span', {
+  fontSize: '12px',
+  color: '$grayText',
+  mt: '4px',
+  display: 'block'
+})
+
+interface FormGroupComponentProps {
+  label: string
+  required?: boolean
+  error?: string
+  help?: string
+  layout?: 'horizontal' | 'vertical'
+  children: ReactNode
+}
+
+export function FormGroupComponent({
+  label,
+  required,
+  error,
+  help,
+  layout,
+  children
+}: FormGroupComponentProps) {
+  return (
+    <FormGroup layout={layout}>
+      <FormLabel className={required ? 'required' : ''}>{label}</FormLabel>
+      <div>
+        {children}
+        {help && <FormHelp>{help}</FormHelp>}
+        {error && <FormError>{error}</FormError>}
+      </div>
+    </FormGroup>
+  )
 }

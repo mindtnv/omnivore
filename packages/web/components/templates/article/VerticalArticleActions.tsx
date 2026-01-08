@@ -13,6 +13,8 @@ import { CircleUtilityMenuIcon } from '../../elements/icons/CircleUtilityMenuIco
 import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
 import { State } from '../../../lib/networking/fragments/articleFragment'
 import { LanguageToggle } from '../../elements/LanguageToggle'
+import { AnkiButton } from '../../elements/AnkiButton'
+import { AnkiCardStatus } from '../../../lib/networking/queries/useGetAnkiCardsQuery'
 
 export type ArticleActionsMenuLayout = 'top' | 'side'
 
@@ -25,6 +27,11 @@ type ArticleActionsMenuProps = {
   showTranslation?: boolean
   onToggleTranslation?: () => void
   targetLanguage?: string | null
+  // Anki props
+  ankiEnabled?: boolean
+  ankiCardStatus?: AnkiCardStatus | null
+  ankiCardCount?: number
+  onGenerateAnkiCards?: () => void
 }
 
 // Check if translation toggle should be shown
@@ -113,6 +120,15 @@ export function VerticalArticleActionsMenu(
             translationStatus={props.article.translationStatus}
             showTranslation={props.showTranslation ?? false}
             onToggle={props.onToggleTranslation!}
+          />
+        )}
+
+        {/* Anki Button - shown when Anki integration is enabled */}
+        {props.ankiEnabled && props.onGenerateAnkiCards && (
+          <AnkiButton
+            status={props.ankiCardStatus}
+            cardCount={props.ankiCardCount}
+            onClick={props.onGenerateAnkiCards}
           />
         )}
 

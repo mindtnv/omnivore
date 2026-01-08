@@ -5,16 +5,18 @@ export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: string;
-  String: string;
-  Boolean: boolean;
-  Int: number;
-  Float: number;
-  Date: any;
-  JSON: any;
+  ID: { input: string; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
+  Date: { input: any; output: any; }
+  JSON: { input: any; output: any; }
 };
 
 export type AddDiscoverFeedError = {
@@ -30,7 +32,7 @@ export enum AddDiscoverFeedErrorCode {
 }
 
 export type AddDiscoverFeedInput = {
-  url: Scalars['String'];
+  url: Scalars['String']['input'];
 };
 
 export type AddDiscoverFeedResult = AddDiscoverFeedError | AddDiscoverFeedSuccess;
@@ -55,7 +57,7 @@ export type AddPopularReadResult = AddPopularReadError | AddPopularReadSuccess;
 
 export type AddPopularReadSuccess = {
   __typename?: 'AddPopularReadSuccess';
-  pageId: Scalars['String'];
+  pageId: Scalars['String']['output'];
 };
 
 export enum AllowedReply {
@@ -65,15 +67,103 @@ export enum AllowedReply {
   Yes = 'YES'
 }
 
+export type AnkiCardBatch = {
+  __typename?: 'AnkiCardBatch';
+  ankiNoteIds?: Maybe<Array<Scalars['String']['output']>>;
+  cardCount: Scalars['Int']['output'];
+  cardDetails?: Maybe<Array<AnkiCardDetail>>;
+  createdAt: Scalars['Date']['output'];
+  deck: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  language?: Maybe<Scalars['String']['output']>;
+  libraryItemId: Scalars['ID']['output'];
+  status: AnkiCardStatus;
+  updatedAt: Scalars['Date']['output'];
+  userId: Scalars['ID']['output'];
+};
+
+export type AnkiCardBatchesError = {
+  __typename?: 'AnkiCardBatchesError';
+  errorCodes: Array<AnkiCardBatchesErrorCode>;
+};
+
+export enum AnkiCardBatchesErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type AnkiCardBatchesInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  status?: InputMaybe<AnkiCardStatus>;
+};
+
+export type AnkiCardBatchesResult = AnkiCardBatchesError | AnkiCardBatchesSuccess;
+
+export type AnkiCardBatchesSuccess = {
+  __typename?: 'AnkiCardBatchesSuccess';
+  batches: Array<AnkiCardBatch>;
+  pageInfo: PageInfo;
+};
+
+export type AnkiCardDetail = {
+  __typename?: 'AnkiCardDetail';
+  answer: Scalars['String']['output'];
+  context?: Maybe<Scalars['String']['output']>;
+  question: Scalars['String']['output'];
+};
+
+export enum AnkiCardStatus {
+  Completed = 'COMPLETED',
+  Failed = 'FAILED',
+  Pending = 'PENDING',
+  Processing = 'PROCESSING',
+  WaitingForTranslation = 'WAITING_FOR_TRANSLATION'
+}
+
+export type AnkiCardsError = {
+  __typename?: 'AnkiCardsError';
+  errorCodes: Array<AnkiCardsErrorCode>;
+};
+
+export enum AnkiCardsErrorCode {
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type AnkiCardsResult = AnkiCardsError | AnkiCardsSuccess;
+
+export type AnkiCardsSuccess = {
+  __typename?: 'AnkiCardsSuccess';
+  batch?: Maybe<AnkiCardBatch>;
+};
+
+export type AnkiIntegrationError = {
+  __typename?: 'AnkiIntegrationError';
+  errorCodes: Array<AnkiIntegrationErrorCode>;
+};
+
+export enum AnkiIntegrationErrorCode {
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type AnkiIntegrationResult = AnkiIntegrationError | AnkiIntegrationSuccess;
+
+export type AnkiIntegrationSuccess = {
+  __typename?: 'AnkiIntegrationSuccess';
+  integration?: Maybe<Integration>;
+};
+
 export type ApiKey = {
   __typename?: 'ApiKey';
-  createdAt: Scalars['Date'];
-  expiresAt: Scalars['Date'];
-  id: Scalars['ID'];
-  key?: Maybe<Scalars['String']>;
-  name: Scalars['String'];
-  scopes?: Maybe<Array<Scalars['String']>>;
-  usedAt?: Maybe<Scalars['Date']>;
+  createdAt: Scalars['Date']['output'];
+  expiresAt: Scalars['Date']['output'];
+  id: Scalars['ID']['output'];
+  key?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  scopes?: Maybe<Array<Scalars['String']['output']>>;
+  usedAt?: Maybe<Scalars['Date']['output']>;
 };
 
 export type ApiKeysError = {
@@ -96,7 +186,7 @@ export type ApiKeysSuccess = {
 export type ArchiveLinkError = {
   __typename?: 'ArchiveLinkError';
   errorCodes: Array<ArchiveLinkErrorCode>;
-  message: Scalars['String'];
+  message: Scalars['String']['output'];
 };
 
 export enum ArchiveLinkErrorCode {
@@ -105,67 +195,67 @@ export enum ArchiveLinkErrorCode {
 }
 
 export type ArchiveLinkInput = {
-  archived: Scalars['Boolean'];
-  linkId: Scalars['ID'];
+  archived: Scalars['Boolean']['input'];
+  linkId: Scalars['ID']['input'];
 };
 
 export type ArchiveLinkResult = ArchiveLinkError | ArchiveLinkSuccess;
 
 export type ArchiveLinkSuccess = {
   __typename?: 'ArchiveLinkSuccess';
-  linkId: Scalars['String'];
-  message: Scalars['String'];
+  linkId: Scalars['String']['output'];
+  message: Scalars['String']['output'];
 };
 
 export type Article = {
   __typename?: 'Article';
-  author?: Maybe<Scalars['String']>;
-  content: Scalars['String'];
+  author?: Maybe<Scalars['String']['output']>;
+  content: Scalars['String']['output'];
   contentReader: ContentReader;
-  createdAt: Scalars['Date'];
-  description?: Maybe<Scalars['String']>;
+  createdAt: Scalars['Date']['output'];
+  description?: Maybe<Scalars['String']['output']>;
   directionality?: Maybe<DirectionalityType>;
-  feedContent?: Maybe<Scalars['String']>;
-  folder: Scalars['String'];
-  hasContent?: Maybe<Scalars['Boolean']>;
-  hash: Scalars['String'];
+  feedContent?: Maybe<Scalars['String']['output']>;
+  folder: Scalars['String']['output'];
+  hasContent?: Maybe<Scalars['Boolean']['output']>;
+  hash: Scalars['String']['output'];
   highlights: Array<Highlight>;
-  id: Scalars['ID'];
-  image?: Maybe<Scalars['String']>;
-  isArchived: Scalars['Boolean'];
+  id: Scalars['ID']['output'];
+  image?: Maybe<Scalars['String']['output']>;
+  isArchived: Scalars['Boolean']['output'];
   labels?: Maybe<Array<Label>>;
-  language?: Maybe<Scalars['String']>;
-  linkId?: Maybe<Scalars['ID']>;
-  originalArticleUrl?: Maybe<Scalars['String']>;
-  originalHtml?: Maybe<Scalars['String']>;
+  language?: Maybe<Scalars['String']['output']>;
+  linkId?: Maybe<Scalars['ID']['output']>;
+  originalArticleUrl?: Maybe<Scalars['String']['output']>;
+  originalHtml?: Maybe<Scalars['String']['output']>;
   pageType?: Maybe<PageType>;
-  postedByViewer?: Maybe<Scalars['Boolean']>;
-  publishedAt?: Maybe<Scalars['Date']>;
-  readAt?: Maybe<Scalars['Date']>;
-  readingProgressAnchorIndex: Scalars['Int'];
-  readingProgressPercent: Scalars['Float'];
-  readingProgressTopPercent?: Maybe<Scalars['Float']>;
+  postedByViewer?: Maybe<Scalars['Boolean']['output']>;
+  publishedAt?: Maybe<Scalars['Date']['output']>;
+  readAt?: Maybe<Scalars['Date']['output']>;
+  readingProgressAnchorIndex: Scalars['Int']['output'];
+  readingProgressPercent: Scalars['Float']['output'];
+  readingProgressTopPercent?: Maybe<Scalars['Float']['output']>;
   recommendations?: Maybe<Array<Recommendation>>;
-  savedAt: Scalars['Date'];
-  savedByViewer?: Maybe<Scalars['Boolean']>;
+  savedAt: Scalars['Date']['output'];
+  savedByViewer?: Maybe<Scalars['Boolean']['output']>;
   shareInfo?: Maybe<LinkShareInfo>;
-  sharedComment?: Maybe<Scalars['String']>;
-  showTranslated: Scalars['Boolean'];
-  siteIcon?: Maybe<Scalars['String']>;
-  siteName?: Maybe<Scalars['String']>;
-  slug: Scalars['String'];
+  sharedComment?: Maybe<Scalars['String']['output']>;
+  showTranslated: Scalars['Boolean']['output'];
+  siteIcon?: Maybe<Scalars['String']['output']>;
+  siteName?: Maybe<Scalars['String']['output']>;
+  slug: Scalars['String']['output'];
   state?: Maybe<ArticleSavingRequestStatus>;
-  subscription?: Maybe<Scalars['String']>;
-  title: Scalars['String'];
-  translatedContent?: Maybe<Scalars['String']>;
-  translatedLanguage?: Maybe<Scalars['String']>;
+  subscription?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+  translatedContent?: Maybe<Scalars['String']['output']>;
+  translatedLanguage?: Maybe<Scalars['String']['output']>;
   translationStatus?: Maybe<TranslationStatus>;
-  unsubHttpUrl?: Maybe<Scalars['String']>;
-  unsubMailTo?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['Date']>;
-  uploadFileId?: Maybe<Scalars['ID']>;
-  url: Scalars['String'];
-  wordsCount?: Maybe<Scalars['Int']>;
+  unsubHttpUrl?: Maybe<Scalars['String']['output']>;
+  unsubMailTo?: Maybe<Scalars['String']['output']>;
+  updatedAt?: Maybe<Scalars['Date']['output']>;
+  uploadFileId?: Maybe<Scalars['ID']['output']>;
+  url: Scalars['String']['output'];
+  wordsCount?: Maybe<Scalars['Int']['output']>;
 };
 
 
@@ -175,7 +265,7 @@ export type ArticleHighlightsArgs = {
 
 export type ArticleEdge = {
   __typename?: 'ArticleEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: Article;
 };
 
@@ -191,7 +281,7 @@ export enum ArticleErrorCode {
 }
 
 export type ArticleHighlightsInput = {
-  includeFriends?: InputMaybe<Scalars['Boolean']>;
+  includeFriends?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type ArticleResult = ArticleError | ArticleSuccess;
@@ -200,16 +290,16 @@ export type ArticleSavingRequest = {
   __typename?: 'ArticleSavingRequest';
   /** @deprecated article has been replaced with slug */
   article?: Maybe<Article>;
-  createdAt: Scalars['Date'];
+  createdAt: Scalars['Date']['output'];
   errorCode?: Maybe<CreateArticleErrorCode>;
-  id: Scalars['ID'];
-  slug: Scalars['String'];
+  id: Scalars['ID']['output'];
+  slug: Scalars['String']['output'];
   status: ArticleSavingRequestStatus;
-  updatedAt?: Maybe<Scalars['Date']>;
-  url: Scalars['String'];
+  updatedAt?: Maybe<Scalars['Date']['output']>;
+  url: Scalars['String']['output'];
   user: User;
   /** @deprecated userId has been replaced with user */
-  userId: Scalars['ID'];
+  userId: Scalars['ID']['output'];
 };
 
 export type ArticleSavingRequestError = {
@@ -275,7 +365,7 @@ export type BulkActionResult = BulkActionError | BulkActionSuccess;
 
 export type BulkActionSuccess = {
   __typename?: 'BulkActionSuccess';
-  success: Scalars['Boolean'];
+  success: Scalars['Boolean']['output'];
 };
 
 export enum BulkActionType {
@@ -309,18 +399,18 @@ export enum CreateArticleErrorCode {
 }
 
 export type CreateArticleInput = {
-  articleSavingRequestId?: InputMaybe<Scalars['ID']>;
-  folder?: InputMaybe<Scalars['String']>;
+  articleSavingRequestId?: InputMaybe<Scalars['ID']['input']>;
+  folder?: InputMaybe<Scalars['String']['input']>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
   preparedDocument?: InputMaybe<PreparedDocumentInput>;
-  publishedAt?: InputMaybe<Scalars['Date']>;
-  rssFeedUrl?: InputMaybe<Scalars['String']>;
-  savedAt?: InputMaybe<Scalars['Date']>;
-  skipParsing?: InputMaybe<Scalars['Boolean']>;
-  source?: InputMaybe<Scalars['String']>;
+  publishedAt?: InputMaybe<Scalars['Date']['input']>;
+  rssFeedUrl?: InputMaybe<Scalars['String']['input']>;
+  savedAt?: InputMaybe<Scalars['Date']['input']>;
+  skipParsing?: InputMaybe<Scalars['Boolean']['input']>;
+  source?: InputMaybe<Scalars['String']['input']>;
   state?: InputMaybe<ArticleSavingRequestStatus>;
-  uploadFileId?: InputMaybe<Scalars['ID']>;
-  url: Scalars['String'];
+  uploadFileId?: InputMaybe<Scalars['ID']['input']>;
+  url: Scalars['String']['input'];
 };
 
 export type CreateArticleResult = CreateArticleError | CreateArticleSuccess;
@@ -336,7 +426,7 @@ export enum CreateArticleSavingRequestErrorCode {
 }
 
 export type CreateArticleSavingRequestInput = {
-  url: Scalars['String'];
+  url: Scalars['String']['input'];
 };
 
 export type CreateArticleSavingRequestResult = CreateArticleSavingRequestError | CreateArticleSavingRequestSuccess;
@@ -348,7 +438,7 @@ export type CreateArticleSavingRequestSuccess = {
 
 export type CreateArticleSuccess = {
   __typename?: 'CreateArticleSuccess';
-  created: Scalars['Boolean'];
+  created: Scalars['Boolean']['output'];
   createdArticle: Article;
   user: User;
 };
@@ -365,8 +455,8 @@ export enum CreateFolderPolicyErrorCode {
 
 export type CreateFolderPolicyInput = {
   action: FolderPolicyAction;
-  afterDays: Scalars['Int'];
-  folder: Scalars['String'];
+  afterDays: Scalars['Int']['input'];
+  folder: Scalars['String']['input'];
 };
 
 export type CreateFolderPolicyResult = CreateFolderPolicyError | CreateFolderPolicySuccess;
@@ -387,13 +477,13 @@ export enum CreateGroupErrorCode {
 }
 
 export type CreateGroupInput = {
-  description?: InputMaybe<Scalars['String']>;
-  expiresInDays?: InputMaybe<Scalars['Int']>;
-  maxMembers?: InputMaybe<Scalars['Int']>;
-  name: Scalars['String'];
-  onlyAdminCanPost?: InputMaybe<Scalars['Boolean']>;
-  onlyAdminCanSeeMembers?: InputMaybe<Scalars['Boolean']>;
-  topics?: InputMaybe<Array<Scalars['String']>>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  expiresInDays?: InputMaybe<Scalars['Int']['input']>;
+  maxMembers?: InputMaybe<Scalars['Int']['input']>;
+  name: Scalars['String']['input'];
+  onlyAdminCanPost?: InputMaybe<Scalars['Boolean']['input']>;
+  onlyAdminCanSeeMembers?: InputMaybe<Scalars['Boolean']['input']>;
+  topics?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type CreateGroupResult = CreateGroupError | CreateGroupSuccess;
@@ -417,20 +507,20 @@ export enum CreateHighlightErrorCode {
 }
 
 export type CreateHighlightInput = {
-  annotation?: InputMaybe<Scalars['String']>;
-  articleId: Scalars['ID'];
-  color?: InputMaybe<Scalars['String']>;
-  highlightPositionAnchorIndex?: InputMaybe<Scalars['Int']>;
-  highlightPositionPercent?: InputMaybe<Scalars['Float']>;
-  html?: InputMaybe<Scalars['String']>;
-  id: Scalars['ID'];
-  patch?: InputMaybe<Scalars['String']>;
-  prefix?: InputMaybe<Scalars['String']>;
-  quote?: InputMaybe<Scalars['String']>;
+  annotation?: InputMaybe<Scalars['String']['input']>;
+  articleId: Scalars['ID']['input'];
+  color?: InputMaybe<Scalars['String']['input']>;
+  highlightPositionAnchorIndex?: InputMaybe<Scalars['Int']['input']>;
+  highlightPositionPercent?: InputMaybe<Scalars['Float']['input']>;
+  html?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  patch?: InputMaybe<Scalars['String']['input']>;
+  prefix?: InputMaybe<Scalars['String']['input']>;
+  quote?: InputMaybe<Scalars['String']['input']>;
   representation?: InputMaybe<RepresentationType>;
-  sharedAt?: InputMaybe<Scalars['Date']>;
-  shortId: Scalars['String'];
-  suffix?: InputMaybe<Scalars['String']>;
+  sharedAt?: InputMaybe<Scalars['Date']['input']>;
+  shortId: Scalars['String']['input'];
+  suffix?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<HighlightType>;
 };
 
@@ -447,8 +537,8 @@ export enum CreateHighlightReplyErrorCode {
 }
 
 export type CreateHighlightReplyInput = {
-  highlightId: Scalars['ID'];
-  text: Scalars['String'];
+  highlightId: Scalars['ID']['input'];
+  text: Scalars['String']['input'];
 };
 
 export type CreateHighlightReplyResult = CreateHighlightReplyError | CreateHighlightReplySuccess;
@@ -478,9 +568,9 @@ export enum CreateLabelErrorCode {
 }
 
 export type CreateLabelInput = {
-  color?: InputMaybe<Scalars['String']>;
-  description?: InputMaybe<Scalars['String']>;
-  name: Scalars['String'];
+  color?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
 };
 
 export type CreateLabelResult = CreateLabelError | CreateLabelSuccess;
@@ -501,9 +591,9 @@ export enum CreateNewsletterEmailErrorCode {
 }
 
 export type CreateNewsletterEmailInput = {
-  description?: InputMaybe<Scalars['String']>;
-  folder?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  folder?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CreateNewsletterEmailResult = CreateNewsletterEmailError | CreateNewsletterEmailSuccess;
@@ -524,12 +614,12 @@ export enum CreatePostErrorCode {
 }
 
 export type CreatePostInput = {
-  content: Scalars['String'];
-  highlightIds?: InputMaybe<Array<Scalars['ID']>>;
-  libraryItemIds: Array<Scalars['ID']>;
-  thought?: InputMaybe<Scalars['String']>;
-  thumbnail?: InputMaybe<Scalars['String']>;
-  title: Scalars['String'];
+  content: Scalars['String']['input'];
+  highlightIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  libraryItemIds: Array<Scalars['ID']['input']>;
+  thought?: InputMaybe<Scalars['String']['input']>;
+  thumbnail?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
 };
 
 export type CreatePostResult = CreatePostError | CreatePostSuccess;
@@ -554,8 +644,8 @@ export enum CreateReactionErrorCode {
 
 export type CreateReactionInput = {
   code: ReactionType;
-  highlightId?: InputMaybe<Scalars['ID']>;
-  userArticleId?: InputMaybe<Scalars['ID']>;
+  highlightId?: InputMaybe<Scalars['ID']['input']>;
+  userArticleId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type CreateReactionResult = CreateReactionError | CreateReactionSuccess;
@@ -577,11 +667,11 @@ export enum CreateReminderErrorCode {
 }
 
 export type CreateReminderInput = {
-  archiveUntil: Scalars['Boolean'];
-  clientRequestId?: InputMaybe<Scalars['ID']>;
-  linkId?: InputMaybe<Scalars['ID']>;
-  remindAt: Scalars['Date'];
-  sendNotification: Scalars['Boolean'];
+  archiveUntil: Scalars['Boolean']['input'];
+  clientRequestId?: InputMaybe<Scalars['ID']['input']>;
+  linkId?: InputMaybe<Scalars['ID']['input']>;
+  remindAt: Scalars['Date']['input'];
+  sendNotification: Scalars['Boolean']['input'];
 };
 
 export type CreateReminderResult = CreateReminderError | CreateReminderSuccess;
@@ -606,7 +696,7 @@ export type DeleteAccountResult = DeleteAccountError | DeleteAccountSuccess;
 
 export type DeleteAccountSuccess = {
   __typename?: 'DeleteAccountSuccess';
-  userID: Scalars['ID'];
+  userID: Scalars['ID']['output'];
 };
 
 export type DeleteDiscoverArticleError = {
@@ -621,14 +711,14 @@ export enum DeleteDiscoverArticleErrorCode {
 }
 
 export type DeleteDiscoverArticleInput = {
-  discoverArticleId: Scalars['ID'];
+  discoverArticleId: Scalars['ID']['input'];
 };
 
 export type DeleteDiscoverArticleResult = DeleteDiscoverArticleError | DeleteDiscoverArticleSuccess;
 
 export type DeleteDiscoverArticleSuccess = {
   __typename?: 'DeleteDiscoverArticleSuccess';
-  id: Scalars['ID'];
+  id: Scalars['ID']['output'];
 };
 
 export type DeleteDiscoverFeedError = {
@@ -644,14 +734,14 @@ export enum DeleteDiscoverFeedErrorCode {
 }
 
 export type DeleteDiscoverFeedInput = {
-  feedId: Scalars['ID'];
+  feedId: Scalars['ID']['input'];
 };
 
 export type DeleteDiscoverFeedResult = DeleteDiscoverFeedError | DeleteDiscoverFeedSuccess;
 
 export type DeleteDiscoverFeedSuccess = {
   __typename?: 'DeleteDiscoverFeedSuccess';
-  id: Scalars['String'];
+  id: Scalars['String']['output'];
 };
 
 export type DeleteFilterError = {
@@ -685,7 +775,7 @@ export type DeleteFolderPolicyResult = DeleteFolderPolicyError | DeleteFolderPol
 
 export type DeleteFolderPolicySuccess = {
   __typename?: 'DeleteFolderPolicySuccess';
-  success: Scalars['Boolean'];
+  success: Scalars['Boolean']['output'];
 };
 
 export type DeleteHighlightError = {
@@ -793,7 +883,7 @@ export type DeletePostResult = DeletePostError | DeletePostSuccess;
 
 export type DeletePostSuccess = {
   __typename?: 'DeletePostSuccess';
-  success: Scalars['Boolean'];
+  success: Scalars['Boolean']['output'];
 };
 
 export type DeleteReactionError = {
@@ -870,9 +960,9 @@ export type DeleteWebhookSuccess = {
 
 export type DeviceToken = {
   __typename?: 'DeviceToken';
-  createdAt: Scalars['Date'];
-  id: Scalars['ID'];
-  token: Scalars['String'];
+  createdAt: Scalars['Date']['output'];
+  id: Scalars['ID']['output'];
+  token: Scalars['String']['output'];
 };
 
 export type DeviceTokensError = {
@@ -894,11 +984,11 @@ export type DeviceTokensSuccess = {
 
 export type DigestConfig = {
   __typename?: 'DigestConfig';
-  channels?: Maybe<Array<Maybe<Scalars['String']>>>;
+  channels?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
 };
 
 export type DigestConfigInput = {
-  channels?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  channels?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
 export enum DirectionalityType {
@@ -908,29 +998,29 @@ export enum DirectionalityType {
 
 export type DiscoverFeed = {
   __typename?: 'DiscoverFeed';
-  description?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  image?: Maybe<Scalars['String']>;
-  link: Scalars['String'];
-  title: Scalars['String'];
-  type: Scalars['String'];
-  visibleName?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  image?: Maybe<Scalars['String']['output']>;
+  link: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+  visibleName?: Maybe<Scalars['String']['output']>;
 };
 
 export type DiscoverFeedArticle = {
   __typename?: 'DiscoverFeedArticle';
-  author?: Maybe<Scalars['String']>;
-  description: Scalars['String'];
-  feed: Scalars['String'];
-  id: Scalars['ID'];
-  image?: Maybe<Scalars['String']>;
-  publishedDate?: Maybe<Scalars['Date']>;
-  savedId?: Maybe<Scalars['String']>;
-  savedLinkUrl?: Maybe<Scalars['String']>;
-  siteName?: Maybe<Scalars['String']>;
-  slug: Scalars['String'];
-  title: Scalars['String'];
-  url: Scalars['String'];
+  author?: Maybe<Scalars['String']['output']>;
+  description: Scalars['String']['output'];
+  feed: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  image?: Maybe<Scalars['String']['output']>;
+  publishedDate?: Maybe<Scalars['Date']['output']>;
+  savedId?: Maybe<Scalars['String']['output']>;
+  savedLinkUrl?: Maybe<Scalars['String']['output']>;
+  siteName?: Maybe<Scalars['String']['output']>;
+  slug: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  url: Scalars['String']['output'];
 };
 
 export type DiscoverFeedError = {
@@ -952,8 +1042,8 @@ export type DiscoverFeedSuccess = {
 
 export type DiscoverTopic = {
   __typename?: 'DiscoverTopic';
-  description: Scalars['String'];
-  name: Scalars['String'];
+  description: Scalars['String']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type EditDiscoverFeedError = {
@@ -968,15 +1058,15 @@ export enum EditDiscoverFeedErrorCode {
 }
 
 export type EditDiscoverFeedInput = {
-  feedId: Scalars['ID'];
-  name: Scalars['String'];
+  feedId: Scalars['ID']['input'];
+  name: Scalars['String']['input'];
 };
 
 export type EditDiscoverFeedResult = EditDiscoverFeedError | EditDiscoverFeedSuccess;
 
 export type EditDiscoverFeedSuccess = {
   __typename?: 'EditDiscoverFeedSuccess';
-  id: Scalars['ID'];
+  id: Scalars['ID']['output'];
 };
 
 export type EmptyTrashError = {
@@ -992,7 +1082,7 @@ export type EmptyTrashResult = EmptyTrashError | EmptyTrashSuccess;
 
 export type EmptyTrashSuccess = {
   __typename?: 'EmptyTrashSuccess';
-  success?: Maybe<Scalars['Boolean']>;
+  success?: Maybe<Scalars['Boolean']['output']>;
 };
 
 export enum ErrorCode {
@@ -1021,46 +1111,46 @@ export type ExportToIntegrationSuccess = {
 
 export type Feature = {
   __typename?: 'Feature';
-  createdAt: Scalars['Date'];
-  expiresAt?: Maybe<Scalars['Date']>;
-  grantedAt?: Maybe<Scalars['Date']>;
-  id: Scalars['ID'];
-  name: Scalars['String'];
-  token: Scalars['String'];
-  updatedAt?: Maybe<Scalars['Date']>;
+  createdAt: Scalars['Date']['output'];
+  expiresAt?: Maybe<Scalars['Date']['output']>;
+  grantedAt?: Maybe<Scalars['Date']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+  updatedAt?: Maybe<Scalars['Date']['output']>;
 };
 
 export type Feed = {
   __typename?: 'Feed';
-  author?: Maybe<Scalars['String']>;
-  createdAt?: Maybe<Scalars['Date']>;
-  description?: Maybe<Scalars['String']>;
-  id?: Maybe<Scalars['ID']>;
-  image?: Maybe<Scalars['String']>;
-  publishedAt?: Maybe<Scalars['Date']>;
-  title: Scalars['String'];
-  type?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['Date']>;
-  url: Scalars['String'];
+  author?: Maybe<Scalars['String']['output']>;
+  createdAt?: Maybe<Scalars['Date']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id?: Maybe<Scalars['ID']['output']>;
+  image?: Maybe<Scalars['String']['output']>;
+  publishedAt?: Maybe<Scalars['Date']['output']>;
+  title: Scalars['String']['output'];
+  type?: Maybe<Scalars['String']['output']>;
+  updatedAt?: Maybe<Scalars['Date']['output']>;
+  url: Scalars['String']['output'];
 };
 
 export type FeedArticle = {
   __typename?: 'FeedArticle';
-  annotationsCount?: Maybe<Scalars['Int']>;
+  annotationsCount?: Maybe<Scalars['Int']['output']>;
   article: Article;
   highlight?: Maybe<Highlight>;
-  highlightsCount?: Maybe<Scalars['Int']>;
-  id: Scalars['ID'];
+  highlightsCount?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['ID']['output'];
   reactions: Array<Reaction>;
-  sharedAt: Scalars['Date'];
+  sharedAt: Scalars['Date']['output'];
   sharedBy: User;
-  sharedComment?: Maybe<Scalars['String']>;
-  sharedWithHighlights?: Maybe<Scalars['Boolean']>;
+  sharedComment?: Maybe<Scalars['String']['output']>;
+  sharedWithHighlights?: Maybe<Scalars['Boolean']['output']>;
 };
 
 export type FeedArticleEdge = {
   __typename?: 'FeedArticleEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: FeedArticle;
 };
 
@@ -1083,7 +1173,7 @@ export type FeedArticlesSuccess = {
 
 export type FeedEdge = {
   __typename?: 'FeedEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: Feed;
 };
 
@@ -1098,9 +1188,9 @@ export enum FeedsErrorCode {
 }
 
 export type FeedsInput = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  query?: InputMaybe<Scalars['String']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  query?: InputMaybe<Scalars['String']['input']>;
   sort?: InputMaybe<SortParams>;
 };
 
@@ -1126,7 +1216,7 @@ export type FetchContentResult = FetchContentError | FetchContentSuccess;
 
 export type FetchContentSuccess = {
   __typename?: 'FetchContentSuccess';
-  success: Scalars['Boolean'];
+  success: Scalars['Boolean']['output'];
 };
 
 export enum FetchContentType {
@@ -1137,17 +1227,17 @@ export enum FetchContentType {
 
 export type Filter = {
   __typename?: 'Filter';
-  category?: Maybe<Scalars['String']>;
-  createdAt: Scalars['Date'];
-  defaultFilter?: Maybe<Scalars['Boolean']>;
-  description?: Maybe<Scalars['String']>;
-  filter: Scalars['String'];
-  folder?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  name: Scalars['String'];
-  position: Scalars['Int'];
-  updatedAt?: Maybe<Scalars['Date']>;
-  visible?: Maybe<Scalars['Boolean']>;
+  category?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Date']['output'];
+  defaultFilter?: Maybe<Scalars['Boolean']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  filter: Scalars['String']['output'];
+  folder?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  position: Scalars['Int']['output'];
+  updatedAt?: Maybe<Scalars['Date']['output']>;
+  visible?: Maybe<Scalars['Boolean']['output']>;
 };
 
 export type FiltersError = {
@@ -1187,17 +1277,60 @@ export type FolderPoliciesSuccess = {
 export type FolderPolicy = {
   __typename?: 'FolderPolicy';
   action: FolderPolicyAction;
-  afterDays: Scalars['Int'];
-  createdAt: Scalars['Date'];
-  folder: Scalars['String'];
-  id: Scalars['ID'];
-  updatedAt: Scalars['Date'];
+  afterDays: Scalars['Int']['output'];
+  createdAt: Scalars['Date']['output'];
+  folder: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  updatedAt: Scalars['Date']['output'];
 };
 
 export enum FolderPolicyAction {
   Archive = 'ARCHIVE',
   Delete = 'DELETE'
 }
+
+export type GenerateAnkiCardsBatchError = {
+  __typename?: 'GenerateAnkiCardsBatchError';
+  errorCodes: Array<GenerateAnkiCardsBatchErrorCode>;
+};
+
+export enum GenerateAnkiCardsBatchErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  IntegrationNotConfigured = 'INTEGRATION_NOT_CONFIGURED',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type GenerateAnkiCardsBatchInput = {
+  libraryItemIds: Array<Scalars['ID']['input']>;
+};
+
+export type GenerateAnkiCardsBatchResult = GenerateAnkiCardsBatchError | GenerateAnkiCardsBatchSuccess;
+
+export type GenerateAnkiCardsBatchSuccess = {
+  __typename?: 'GenerateAnkiCardsBatchSuccess';
+  jobsEnqueued: Scalars['Int']['output'];
+};
+
+export type GenerateAnkiCardsError = {
+  __typename?: 'GenerateAnkiCardsError';
+  errorCodes: Array<GenerateAnkiCardsErrorCode>;
+};
+
+export enum GenerateAnkiCardsErrorCode {
+  AlreadyExists = 'ALREADY_EXISTS',
+  BadRequest = 'BAD_REQUEST',
+  FailedToEnqueue = 'FAILED_TO_ENQUEUE',
+  IntegrationNotConfigured = 'INTEGRATION_NOT_CONFIGURED',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type GenerateAnkiCardsResult = GenerateAnkiCardsError | GenerateAnkiCardsSuccess;
+
+export type GenerateAnkiCardsSuccess = {
+  __typename?: 'GenerateAnkiCardsSuccess';
+  batch: AnkiCardBatch;
+};
 
 export type GenerateApiKeyError = {
   __typename?: 'GenerateApiKeyError';
@@ -1211,9 +1344,9 @@ export enum GenerateApiKeyErrorCode {
 }
 
 export type GenerateApiKeyInput = {
-  expiresAt: Scalars['Date'];
-  name: Scalars['String'];
-  scopes?: InputMaybe<Array<Scalars['String']>>;
+  expiresAt: Scalars['Date']['input'];
+  name: Scalars['String']['input'];
+  scopes?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type GenerateApiKeyResult = GenerateApiKeyError | GenerateApiKeySuccess;
@@ -1307,8 +1440,8 @@ export type GetUserPersonalizationSuccess = {
 };
 
 export type GoogleLoginInput = {
-  email: Scalars['String'];
-  secret: Scalars['String'];
+  email: Scalars['String']['input'];
+  secret: Scalars['String']['input'];
 };
 
 export type GoogleSignupError = {
@@ -1317,13 +1450,13 @@ export type GoogleSignupError = {
 };
 
 export type GoogleSignupInput = {
-  bio?: InputMaybe<Scalars['String']>;
-  email: Scalars['String'];
-  name: Scalars['String'];
-  pictureUrl: Scalars['String'];
-  secret: Scalars['String'];
-  sourceUserId: Scalars['String'];
-  username: Scalars['String'];
+  bio?: InputMaybe<Scalars['String']['input']>;
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  pictureUrl: Scalars['String']['input'];
+  secret: Scalars['String']['input'];
+  sourceUserId: Scalars['String']['input'];
+  username: Scalars['String']['input'];
 };
 
 export type GoogleSignupResult = GoogleSignupError | GoogleSignupSuccess;
@@ -1370,49 +1503,49 @@ export type HiddenHomeSectionSuccess = {
 
 export type Highlight = {
   __typename?: 'Highlight';
-  annotation?: Maybe<Scalars['String']>;
-  color?: Maybe<Scalars['String']>;
-  createdAt: Scalars['Date'];
-  createdByMe: Scalars['Boolean'];
-  highlightPositionAnchorIndex?: Maybe<Scalars['Int']>;
-  highlightPositionPercent?: Maybe<Scalars['Float']>;
-  html?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
+  annotation?: Maybe<Scalars['String']['output']>;
+  color?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Date']['output'];
+  createdByMe: Scalars['Boolean']['output'];
+  highlightPositionAnchorIndex?: Maybe<Scalars['Int']['output']>;
+  highlightPositionPercent?: Maybe<Scalars['Float']['output']>;
+  html?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
   labels?: Maybe<Array<Label>>;
   libraryItem: Article;
-  patch?: Maybe<Scalars['String']>;
-  prefix?: Maybe<Scalars['String']>;
-  quote?: Maybe<Scalars['String']>;
+  patch?: Maybe<Scalars['String']['output']>;
+  prefix?: Maybe<Scalars['String']['output']>;
+  quote?: Maybe<Scalars['String']['output']>;
   reactions: Array<Reaction>;
   replies: Array<HighlightReply>;
   representation: RepresentationType;
-  sharedAt?: Maybe<Scalars['Date']>;
-  shortId: Scalars['String'];
-  suffix?: Maybe<Scalars['String']>;
+  sharedAt?: Maybe<Scalars['Date']['output']>;
+  shortId: Scalars['String']['output'];
+  suffix?: Maybe<Scalars['String']['output']>;
   type: HighlightType;
-  updatedAt?: Maybe<Scalars['Date']>;
+  updatedAt?: Maybe<Scalars['Date']['output']>;
   user: User;
 };
 
 export type HighlightEdge = {
   __typename?: 'HighlightEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: Highlight;
 };
 
 export type HighlightReply = {
   __typename?: 'HighlightReply';
-  createdAt: Scalars['Date'];
+  createdAt: Scalars['Date']['output'];
   highlight: Highlight;
-  id: Scalars['ID'];
-  text: Scalars['String'];
-  updatedAt?: Maybe<Scalars['Date']>;
+  id: Scalars['ID']['output'];
+  text: Scalars['String']['output'];
+  updatedAt?: Maybe<Scalars['Date']['output']>;
   user: User;
 };
 
 export type HighlightStats = {
   __typename?: 'HighlightStats';
-  highlightCount: Scalars['Int'];
+  highlightCount: Scalars['Int']['output'];
 };
 
 export enum HighlightType {
@@ -1440,7 +1573,7 @@ export type HighlightsSuccess = {
 
 export type HomeEdge = {
   __typename?: 'HomeEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: HomeSection;
 };
 
@@ -1457,37 +1590,37 @@ export enum HomeErrorCode {
 
 export type HomeItem = {
   __typename?: 'HomeItem';
-  author?: Maybe<Scalars['String']>;
-  broadcastCount?: Maybe<Scalars['Int']>;
-  canArchive?: Maybe<Scalars['Boolean']>;
-  canComment?: Maybe<Scalars['Boolean']>;
-  canDelete?: Maybe<Scalars['Boolean']>;
-  canMove?: Maybe<Scalars['Boolean']>;
-  canSave?: Maybe<Scalars['Boolean']>;
-  canShare?: Maybe<Scalars['Boolean']>;
-  date: Scalars['Date'];
-  dir?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  likeCount?: Maybe<Scalars['Int']>;
-  previewContent?: Maybe<Scalars['String']>;
-  saveCount?: Maybe<Scalars['Int']>;
-  score?: Maybe<Scalars['Float']>;
-  seen_at?: Maybe<Scalars['Date']>;
-  slug?: Maybe<Scalars['String']>;
+  author?: Maybe<Scalars['String']['output']>;
+  broadcastCount?: Maybe<Scalars['Int']['output']>;
+  canArchive?: Maybe<Scalars['Boolean']['output']>;
+  canComment?: Maybe<Scalars['Boolean']['output']>;
+  canDelete?: Maybe<Scalars['Boolean']['output']>;
+  canMove?: Maybe<Scalars['Boolean']['output']>;
+  canSave?: Maybe<Scalars['Boolean']['output']>;
+  canShare?: Maybe<Scalars['Boolean']['output']>;
+  date: Scalars['Date']['output'];
+  dir?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  likeCount?: Maybe<Scalars['Int']['output']>;
+  previewContent?: Maybe<Scalars['String']['output']>;
+  saveCount?: Maybe<Scalars['Int']['output']>;
+  score?: Maybe<Scalars['Float']['output']>;
+  seen_at?: Maybe<Scalars['Date']['output']>;
+  slug?: Maybe<Scalars['String']['output']>;
   source?: Maybe<HomeItemSource>;
-  thumbnail?: Maybe<Scalars['String']>;
-  title: Scalars['String'];
-  url: Scalars['String'];
-  wordCount?: Maybe<Scalars['Int']>;
+  thumbnail?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+  wordCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type HomeItemSource = {
   __typename?: 'HomeItemSource';
-  icon?: Maybe<Scalars['String']>;
-  id?: Maybe<Scalars['ID']>;
-  name?: Maybe<Scalars['String']>;
+  icon?: Maybe<Scalars['String']['output']>;
+  id?: Maybe<Scalars['ID']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
   type: HomeItemSourceType;
-  url?: Maybe<Scalars['String']>;
+  url?: Maybe<Scalars['String']['output']>;
 };
 
 export enum HomeItemSourceType {
@@ -1502,9 +1635,9 @@ export type HomeResult = HomeError | HomeSuccess;
 export type HomeSection = {
   __typename?: 'HomeSection';
   items: Array<HomeItem>;
-  layout?: Maybe<Scalars['String']>;
-  thumbnail?: Maybe<Scalars['String']>;
-  title?: Maybe<Scalars['String']>;
+  layout?: Maybe<Scalars['String']['output']>;
+  thumbnail?: Maybe<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
 };
 
 export type HomeSuccess = {
@@ -1527,7 +1660,7 @@ export type ImportFromIntegrationResult = ImportFromIntegrationError | ImportFro
 
 export type ImportFromIntegrationSuccess = {
   __typename?: 'ImportFromIntegrationSuccess';
-  success: Scalars['Boolean'];
+  success: Scalars['Boolean']['output'];
 };
 
 export enum ImportItemState {
@@ -1539,15 +1672,15 @@ export enum ImportItemState {
 
 export type Integration = {
   __typename?: 'Integration';
-  createdAt: Scalars['Date'];
-  enabled: Scalars['Boolean'];
-  id: Scalars['ID'];
-  name: Scalars['String'];
-  settings?: Maybe<Scalars['JSON']>;
-  taskName?: Maybe<Scalars['String']>;
-  token: Scalars['String'];
+  createdAt: Scalars['Date']['output'];
+  enabled: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  settings?: Maybe<Scalars['JSON']['output']>;
+  taskName?: Maybe<Scalars['String']['output']>;
+  token: Scalars['String']['output'];
   type: IntegrationType;
-  updatedAt?: Maybe<Scalars['Date']>;
+  updatedAt?: Maybe<Scalars['Date']['output']>;
 };
 
 export type IntegrationError = {
@@ -1567,6 +1700,7 @@ export type IntegrationSuccess = {
 };
 
 export enum IntegrationType {
+  Anki = 'ANKI',
   Export = 'EXPORT',
   Import = 'IMPORT'
 }
@@ -1608,14 +1742,14 @@ export type JoinGroupSuccess = {
 
 export type Label = {
   __typename?: 'Label';
-  color: Scalars['String'];
-  createdAt?: Maybe<Scalars['Date']>;
-  description?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  internal?: Maybe<Scalars['Boolean']>;
-  name: Scalars['String'];
-  position?: Maybe<Scalars['Int']>;
-  source?: Maybe<Scalars['String']>;
+  color: Scalars['String']['output'];
+  createdAt?: Maybe<Scalars['Date']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  internal?: Maybe<Scalars['Boolean']['output']>;
+  name: Scalars['String']['output'];
+  position?: Maybe<Scalars['Int']['output']>;
+  source?: Maybe<Scalars['String']['output']>;
 };
 
 export type LabelsError = {
@@ -1651,31 +1785,31 @@ export type LeaveGroupResult = LeaveGroupError | LeaveGroupSuccess;
 
 export type LeaveGroupSuccess = {
   __typename?: 'LeaveGroupSuccess';
-  success: Scalars['Boolean'];
+  success: Scalars['Boolean']['output'];
 };
 
 export type Link = {
   __typename?: 'Link';
   highlightStats: HighlightStats;
-  id: Scalars['ID'];
+  id: Scalars['ID']['output'];
   page: Page;
-  postedByViewer: Scalars['Boolean'];
+  postedByViewer: Scalars['Boolean']['output'];
   readState: ReadState;
-  savedAt: Scalars['Date'];
+  savedAt: Scalars['Date']['output'];
   savedBy: User;
-  savedByViewer: Scalars['Boolean'];
+  savedByViewer: Scalars['Boolean']['output'];
   shareInfo: LinkShareInfo;
   shareStats: ShareStats;
-  slug: Scalars['String'];
-  updatedAt?: Maybe<Scalars['Date']>;
-  url: Scalars['String'];
+  slug: Scalars['String']['output'];
+  updatedAt?: Maybe<Scalars['Date']['output']>;
+  url: Scalars['String']['output'];
 };
 
 export type LinkShareInfo = {
   __typename?: 'LinkShareInfo';
-  description: Scalars['String'];
-  imageUrl: Scalars['String'];
-  title: Scalars['String'];
+  description: Scalars['String']['output'];
+  imageUrl: Scalars['String']['output'];
+  title: Scalars['String']['output'];
 };
 
 export type LogOutError = {
@@ -1691,7 +1825,7 @@ export type LogOutResult = LogOutError | LogOutSuccess;
 
 export type LogOutSuccess = {
   __typename?: 'LogOutSuccess';
-  message?: Maybe<Scalars['String']>;
+  message?: Maybe<Scalars['String']['output']>;
 };
 
 export type LoginError = {
@@ -1730,7 +1864,7 @@ export type MarkEmailAsItemResult = MarkEmailAsItemError | MarkEmailAsItemSucces
 
 export type MarkEmailAsItemSuccess = {
   __typename?: 'MarkEmailAsItemSuccess';
-  success: Scalars['Boolean'];
+  success: Scalars['Boolean']['output'];
 };
 
 export type MergeHighlightError = {
@@ -1747,20 +1881,20 @@ export enum MergeHighlightErrorCode {
 }
 
 export type MergeHighlightInput = {
-  annotation?: InputMaybe<Scalars['String']>;
-  articleId: Scalars['ID'];
-  color?: InputMaybe<Scalars['String']>;
-  highlightPositionAnchorIndex?: InputMaybe<Scalars['Int']>;
-  highlightPositionPercent?: InputMaybe<Scalars['Float']>;
-  html?: InputMaybe<Scalars['String']>;
-  id: Scalars['ID'];
-  overlapHighlightIdList: Array<Scalars['String']>;
-  patch: Scalars['String'];
-  prefix?: InputMaybe<Scalars['String']>;
-  quote: Scalars['String'];
+  annotation?: InputMaybe<Scalars['String']['input']>;
+  articleId: Scalars['ID']['input'];
+  color?: InputMaybe<Scalars['String']['input']>;
+  highlightPositionAnchorIndex?: InputMaybe<Scalars['Int']['input']>;
+  highlightPositionPercent?: InputMaybe<Scalars['Float']['input']>;
+  html?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  overlapHighlightIdList: Array<Scalars['String']['input']>;
+  patch: Scalars['String']['input'];
+  prefix?: InputMaybe<Scalars['String']['input']>;
+  quote: Scalars['String']['input'];
   representation?: InputMaybe<RepresentationType>;
-  shortId: Scalars['ID'];
-  suffix?: InputMaybe<Scalars['String']>;
+  shortId: Scalars['ID']['input'];
+  suffix?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type MergeHighlightResult = MergeHighlightError | MergeHighlightSuccess;
@@ -1768,7 +1902,7 @@ export type MergeHighlightResult = MergeHighlightError | MergeHighlightSuccess;
 export type MergeHighlightSuccess = {
   __typename?: 'MergeHighlightSuccess';
   highlight: Highlight;
-  overlapHighlightIdList: Array<Scalars['String']>;
+  overlapHighlightIdList: Array<Scalars['String']['output']>;
 };
 
 export type MoveFilterError = {
@@ -1783,8 +1917,8 @@ export enum MoveFilterErrorCode {
 }
 
 export type MoveFilterInput = {
-  afterFilterId?: InputMaybe<Scalars['ID']>;
-  filterId: Scalars['ID'];
+  afterFilterId?: InputMaybe<Scalars['ID']['input']>;
+  filterId: Scalars['ID']['input'];
 };
 
 export type MoveFilterResult = MoveFilterError | MoveFilterSuccess;
@@ -1806,8 +1940,8 @@ export enum MoveLabelErrorCode {
 }
 
 export type MoveLabelInput = {
-  afterLabelId?: InputMaybe<Scalars['ID']>;
-  labelId: Scalars['ID'];
+  afterLabelId?: InputMaybe<Scalars['ID']['input']>;
+  labelId: Scalars['ID']['input'];
 };
 
 export type MoveLabelResult = MoveLabelError | MoveLabelSuccess;
@@ -1832,7 +1966,7 @@ export type MoveToFolderResult = MoveToFolderError | MoveToFolderSuccess;
 
 export type MoveToFolderSuccess = {
   __typename?: 'MoveToFolderSuccess';
-  success: Scalars['Boolean'];
+  success: Scalars['Boolean']['output'];
 };
 
 export type Mutation = {
@@ -1864,6 +1998,8 @@ export type Mutation = {
   emptyTrash: EmptyTrashResult;
   exportToIntegration: ExportToIntegrationResult;
   fetchContent: FetchContentResult;
+  generateAnkiCards: GenerateAnkiCardsResult;
+  generateAnkiCardsBatch: GenerateAnkiCardsBatchResult;
   generateApiKey: GenerateApiKeyResult;
   googleLogin: LoginResult;
   googleSignup: GoogleSignupResult;
@@ -1880,6 +2016,7 @@ export type Mutation = {
   recommend: RecommendResult;
   recommendHighlights: RecommendHighlightsResult;
   refreshHome: RefreshHomeResult;
+  regenerateAnkiCards: RegenerateAnkiCardsResult;
   replyToEmail: ReplyToEmailResult;
   reportItem: ReportItemResult;
   revokeApiKey: RevokeApiKeyResult;
@@ -1901,6 +2038,7 @@ export type Mutation = {
   setUserPersonalization: SetUserPersonalizationResult;
   setWebhook: SetWebhookResult;
   subscribe: SubscribeResult;
+  testAnkiConnection: TestAnkiConnectionResult;
   unsubscribe: UnsubscribeResult;
   updateEmail: UpdateEmailResult;
   updateFilter: UpdateFilterResult;
@@ -1924,17 +2062,17 @@ export type MutationAddDiscoverFeedArgs = {
 
 
 export type MutationAddPopularReadArgs = {
-  name: Scalars['String'];
+  name: Scalars['String']['input'];
 };
 
 
 export type MutationBulkActionArgs = {
   action: BulkActionType;
-  arguments?: InputMaybe<Scalars['JSON']>;
-  async?: InputMaybe<Scalars['Boolean']>;
-  expectedCount?: InputMaybe<Scalars['Int']>;
-  labelIds?: InputMaybe<Array<Scalars['ID']>>;
-  query: Scalars['String'];
+  arguments?: InputMaybe<Scalars['JSON']['input']>;
+  async?: InputMaybe<Scalars['Boolean']['input']>;
+  expectedCount?: InputMaybe<Scalars['Int']['input']>;
+  labelIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  query: Scalars['String']['input'];
 };
 
 
@@ -1979,7 +2117,7 @@ export type MutationCreatePostArgs = {
 
 
 export type MutationDeleteAccountArgs = {
-  userID: Scalars['ID'];
+  userID: Scalars['ID']['input'];
 };
 
 
@@ -1994,47 +2132,47 @@ export type MutationDeleteDiscoverFeedArgs = {
 
 
 export type MutationDeleteFilterArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 };
 
 
 export type MutationDeleteFolderPolicyArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 };
 
 
 export type MutationDeleteHighlightArgs = {
-  highlightId: Scalars['ID'];
+  highlightId: Scalars['ID']['input'];
 };
 
 
 export type MutationDeleteIntegrationArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 };
 
 
 export type MutationDeleteLabelArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 };
 
 
 export type MutationDeleteNewsletterEmailArgs = {
-  newsletterEmailId: Scalars['ID'];
+  newsletterEmailId: Scalars['ID']['input'];
 };
 
 
 export type MutationDeletePostArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 };
 
 
 export type MutationDeleteRuleArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 };
 
 
 export type MutationDeleteWebhookArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -2044,12 +2182,22 @@ export type MutationEditDiscoverFeedArgs = {
 
 
 export type MutationExportToIntegrationArgs = {
-  integrationId: Scalars['ID'];
+  integrationId: Scalars['ID']['input'];
 };
 
 
 export type MutationFetchContentArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationGenerateAnkiCardsArgs = {
+  libraryItemId: Scalars['ID']['input'];
+};
+
+
+export type MutationGenerateAnkiCardsBatchArgs = {
+  input: GenerateAnkiCardsBatchInput;
 };
 
 
@@ -2069,22 +2217,22 @@ export type MutationGoogleSignupArgs = {
 
 
 export type MutationImportFromIntegrationArgs = {
-  integrationId: Scalars['ID'];
+  integrationId: Scalars['ID']['input'];
 };
 
 
 export type MutationJoinGroupArgs = {
-  inviteCode: Scalars['String'];
+  inviteCode: Scalars['String']['input'];
 };
 
 
 export type MutationLeaveGroupArgs = {
-  groupId: Scalars['ID'];
+  groupId: Scalars['ID']['input'];
 };
 
 
 export type MutationMarkEmailAsItemArgs = {
-  recentEmailId: Scalars['ID'];
+  recentEmailId: Scalars['ID']['input'];
 };
 
 
@@ -2104,8 +2252,8 @@ export type MutationMoveLabelArgs = {
 
 
 export type MutationMoveToFolderArgs = {
-  folder: Scalars['String'];
-  id: Scalars['ID'];
+  folder: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -2124,8 +2272,13 @@ export type MutationRecommendHighlightsArgs = {
 };
 
 
+export type MutationRegenerateAnkiCardsArgs = {
+  libraryItemId: Scalars['ID']['input'];
+};
+
+
 export type MutationReplyToEmailArgs = {
-  recentEmailId: Scalars['ID'];
+  recentEmailId: Scalars['ID']['input'];
   reply: AllowedReply;
 };
 
@@ -2136,7 +2289,7 @@ export type MutationReportItemArgs = {
 
 
 export type MutationRevokeApiKeyArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -2181,7 +2334,7 @@ export type MutationSetDeviceTokenArgs = {
 
 
 export type MutationSetFavoriteArticleArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -2211,8 +2364,8 @@ export type MutationSetRuleArgs = {
 
 
 export type MutationSetShowTranslatedArgs = {
-  id: Scalars['ID'];
-  showTranslated: Scalars['Boolean'];
+  id: Scalars['ID']['input'];
+  showTranslated: Scalars['Boolean']['input'];
 };
 
 
@@ -2231,9 +2384,14 @@ export type MutationSubscribeArgs = {
 };
 
 
+export type MutationTestAnkiConnectionArgs = {
+  input: TestAnkiConnectionInput;
+};
+
+
 export type MutationUnsubscribeArgs = {
-  name: Scalars['String'];
-  subscriptionId?: InputMaybe<Scalars['ID']>;
+  name: Scalars['String']['input'];
+  subscriptionId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -2298,20 +2456,20 @@ export type MutationUploadFileRequestArgs = {
 
 
 export type MutationUploadImportFileArgs = {
-  contentType: Scalars['String'];
+  contentType: Scalars['String']['input'];
   type: UploadImportFileType;
 };
 
 export type NewsletterEmail = {
   __typename?: 'NewsletterEmail';
-  address: Scalars['String'];
-  confirmationCode?: Maybe<Scalars['String']>;
-  createdAt: Scalars['Date'];
-  description?: Maybe<Scalars['String']>;
-  folder: Scalars['String'];
-  id: Scalars['ID'];
-  name?: Maybe<Scalars['String']>;
-  subscriptionCount: Scalars['Int'];
+  address: Scalars['String']['output'];
+  confirmationCode?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Date']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  folder: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name?: Maybe<Scalars['String']['output']>;
+  subscriptionCount: Scalars['Int']['output'];
 };
 
 export type NewsletterEmailsError = {
@@ -2343,7 +2501,7 @@ export enum OptInFeatureErrorCode {
 }
 
 export type OptInFeatureInput = {
-  name: Scalars['String'];
+  name: Scalars['String']['input'];
 };
 
 export type OptInFeatureResult = OptInFeatureError | OptInFeatureSuccess;
@@ -2355,39 +2513,39 @@ export type OptInFeatureSuccess = {
 
 export type Page = {
   __typename?: 'Page';
-  author?: Maybe<Scalars['String']>;
-  createdAt: Scalars['Date'];
-  description?: Maybe<Scalars['String']>;
-  hash: Scalars['String'];
-  id: Scalars['ID'];
-  image: Scalars['String'];
-  originalHtml: Scalars['String'];
-  originalUrl: Scalars['String'];
-  publishedAt?: Maybe<Scalars['Date']>;
-  readableHtml: Scalars['String'];
-  title: Scalars['String'];
+  author?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Date']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  hash: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  image: Scalars['String']['output'];
+  originalHtml: Scalars['String']['output'];
+  originalUrl: Scalars['String']['output'];
+  publishedAt?: Maybe<Scalars['Date']['output']>;
+  readableHtml: Scalars['String']['output'];
+  title: Scalars['String']['output'];
   type: PageType;
-  updatedAt?: Maybe<Scalars['Date']>;
-  url: Scalars['String'];
+  updatedAt?: Maybe<Scalars['Date']['output']>;
+  url: Scalars['String']['output'];
 };
 
 export type PageInfo = {
   __typename?: 'PageInfo';
-  endCursor?: Maybe<Scalars['String']>;
-  hasNextPage: Scalars['Boolean'];
-  hasPreviousPage: Scalars['Boolean'];
-  startCursor?: Maybe<Scalars['String']>;
-  totalCount?: Maybe<Scalars['Int']>;
+  endCursor?: Maybe<Scalars['String']['output']>;
+  hasNextPage: Scalars['Boolean']['output'];
+  hasPreviousPage: Scalars['Boolean']['output'];
+  startCursor?: Maybe<Scalars['String']['output']>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type PageInfoInput = {
-  author?: InputMaybe<Scalars['String']>;
-  canonicalUrl?: InputMaybe<Scalars['String']>;
-  contentType?: InputMaybe<Scalars['String']>;
-  description?: InputMaybe<Scalars['String']>;
-  previewImage?: InputMaybe<Scalars['String']>;
-  publishedAt?: InputMaybe<Scalars['Date']>;
-  title?: InputMaybe<Scalars['String']>;
+  author?: InputMaybe<Scalars['String']['input']>;
+  canonicalUrl?: InputMaybe<Scalars['String']['input']>;
+  contentType?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  previewImage?: InputMaybe<Scalars['String']['input']>;
+  publishedAt?: InputMaybe<Scalars['Date']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
 };
 
 export enum PageType {
@@ -2404,38 +2562,38 @@ export enum PageType {
 }
 
 export type ParseResult = {
-  byline?: InputMaybe<Scalars['String']>;
-  content: Scalars['String'];
-  dir?: InputMaybe<Scalars['String']>;
-  excerpt: Scalars['String'];
-  language?: InputMaybe<Scalars['String']>;
-  length: Scalars['Int'];
-  previewImage?: InputMaybe<Scalars['String']>;
-  publishedDate?: InputMaybe<Scalars['Date']>;
-  siteIcon?: InputMaybe<Scalars['String']>;
-  siteName?: InputMaybe<Scalars['String']>;
-  textContent: Scalars['String'];
-  title: Scalars['String'];
+  byline?: InputMaybe<Scalars['String']['input']>;
+  content: Scalars['String']['input'];
+  dir?: InputMaybe<Scalars['String']['input']>;
+  excerpt: Scalars['String']['input'];
+  language?: InputMaybe<Scalars['String']['input']>;
+  length: Scalars['Int']['input'];
+  previewImage?: InputMaybe<Scalars['String']['input']>;
+  publishedDate?: InputMaybe<Scalars['Date']['input']>;
+  siteIcon?: InputMaybe<Scalars['String']['input']>;
+  siteName?: InputMaybe<Scalars['String']['input']>;
+  textContent: Scalars['String']['input'];
+  title: Scalars['String']['input'];
 };
 
 export type Post = {
   __typename?: 'Post';
-  author: Scalars['String'];
-  content: Scalars['String'];
-  createdAt: Scalars['Date'];
+  author: Scalars['String']['output'];
+  content: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
   highlights?: Maybe<Array<Highlight>>;
-  id: Scalars['ID'];
+  id: Scalars['ID']['output'];
   libraryItems?: Maybe<Array<Article>>;
-  ownedByViewer: Scalars['Boolean'];
-  thought?: Maybe<Scalars['String']>;
-  thumbnail?: Maybe<Scalars['String']>;
-  title: Scalars['String'];
-  updatedAt: Scalars['Date'];
+  ownedByViewer: Scalars['Boolean']['output'];
+  thought?: Maybe<Scalars['String']['output']>;
+  thumbnail?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['Date']['output'];
 };
 
 export type PostEdge = {
   __typename?: 'PostEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: Post;
 };
 
@@ -2476,21 +2634,24 @@ export type PostsSuccess = {
 };
 
 export type PreparedDocumentInput = {
-  document: Scalars['String'];
+  document: Scalars['String']['input'];
   pageInfo: PageInfoInput;
 };
 
 export type Profile = {
   __typename?: 'Profile';
-  bio?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  pictureUrl?: Maybe<Scalars['String']>;
-  private: Scalars['Boolean'];
-  username: Scalars['String'];
+  bio?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  pictureUrl?: Maybe<Scalars['String']['output']>;
+  private: Scalars['Boolean']['output'];
+  username: Scalars['String']['output'];
 };
 
 export type Query = {
   __typename?: 'Query';
+  ankiCardBatches: AnkiCardBatchesResult;
+  ankiCards: AnkiCardsResult;
+  ankiIntegration: AnkiIntegrationResult;
   apiKeys: ApiKeysResult;
   article: ArticleResult;
   articleSavingRequest: ArticleSavingRequestResult;
@@ -2503,7 +2664,7 @@ export type Query = {
   getDiscoverFeedArticles: GetDiscoverFeedArticleResults;
   getUserPersonalization: GetUserPersonalizationResult;
   groups: GroupsResult;
-  hello?: Maybe<Scalars['String']>;
+  hello?: Maybe<Scalars['String']['output']>;
   hiddenHomeSection: HiddenHomeSectionResult;
   highlights: HighlightsResult;
   home: HomeResult;
@@ -2526,22 +2687,32 @@ export type Query = {
   updatesSince: UpdatesSinceResult;
   user: UserResult;
   users: UsersResult;
-  validateUsername: Scalars['Boolean'];
+  validateUsername: Scalars['Boolean']['output'];
   webhook: WebhookResult;
   webhooks: WebhooksResult;
 };
 
 
+export type QueryAnkiCardBatchesArgs = {
+  input?: InputMaybe<AnkiCardBatchesInput>;
+};
+
+
+export type QueryAnkiCardsArgs = {
+  libraryItemId: Scalars['ID']['input'];
+};
+
+
 export type QueryArticleArgs = {
-  format?: InputMaybe<Scalars['String']>;
-  slug: Scalars['String'];
-  username: Scalars['String'];
+  format?: InputMaybe<Scalars['String']['input']>;
+  slug: Scalars['String']['input'];
+  username: Scalars['String']['input'];
 };
 
 
 export type QueryArticleSavingRequestArgs = {
-  id?: InputMaybe<Scalars['ID']>;
-  url?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -2551,45 +2722,45 @@ export type QueryFeedsArgs = {
 
 
 export type QueryGetDiscoverFeedArticlesArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  discoverTopicId: Scalars['String'];
-  feedId?: InputMaybe<Scalars['ID']>;
-  first?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  discoverTopicId: Scalars['String']['input'];
+  feedId?: InputMaybe<Scalars['ID']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
 export type QueryHighlightsArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  query?: InputMaybe<Scalars['String']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  query?: InputMaybe<Scalars['String']['input']>;
 };
 
 
 export type QueryHomeArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
 export type QueryIntegrationArgs = {
-  name: Scalars['String'];
+  name: Scalars['String']['input'];
 };
 
 
 export type QueryPostArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 };
 
 
 export type QueryPostsArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  userId: Scalars['ID'];
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  userId: Scalars['ID']['input'];
 };
 
 
 export type QueryRulesArgs = {
-  enabled?: InputMaybe<Scalars['Boolean']>;
+  enabled?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -2599,16 +2770,16 @@ export type QueryScanFeedsArgs = {
 
 
 export type QuerySearchArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  format?: InputMaybe<Scalars['String']>;
-  includeContent?: InputMaybe<Scalars['Boolean']>;
-  query?: InputMaybe<Scalars['String']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  format?: InputMaybe<Scalars['String']['input']>;
+  includeContent?: InputMaybe<Scalars['Boolean']['input']>;
+  query?: InputMaybe<Scalars['String']['input']>;
 };
 
 
 export type QuerySubscriptionArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -2619,41 +2790,41 @@ export type QuerySubscriptionsArgs = {
 
 
 export type QueryTypeaheadSearchArgs = {
-  first?: InputMaybe<Scalars['Int']>;
-  query: Scalars['String'];
+  first?: InputMaybe<Scalars['Int']['input']>;
+  query: Scalars['String']['input'];
 };
 
 
 export type QueryUpdatesSinceArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  folder?: InputMaybe<Scalars['String']>;
-  since: Scalars['Date'];
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  folder?: InputMaybe<Scalars['String']['input']>;
+  since: Scalars['Date']['input'];
   sort?: InputMaybe<SortParams>;
 };
 
 
 export type QueryUserArgs = {
-  userId?: InputMaybe<Scalars['ID']>;
-  username?: InputMaybe<Scalars['String']>;
+  userId?: InputMaybe<Scalars['ID']['input']>;
+  username?: InputMaybe<Scalars['String']['input']>;
 };
 
 
 export type QueryValidateUsernameArgs = {
-  username: Scalars['String'];
+  username: Scalars['String']['input'];
 };
 
 
 export type QueryWebhookArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 };
 
 export type Reaction = {
   __typename?: 'Reaction';
   code: ReactionType;
-  createdAt: Scalars['Date'];
-  id: Scalars['ID'];
-  updatedAt?: Maybe<Scalars['Date']>;
+  createdAt: Scalars['Date']['output'];
+  id: Scalars['ID']['output'];
+  updatedAt?: Maybe<Scalars['Date']['output']>;
   user: User;
 };
 
@@ -2668,24 +2839,24 @@ export enum ReactionType {
 
 export type ReadState = {
   __typename?: 'ReadState';
-  progressAnchorIndex: Scalars['Int'];
-  progressPercent: Scalars['Float'];
-  reading?: Maybe<Scalars['Boolean']>;
-  readingTime?: Maybe<Scalars['Int']>;
+  progressAnchorIndex: Scalars['Int']['output'];
+  progressPercent: Scalars['Float']['output'];
+  reading?: Maybe<Scalars['Boolean']['output']>;
+  readingTime?: Maybe<Scalars['Int']['output']>;
 };
 
 export type RecentEmail = {
   __typename?: 'RecentEmail';
-  createdAt: Scalars['Date'];
-  from: Scalars['String'];
-  html?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  reply?: Maybe<Scalars['String']>;
-  replyTo?: Maybe<Scalars['String']>;
-  subject: Scalars['String'];
-  text: Scalars['String'];
-  to: Scalars['String'];
-  type: Scalars['String'];
+  createdAt: Scalars['Date']['output'];
+  from: Scalars['String']['output'];
+  html?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  reply?: Maybe<Scalars['String']['output']>;
+  replyTo?: Maybe<Scalars['String']['output']>;
+  subject: Scalars['String']['output'];
+  text: Scalars['String']['output'];
+  to: Scalars['String']['output'];
+  type: Scalars['String']['output'];
 };
 
 export type RecentEmailsError = {
@@ -2707,9 +2878,9 @@ export type RecentEmailsSuccess = {
 
 export type RecentSearch = {
   __typename?: 'RecentSearch';
-  createdAt: Scalars['Date'];
-  id: Scalars['ID'];
-  term: Scalars['String'];
+  createdAt: Scalars['Date']['output'];
+  id: Scalars['ID']['output'];
+  term: Scalars['String']['output'];
 };
 
 export type RecentSearchesError = {
@@ -2752,63 +2923,63 @@ export enum RecommendHighlightsErrorCode {
 }
 
 export type RecommendHighlightsInput = {
-  groupIds: Array<Scalars['ID']>;
-  highlightIds: Array<Scalars['ID']>;
-  note?: InputMaybe<Scalars['String']>;
-  pageId: Scalars['ID'];
+  groupIds: Array<Scalars['ID']['input']>;
+  highlightIds: Array<Scalars['ID']['input']>;
+  note?: InputMaybe<Scalars['String']['input']>;
+  pageId: Scalars['ID']['input'];
 };
 
 export type RecommendHighlightsResult = RecommendHighlightsError | RecommendHighlightsSuccess;
 
 export type RecommendHighlightsSuccess = {
   __typename?: 'RecommendHighlightsSuccess';
-  success: Scalars['Boolean'];
+  success: Scalars['Boolean']['output'];
 };
 
 export type RecommendInput = {
-  groupIds: Array<Scalars['ID']>;
-  note?: InputMaybe<Scalars['String']>;
-  pageId: Scalars['ID'];
-  recommendedWithHighlights?: InputMaybe<Scalars['Boolean']>;
+  groupIds: Array<Scalars['ID']['input']>;
+  note?: InputMaybe<Scalars['String']['input']>;
+  pageId: Scalars['ID']['input'];
+  recommendedWithHighlights?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type RecommendResult = RecommendError | RecommendSuccess;
 
 export type RecommendSuccess = {
   __typename?: 'RecommendSuccess';
-  success: Scalars['Boolean'];
+  success: Scalars['Boolean']['output'];
 };
 
 export type Recommendation = {
   __typename?: 'Recommendation';
-  id: Scalars['ID'];
-  name: Scalars['String'];
-  note?: Maybe<Scalars['String']>;
-  recommendedAt: Scalars['Date'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  note?: Maybe<Scalars['String']['output']>;
+  recommendedAt: Scalars['Date']['output'];
   user?: Maybe<RecommendingUser>;
 };
 
 export type RecommendationGroup = {
   __typename?: 'RecommendationGroup';
   admins: Array<User>;
-  canPost: Scalars['Boolean'];
-  canSeeMembers: Scalars['Boolean'];
-  createdAt: Scalars['Date'];
-  description?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  inviteUrl: Scalars['String'];
+  canPost: Scalars['Boolean']['output'];
+  canSeeMembers: Scalars['Boolean']['output'];
+  createdAt: Scalars['Date']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  inviteUrl: Scalars['String']['output'];
   members: Array<User>;
-  name: Scalars['String'];
-  topics?: Maybe<Array<Scalars['String']>>;
-  updatedAt?: Maybe<Scalars['Date']>;
+  name: Scalars['String']['output'];
+  topics?: Maybe<Array<Scalars['String']['output']>>;
+  updatedAt?: Maybe<Scalars['Date']['output']>;
 };
 
 export type RecommendingUser = {
   __typename?: 'RecommendingUser';
-  name: Scalars['String'];
-  profileImageURL?: Maybe<Scalars['String']>;
-  userId: Scalars['String'];
-  username: Scalars['String'];
+  name: Scalars['String']['output'];
+  profileImageURL?: Maybe<Scalars['String']['output']>;
+  userId: Scalars['String']['output'];
+  username: Scalars['String']['output'];
 };
 
 export type RefreshHomeError = {
@@ -2824,15 +2995,35 @@ export type RefreshHomeResult = RefreshHomeError | RefreshHomeSuccess;
 
 export type RefreshHomeSuccess = {
   __typename?: 'RefreshHomeSuccess';
-  success: Scalars['Boolean'];
+  success: Scalars['Boolean']['output'];
+};
+
+export type RegenerateAnkiCardsError = {
+  __typename?: 'RegenerateAnkiCardsError';
+  errorCodes: Array<RegenerateAnkiCardsErrorCode>;
+};
+
+export enum RegenerateAnkiCardsErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  FailedToEnqueue = 'FAILED_TO_ENQUEUE',
+  IntegrationNotConfigured = 'INTEGRATION_NOT_CONFIGURED',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type RegenerateAnkiCardsResult = RegenerateAnkiCardsError | RegenerateAnkiCardsSuccess;
+
+export type RegenerateAnkiCardsSuccess = {
+  __typename?: 'RegenerateAnkiCardsSuccess';
+  batch: AnkiCardBatch;
 };
 
 export type Reminder = {
   __typename?: 'Reminder';
-  archiveUntil: Scalars['Boolean'];
-  id: Scalars['ID'];
-  remindAt: Scalars['Date'];
-  sendNotification: Scalars['Boolean'];
+  archiveUntil: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  remindAt: Scalars['Date']['output'];
+  sendNotification: Scalars['Boolean']['output'];
 };
 
 export type ReminderError = {
@@ -2866,20 +3057,20 @@ export type ReplyToEmailResult = ReplyToEmailError | ReplyToEmailSuccess;
 
 export type ReplyToEmailSuccess = {
   __typename?: 'ReplyToEmailSuccess';
-  success: Scalars['Boolean'];
+  success: Scalars['Boolean']['output'];
 };
 
 export type ReportItemInput = {
-  itemUrl: Scalars['String'];
-  pageId: Scalars['ID'];
-  reportComment: Scalars['String'];
+  itemUrl: Scalars['String']['input'];
+  pageId: Scalars['ID']['input'];
+  reportComment: Scalars['String']['input'];
   reportTypes: Array<ReportType>;
-  sharedBy?: InputMaybe<Scalars['ID']>;
+  sharedBy?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type ReportItemResult = {
   __typename?: 'ReportItemResult';
-  message: Scalars['String'];
+  message: Scalars['String']['output'];
 };
 
 export enum ReportType {
@@ -2915,24 +3106,24 @@ export type RevokeApiKeySuccess = {
 export type Rule = {
   __typename?: 'Rule';
   actions: Array<RuleAction>;
-  createdAt: Scalars['Date'];
-  enabled: Scalars['Boolean'];
+  createdAt: Scalars['Date']['output'];
+  enabled: Scalars['Boolean']['output'];
   eventTypes: Array<RuleEventType>;
-  failedAt?: Maybe<Scalars['Date']>;
-  filter: Scalars['String'];
-  id: Scalars['ID'];
-  name: Scalars['String'];
-  updatedAt?: Maybe<Scalars['Date']>;
+  failedAt?: Maybe<Scalars['Date']['output']>;
+  filter: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  updatedAt?: Maybe<Scalars['Date']['output']>;
 };
 
 export type RuleAction = {
   __typename?: 'RuleAction';
-  params: Array<Scalars['String']>;
+  params: Array<Scalars['String']['output']>;
   type: RuleActionType;
 };
 
 export type RuleActionInput = {
-  params: Array<Scalars['String']>;
+  params: Array<Scalars['String']['input']>;
   type: RuleActionType;
 };
 
@@ -2983,11 +3174,11 @@ export enum SaveArticleReadingProgressErrorCode {
 }
 
 export type SaveArticleReadingProgressInput = {
-  force?: InputMaybe<Scalars['Boolean']>;
-  id: Scalars['ID'];
-  readingProgressAnchorIndex?: InputMaybe<Scalars['Int']>;
-  readingProgressPercent: Scalars['Float'];
-  readingProgressTopPercent?: InputMaybe<Scalars['Float']>;
+  force?: InputMaybe<Scalars['Boolean']['input']>;
+  id: Scalars['ID']['input'];
+  readingProgressAnchorIndex?: InputMaybe<Scalars['Int']['input']>;
+  readingProgressPercent: Scalars['Float']['input'];
+  readingProgressTopPercent?: InputMaybe<Scalars['Float']['input']>;
 };
 
 export type SaveArticleReadingProgressResult = SaveArticleReadingProgressError | SaveArticleReadingProgressSuccess;
@@ -3009,23 +3200,23 @@ export enum SaveDiscoverArticleErrorCode {
 }
 
 export type SaveDiscoverArticleInput = {
-  discoverArticleId: Scalars['ID'];
-  locale?: InputMaybe<Scalars['String']>;
-  timezone?: InputMaybe<Scalars['String']>;
+  discoverArticleId: Scalars['ID']['input'];
+  locale?: InputMaybe<Scalars['String']['input']>;
+  timezone?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type SaveDiscoverArticleResult = SaveDiscoverArticleError | SaveDiscoverArticleSuccess;
 
 export type SaveDiscoverArticleSuccess = {
   __typename?: 'SaveDiscoverArticleSuccess';
-  saveId: Scalars['String'];
-  url: Scalars['String'];
+  saveId: Scalars['String']['output'];
+  url: Scalars['String']['output'];
 };
 
 export type SaveError = {
   __typename?: 'SaveError';
   errorCodes: Array<SaveErrorCode>;
-  message?: Maybe<Scalars['String']>;
+  message?: Maybe<Scalars['String']['output']>;
 };
 
 export enum SaveErrorCode {
@@ -3035,16 +3226,16 @@ export enum SaveErrorCode {
 }
 
 export type SaveFileInput = {
-  clientRequestId: Scalars['ID'];
-  folder?: InputMaybe<Scalars['String']>;
+  clientRequestId: Scalars['ID']['input'];
+  folder?: InputMaybe<Scalars['String']['input']>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
-  publishedAt?: InputMaybe<Scalars['Date']>;
-  savedAt?: InputMaybe<Scalars['Date']>;
-  source: Scalars['String'];
+  publishedAt?: InputMaybe<Scalars['Date']['input']>;
+  savedAt?: InputMaybe<Scalars['Date']['input']>;
+  source: Scalars['String']['input'];
   state?: InputMaybe<ArticleSavingRequestStatus>;
-  subscription?: InputMaybe<Scalars['String']>;
-  uploadFileId: Scalars['ID'];
-  url: Scalars['String'];
+  subscription?: InputMaybe<Scalars['String']['input']>;
+  uploadFileId: Scalars['ID']['input'];
+  url: Scalars['String']['input'];
 };
 
 export type SaveFilterError = {
@@ -3059,12 +3250,12 @@ export enum SaveFilterErrorCode {
 }
 
 export type SaveFilterInput = {
-  category?: InputMaybe<Scalars['String']>;
-  description?: InputMaybe<Scalars['String']>;
-  filter: Scalars['String'];
-  folder?: InputMaybe<Scalars['String']>;
-  name: Scalars['String'];
-  position?: InputMaybe<Scalars['Int']>;
+  category?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  filter: Scalars['String']['input'];
+  folder?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  position?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type SaveFilterResult = SaveFilterError | SaveFilterSuccess;
@@ -3075,39 +3266,39 @@ export type SaveFilterSuccess = {
 };
 
 export type SavePageInput = {
-  clientRequestId: Scalars['ID'];
-  folder?: InputMaybe<Scalars['String']>;
+  clientRequestId: Scalars['ID']['input'];
+  folder?: InputMaybe<Scalars['String']['input']>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
-  originalContent: Scalars['String'];
+  originalContent: Scalars['String']['input'];
   parseResult?: InputMaybe<ParseResult>;
-  publishedAt?: InputMaybe<Scalars['Date']>;
-  rssFeedUrl?: InputMaybe<Scalars['String']>;
-  savedAt?: InputMaybe<Scalars['Date']>;
-  source: Scalars['String'];
+  publishedAt?: InputMaybe<Scalars['Date']['input']>;
+  rssFeedUrl?: InputMaybe<Scalars['String']['input']>;
+  savedAt?: InputMaybe<Scalars['Date']['input']>;
+  source: Scalars['String']['input'];
   state?: InputMaybe<ArticleSavingRequestStatus>;
-  title?: InputMaybe<Scalars['String']>;
-  url: Scalars['String'];
+  title?: InputMaybe<Scalars['String']['input']>;
+  url: Scalars['String']['input'];
 };
 
 export type SaveResult = SaveError | SaveSuccess;
 
 export type SaveSuccess = {
   __typename?: 'SaveSuccess';
-  clientRequestId: Scalars['ID'];
-  url: Scalars['String'];
+  clientRequestId: Scalars['ID']['output'];
+  url: Scalars['String']['output'];
 };
 
 export type SaveUrlInput = {
-  clientRequestId: Scalars['ID'];
-  folder?: InputMaybe<Scalars['String']>;
+  clientRequestId: Scalars['ID']['input'];
+  folder?: InputMaybe<Scalars['String']['input']>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
-  locale?: InputMaybe<Scalars['String']>;
-  publishedAt?: InputMaybe<Scalars['Date']>;
-  savedAt?: InputMaybe<Scalars['Date']>;
-  source: Scalars['String'];
+  locale?: InputMaybe<Scalars['String']['input']>;
+  publishedAt?: InputMaybe<Scalars['Date']['input']>;
+  savedAt?: InputMaybe<Scalars['Date']['input']>;
+  source: Scalars['String']['input'];
   state?: InputMaybe<ArticleSavingRequestStatus>;
-  timezone?: InputMaybe<Scalars['String']>;
-  url: Scalars['String'];
+  timezone?: InputMaybe<Scalars['String']['input']>;
+  url: Scalars['String']['input'];
 };
 
 export type ScanFeedsError = {
@@ -3120,8 +3311,8 @@ export enum ScanFeedsErrorCode {
 }
 
 export type ScanFeedsInput = {
-  opml?: InputMaybe<Scalars['String']>;
-  url?: InputMaybe<Scalars['String']>;
+  opml?: InputMaybe<Scalars['String']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ScanFeedsResult = ScanFeedsError | ScanFeedsSuccess;
@@ -3143,60 +3334,63 @@ export enum SearchErrorCode {
 
 export type SearchItem = {
   __typename?: 'SearchItem';
-  aiSummary?: Maybe<Scalars['String']>;
-  annotation?: Maybe<Scalars['String']>;
-  archivedAt?: Maybe<Scalars['Date']>;
-  author?: Maybe<Scalars['String']>;
-  color?: Maybe<Scalars['String']>;
-  content?: Maybe<Scalars['String']>;
+  aiSummary?: Maybe<Scalars['String']['output']>;
+  ankiCardCount?: Maybe<Scalars['Int']['output']>;
+  annotation?: Maybe<Scalars['String']['output']>;
+  archivedAt?: Maybe<Scalars['Date']['output']>;
+  author?: Maybe<Scalars['String']['output']>;
+  color?: Maybe<Scalars['String']['output']>;
+  content?: Maybe<Scalars['String']['output']>;
   contentReader: ContentReader;
-  createdAt: Scalars['Date'];
-  description?: Maybe<Scalars['String']>;
+  createdAt: Scalars['Date']['output'];
+  description?: Maybe<Scalars['String']['output']>;
   directionality?: Maybe<DirectionalityType>;
-  feedContent?: Maybe<Scalars['String']>;
-  folder: Scalars['String'];
-  format?: Maybe<Scalars['String']>;
+  feedContent?: Maybe<Scalars['String']['output']>;
+  folder: Scalars['String']['output'];
+  format?: Maybe<Scalars['String']['output']>;
   highlights?: Maybe<Array<Highlight>>;
-  highlightsCount?: Maybe<Scalars['Int']>;
-  id: Scalars['ID'];
-  image?: Maybe<Scalars['String']>;
-  isArchived: Scalars['Boolean'];
+  highlightsCount?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['ID']['output'];
+  image?: Maybe<Scalars['String']['output']>;
+  isArchived: Scalars['Boolean']['output'];
   labels?: Maybe<Array<Label>>;
-  language?: Maybe<Scalars['String']>;
-  links?: Maybe<Scalars['JSON']>;
-  originalArticleUrl?: Maybe<Scalars['String']>;
-  ownedByViewer?: Maybe<Scalars['Boolean']>;
-  pageId?: Maybe<Scalars['ID']>;
+  language?: Maybe<Scalars['String']['output']>;
+  links?: Maybe<Scalars['JSON']['output']>;
+  originalArticleUrl?: Maybe<Scalars['String']['output']>;
+  ownedByViewer?: Maybe<Scalars['Boolean']['output']>;
+  pageId?: Maybe<Scalars['ID']['output']>;
   pageType: PageType;
-  previewContentType?: Maybe<Scalars['String']>;
-  publishedAt?: Maybe<Scalars['Date']>;
-  quote?: Maybe<Scalars['String']>;
-  readAt?: Maybe<Scalars['Date']>;
-  readingProgressAnchorIndex: Scalars['Int'];
-  readingProgressPercent: Scalars['Float'];
-  readingProgressTopPercent?: Maybe<Scalars['Float']>;
+  previewContentType?: Maybe<Scalars['String']['output']>;
+  publishedAt?: Maybe<Scalars['Date']['output']>;
+  quote?: Maybe<Scalars['String']['output']>;
+  readAt?: Maybe<Scalars['Date']['output']>;
+  readingProgressAnchorIndex: Scalars['Int']['output'];
+  readingProgressPercent: Scalars['Float']['output'];
+  readingProgressTopPercent?: Maybe<Scalars['Float']['output']>;
   recommendations?: Maybe<Array<Recommendation>>;
-  savedAt: Scalars['Date'];
-  score?: Maybe<Scalars['Float']>;
-  seenAt?: Maybe<Scalars['Date']>;
-  shortId?: Maybe<Scalars['String']>;
-  siteIcon?: Maybe<Scalars['String']>;
-  siteName?: Maybe<Scalars['String']>;
-  slug: Scalars['String'];
+  savedAt: Scalars['Date']['output'];
+  score?: Maybe<Scalars['Float']['output']>;
+  seenAt?: Maybe<Scalars['Date']['output']>;
+  shortId?: Maybe<Scalars['String']['output']>;
+  siteIcon?: Maybe<Scalars['String']['output']>;
+  siteName?: Maybe<Scalars['String']['output']>;
+  slug: Scalars['String']['output'];
   state?: Maybe<ArticleSavingRequestStatus>;
-  subscription?: Maybe<Scalars['String']>;
-  title: Scalars['String'];
-  unsubHttpUrl?: Maybe<Scalars['String']>;
-  unsubMailTo?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['Date']>;
-  uploadFileId?: Maybe<Scalars['ID']>;
-  url: Scalars['String'];
-  wordsCount?: Maybe<Scalars['Int']>;
+  subscription?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+  translatedLanguage?: Maybe<Scalars['String']['output']>;
+  translationStatus?: Maybe<Scalars['String']['output']>;
+  unsubHttpUrl?: Maybe<Scalars['String']['output']>;
+  unsubMailTo?: Maybe<Scalars['String']['output']>;
+  updatedAt?: Maybe<Scalars['Date']['output']>;
+  uploadFileId?: Maybe<Scalars['ID']['output']>;
+  url: Scalars['String']['output'];
+  wordsCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type SearchItemEdge = {
   __typename?: 'SearchItemEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: SearchItem;
 };
 
@@ -3224,7 +3418,7 @@ export type SendInstallInstructionsResult = SendInstallInstructionsError | SendI
 
 export type SendInstallInstructionsSuccess = {
   __typename?: 'SendInstallInstructionsSuccess';
-  sent: Scalars['Boolean'];
+  sent: Scalars['Boolean']['output'];
 };
 
 export type SetBookmarkArticleError = {
@@ -3238,8 +3432,8 @@ export enum SetBookmarkArticleErrorCode {
 }
 
 export type SetBookmarkArticleInput = {
-  articleID: Scalars['ID'];
-  bookmark: Scalars['Boolean'];
+  articleID: Scalars['ID']['input'];
+  bookmark: Scalars['Boolean']['input'];
 };
 
 export type SetBookmarkArticleResult = SetBookmarkArticleError | SetBookmarkArticleSuccess;
@@ -3261,8 +3455,8 @@ export enum SetDeviceTokenErrorCode {
 }
 
 export type SetDeviceTokenInput = {
-  id?: InputMaybe<Scalars['ID']>;
-  token?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  token?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type SetDeviceTokenResult = SetDeviceTokenError | SetDeviceTokenSuccess;
@@ -3288,7 +3482,7 @@ export type SetFavoriteArticleResult = SetFavoriteArticleError | SetFavoriteArti
 
 export type SetFavoriteArticleSuccess = {
   __typename?: 'SetFavoriteArticleSuccess';
-  success: Scalars['Boolean'];
+  success: Scalars['Boolean']['output'];
 };
 
 export type SetFollowError = {
@@ -3302,8 +3496,8 @@ export enum SetFollowErrorCode {
 }
 
 export type SetFollowInput = {
-  follow: Scalars['Boolean'];
-  userId: Scalars['ID'];
+  follow: Scalars['Boolean']['input'];
+  userId: Scalars['ID']['input'];
 };
 
 export type SetFollowResult = SetFollowError | SetFollowSuccess;
@@ -3327,14 +3521,14 @@ export enum SetIntegrationErrorCode {
 }
 
 export type SetIntegrationInput = {
-  enabled: Scalars['Boolean'];
-  id?: InputMaybe<Scalars['ID']>;
+  enabled: Scalars['Boolean']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
   importItemState?: InputMaybe<ImportItemState>;
-  name: Scalars['String'];
-  settings?: InputMaybe<Scalars['JSON']>;
-  syncedAt?: InputMaybe<Scalars['Date']>;
-  taskName?: InputMaybe<Scalars['String']>;
-  token: Scalars['String'];
+  name: Scalars['String']['input'];
+  settings?: InputMaybe<Scalars['JSON']['input']>;
+  syncedAt?: InputMaybe<Scalars['Date']['input']>;
+  taskName?: InputMaybe<Scalars['String']['input']>;
+  token: Scalars['String']['input'];
   type?: InputMaybe<IntegrationType>;
 };
 
@@ -3357,16 +3551,16 @@ export enum SetLabelsErrorCode {
 }
 
 export type SetLabelsForHighlightInput = {
-  highlightId: Scalars['ID'];
-  labelIds?: InputMaybe<Array<Scalars['ID']>>;
+  highlightId: Scalars['ID']['input'];
+  labelIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
 };
 
 export type SetLabelsInput = {
-  labelIds?: InputMaybe<Array<Scalars['ID']>>;
+  labelIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
-  pageId: Scalars['ID'];
-  source?: InputMaybe<Scalars['String']>;
+  pageId: Scalars['ID']['input'];
+  source?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type SetLabelsResult = SetLabelsError | SetLabelsSuccess;
@@ -3389,12 +3583,12 @@ export enum SetRuleErrorCode {
 
 export type SetRuleInput = {
   actions: Array<RuleActionInput>;
-  description?: InputMaybe<Scalars['String']>;
-  enabled: Scalars['Boolean'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  enabled: Scalars['Boolean']['input'];
   eventTypes: Array<RuleEventType>;
-  filter: Scalars['String'];
-  id?: InputMaybe<Scalars['ID']>;
-  name: Scalars['String'];
+  filter: Scalars['String']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  name: Scalars['String']['input'];
 };
 
 export type SetRuleResult = SetRuleError | SetRuleSuccess;
@@ -3415,10 +3609,10 @@ export enum SetShareArticleErrorCode {
 }
 
 export type SetShareArticleInput = {
-  articleID: Scalars['ID'];
-  share: Scalars['Boolean'];
-  sharedComment?: InputMaybe<Scalars['String']>;
-  sharedWithHighlights?: InputMaybe<Scalars['Boolean']>;
+  articleID: Scalars['ID']['input'];
+  share: Scalars['Boolean']['input'];
+  sharedComment?: InputMaybe<Scalars['String']['input']>;
+  sharedWithHighlights?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type SetShareArticleResult = SetShareArticleError | SetShareArticleSuccess;
@@ -3427,7 +3621,7 @@ export type SetShareArticleSuccess = {
   __typename?: 'SetShareArticleSuccess';
   updatedArticle: Article;
   updatedFeedArticle?: Maybe<FeedArticle>;
-  updatedFeedArticleId?: Maybe<Scalars['String']>;
+  updatedFeedArticleId?: Maybe<Scalars['String']['output']>;
 };
 
 export type SetShareHighlightError = {
@@ -3442,8 +3636,8 @@ export enum SetShareHighlightErrorCode {
 }
 
 export type SetShareHighlightInput = {
-  id: Scalars['ID'];
-  share: Scalars['Boolean'];
+  id: Scalars['ID']['input'];
+  share: Scalars['Boolean']['input'];
 };
 
 export type SetShareHighlightResult = SetShareHighlightError | SetShareHighlightSuccess;
@@ -3482,20 +3676,20 @@ export enum SetUserPersonalizationErrorCode {
 }
 
 export type SetUserPersonalizationInput = {
-  autoTranslate?: InputMaybe<Scalars['Boolean']>;
+  autoTranslate?: InputMaybe<Scalars['Boolean']['input']>;
   digestConfig?: InputMaybe<DigestConfigInput>;
-  fields?: InputMaybe<Scalars['JSON']>;
-  fontFamily?: InputMaybe<Scalars['String']>;
-  fontSize?: InputMaybe<Scalars['Int']>;
-  libraryLayoutType?: InputMaybe<Scalars['String']>;
+  fields?: InputMaybe<Scalars['JSON']['input']>;
+  fontFamily?: InputMaybe<Scalars['String']['input']>;
+  fontSize?: InputMaybe<Scalars['Int']['input']>;
+  libraryLayoutType?: InputMaybe<Scalars['String']['input']>;
   librarySortOrder?: InputMaybe<SortOrder>;
-  margin?: InputMaybe<Scalars['Int']>;
-  preferredLanguage?: InputMaybe<Scalars['String']>;
-  speechRate?: InputMaybe<Scalars['String']>;
-  speechSecondaryVoice?: InputMaybe<Scalars['String']>;
-  speechVoice?: InputMaybe<Scalars['String']>;
-  speechVolume?: InputMaybe<Scalars['String']>;
-  theme?: InputMaybe<Scalars['String']>;
+  margin?: InputMaybe<Scalars['Int']['input']>;
+  preferredLanguage?: InputMaybe<Scalars['String']['input']>;
+  speechRate?: InputMaybe<Scalars['String']['input']>;
+  speechSecondaryVoice?: InputMaybe<Scalars['String']['input']>;
+  speechVoice?: InputMaybe<Scalars['String']['input']>;
+  speechVolume?: InputMaybe<Scalars['String']['input']>;
+  theme?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type SetUserPersonalizationResult = SetUserPersonalizationError | SetUserPersonalizationSuccess;
@@ -3518,12 +3712,12 @@ export enum SetWebhookErrorCode {
 }
 
 export type SetWebhookInput = {
-  contentType?: InputMaybe<Scalars['String']>;
-  enabled?: InputMaybe<Scalars['Boolean']>;
+  contentType?: InputMaybe<Scalars['String']['input']>;
+  enabled?: InputMaybe<Scalars['Boolean']['input']>;
   eventTypes: Array<WebhookEvent>;
-  id?: InputMaybe<Scalars['ID']>;
-  method?: InputMaybe<Scalars['String']>;
-  url: Scalars['String'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  method?: InputMaybe<Scalars['String']['input']>;
+  url: Scalars['String']['input'];
 };
 
 export type SetWebhookResult = SetWebhookError | SetWebhookSuccess;
@@ -3535,9 +3729,9 @@ export type SetWebhookSuccess = {
 
 export type ShareStats = {
   __typename?: 'ShareStats';
-  readDuration: Scalars['Int'];
-  saveCount: Scalars['Int'];
-  viewCount: Scalars['Int'];
+  readDuration: Scalars['Int']['output'];
+  saveCount: Scalars['Int']['output'];
+  viewCount: Scalars['Int']['output'];
 };
 
 export type SharedArticleError = {
@@ -3598,13 +3792,13 @@ export enum SubscribeErrorCode {
 }
 
 export type SubscribeInput = {
-  autoAddToLibrary?: InputMaybe<Scalars['Boolean']>;
-  fetchContent?: InputMaybe<Scalars['Boolean']>;
+  autoAddToLibrary?: InputMaybe<Scalars['Boolean']['input']>;
+  fetchContent?: InputMaybe<Scalars['Boolean']['input']>;
   fetchContentType?: InputMaybe<FetchContentType>;
-  folder?: InputMaybe<Scalars['String']>;
-  isPrivate?: InputMaybe<Scalars['Boolean']>;
+  folder?: InputMaybe<Scalars['String']['input']>;
+  isPrivate?: InputMaybe<Scalars['Boolean']['input']>;
   subscriptionType?: InputMaybe<SubscriptionType>;
-  url: Scalars['String'];
+  url: Scalars['String']['input'];
 };
 
 export type SubscribeResult = SubscribeError | SubscribeSuccess;
@@ -3616,28 +3810,28 @@ export type SubscribeSuccess = {
 
 export type Subscription = {
   __typename?: 'Subscription';
-  autoAddToLibrary?: Maybe<Scalars['Boolean']>;
-  count: Scalars['Int'];
-  createdAt: Scalars['Date'];
-  description?: Maybe<Scalars['String']>;
-  failedAt?: Maybe<Scalars['Date']>;
-  fetchContent: Scalars['Boolean'];
+  autoAddToLibrary?: Maybe<Scalars['Boolean']['output']>;
+  count: Scalars['Int']['output'];
+  createdAt: Scalars['Date']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  failedAt?: Maybe<Scalars['Date']['output']>;
+  fetchContent: Scalars['Boolean']['output'];
   fetchContentType: FetchContentType;
-  folder: Scalars['String'];
-  icon?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  isPrivate?: Maybe<Scalars['Boolean']>;
-  lastFetchedAt?: Maybe<Scalars['Date']>;
-  mostRecentItemDate?: Maybe<Scalars['Date']>;
-  name: Scalars['String'];
-  newsletterEmail?: Maybe<Scalars['String']>;
-  refreshedAt?: Maybe<Scalars['Date']>;
+  folder: Scalars['String']['output'];
+  icon?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isPrivate?: Maybe<Scalars['Boolean']['output']>;
+  lastFetchedAt?: Maybe<Scalars['Date']['output']>;
+  mostRecentItemDate?: Maybe<Scalars['Date']['output']>;
+  name: Scalars['String']['output'];
+  newsletterEmail?: Maybe<Scalars['String']['output']>;
+  refreshedAt?: Maybe<Scalars['Date']['output']>;
   status: SubscriptionStatus;
   type: SubscriptionType;
-  unsubscribeHttpUrl?: Maybe<Scalars['String']>;
-  unsubscribeMailTo?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['Date']>;
-  url?: Maybe<Scalars['String']>;
+  unsubscribeHttpUrl?: Maybe<Scalars['String']['output']>;
+  unsubscribeMailTo?: Maybe<Scalars['String']['output']>;
+  updatedAt?: Maybe<Scalars['Date']['output']>;
+  url?: Maybe<Scalars['String']['output']>;
 };
 
 export type SubscriptionError = {
@@ -3649,7 +3843,7 @@ export type SubscriptionResult = SubscriptionError | SubscriptionSuccess;
 
 export type SubscriptionRootType = {
   __typename?: 'SubscriptionRootType';
-  hello?: Maybe<Scalars['String']>;
+  hello?: Maybe<Scalars['String']['output']>;
 };
 
 export enum SubscriptionStatus {
@@ -3687,21 +3881,21 @@ export type SubscriptionsSuccess = {
 
 export type SyncUpdatedItemEdge = {
   __typename?: 'SyncUpdatedItemEdge';
-  cursor: Scalars['String'];
-  itemID: Scalars['ID'];
+  cursor: Scalars['String']['output'];
+  itemID: Scalars['ID']['output'];
   node?: Maybe<SearchItem>;
   updateReason: UpdateReason;
 };
 
 export type Task = {
   __typename?: 'Task';
-  cancellable?: Maybe<Scalars['Boolean']>;
-  createdAt: Scalars['Date'];
-  failedReason?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  name: Scalars['String'];
-  progress?: Maybe<Scalars['Float']>;
-  runningTime?: Maybe<Scalars['Int']>;
+  cancellable?: Maybe<Scalars['Boolean']['output']>;
+  createdAt: Scalars['Date']['output'];
+  failedReason?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  progress?: Maybe<Scalars['Float']['output']>;
+  runningTime?: Maybe<Scalars['Int']['output']>;
   state: TaskState;
 };
 
@@ -3712,6 +3906,30 @@ export enum TaskState {
   Running = 'RUNNING',
   Succeeded = 'SUCCEEDED'
 }
+
+export type TestAnkiConnectionError = {
+  __typename?: 'TestAnkiConnectionError';
+  errorCodes: Array<TestAnkiConnectionErrorCode>;
+};
+
+export enum TestAnkiConnectionErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  ConnectionFailed = 'CONNECTION_FAILED',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type TestAnkiConnectionInput = {
+  ankiConnectUrl: Scalars['String']['input'];
+  apiKey?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type TestAnkiConnectionResult = TestAnkiConnectionError | TestAnkiConnectionSuccess;
+
+export type TestAnkiConnectionSuccess = {
+  __typename?: 'TestAnkiConnectionSuccess';
+  success: Scalars['Boolean']['output'];
+  version?: Maybe<Scalars['Int']['output']>;
+};
 
 export enum TranslationStatus {
   Completed = 'COMPLETED',
@@ -3732,10 +3950,10 @@ export enum TypeaheadSearchErrorCode {
 export type TypeaheadSearchItem = {
   __typename?: 'TypeaheadSearchItem';
   contentReader: ContentReader;
-  id: Scalars['ID'];
-  siteName?: Maybe<Scalars['String']>;
-  slug: Scalars['String'];
-  title: Scalars['String'];
+  id: Scalars['ID']['output'];
+  siteName?: Maybe<Scalars['String']['output']>;
+  slug: Scalars['String']['output'];
+  title: Scalars['String']['output'];
 };
 
 export type TypeaheadSearchResult = TypeaheadSearchError | TypeaheadSearchSuccess;
@@ -3777,15 +3995,15 @@ export enum UpdateEmailErrorCode {
 }
 
 export type UpdateEmailInput = {
-  email: Scalars['String'];
+  email: Scalars['String']['input'];
 };
 
 export type UpdateEmailResult = UpdateEmailError | UpdateEmailSuccess;
 
 export type UpdateEmailSuccess = {
   __typename?: 'UpdateEmailSuccess';
-  email: Scalars['String'];
-  verificationEmailSent?: Maybe<Scalars['Boolean']>;
+  email: Scalars['String']['output'];
+  verificationEmailSent?: Maybe<Scalars['Boolean']['output']>;
 };
 
 export type UpdateFilterError = {
@@ -3800,14 +4018,14 @@ export enum UpdateFilterErrorCode {
 }
 
 export type UpdateFilterInput = {
-  category?: InputMaybe<Scalars['String']>;
-  description?: InputMaybe<Scalars['String']>;
-  filter?: InputMaybe<Scalars['String']>;
-  folder?: InputMaybe<Scalars['String']>;
-  id: Scalars['String'];
-  name?: InputMaybe<Scalars['String']>;
-  position?: InputMaybe<Scalars['Int']>;
-  visible?: InputMaybe<Scalars['Boolean']>;
+  category?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  folder?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  position?: InputMaybe<Scalars['Int']['input']>;
+  visible?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type UpdateFilterResult = UpdateFilterError | UpdateFilterSuccess;
@@ -3829,8 +4047,8 @@ export enum UpdateFolderPolicyErrorCode {
 
 export type UpdateFolderPolicyInput = {
   action?: InputMaybe<FolderPolicyAction>;
-  afterDays?: InputMaybe<Scalars['Int']>;
-  id: Scalars['ID'];
+  afterDays?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['ID']['input'];
 };
 
 export type UpdateFolderPolicyResult = UpdateFolderPolicyError | UpdateFolderPolicySuccess;
@@ -3853,12 +4071,12 @@ export enum UpdateHighlightErrorCode {
 }
 
 export type UpdateHighlightInput = {
-  annotation?: InputMaybe<Scalars['String']>;
-  color?: InputMaybe<Scalars['String']>;
-  highlightId: Scalars['ID'];
-  html?: InputMaybe<Scalars['String']>;
-  quote?: InputMaybe<Scalars['String']>;
-  sharedAt?: InputMaybe<Scalars['Date']>;
+  annotation?: InputMaybe<Scalars['String']['input']>;
+  color?: InputMaybe<Scalars['String']['input']>;
+  highlightId: Scalars['ID']['input'];
+  html?: InputMaybe<Scalars['String']['input']>;
+  quote?: InputMaybe<Scalars['String']['input']>;
+  sharedAt?: InputMaybe<Scalars['Date']['input']>;
 };
 
 export type UpdateHighlightReplyError = {
@@ -3873,8 +4091,8 @@ export enum UpdateHighlightReplyErrorCode {
 }
 
 export type UpdateHighlightReplyInput = {
-  highlightReplyId: Scalars['ID'];
-  text: Scalars['String'];
+  highlightReplyId: Scalars['ID']['input'];
+  text: Scalars['String']['input'];
 };
 
 export type UpdateHighlightReplyResult = UpdateHighlightReplyError | UpdateHighlightReplySuccess;
@@ -3904,10 +4122,10 @@ export enum UpdateLabelErrorCode {
 }
 
 export type UpdateLabelInput = {
-  color: Scalars['String'];
-  description?: InputMaybe<Scalars['String']>;
-  labelId: Scalars['ID'];
-  name: Scalars['String'];
+  color: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  labelId: Scalars['ID']['input'];
+  name: Scalars['String']['input'];
 };
 
 export type UpdateLabelResult = UpdateLabelError | UpdateLabelSuccess;
@@ -3928,16 +4146,16 @@ export enum UpdateLinkShareInfoErrorCode {
 }
 
 export type UpdateLinkShareInfoInput = {
-  description: Scalars['String'];
-  linkId: Scalars['ID'];
-  title: Scalars['String'];
+  description: Scalars['String']['input'];
+  linkId: Scalars['ID']['input'];
+  title: Scalars['String']['input'];
 };
 
 export type UpdateLinkShareInfoResult = UpdateLinkShareInfoError | UpdateLinkShareInfoSuccess;
 
 export type UpdateLinkShareInfoSuccess = {
   __typename?: 'UpdateLinkShareInfoSuccess';
-  message: Scalars['String'];
+  message: Scalars['String']['output'];
 };
 
 export type UpdateNewsletterEmailError = {
@@ -3951,10 +4169,10 @@ export enum UpdateNewsletterEmailErrorCode {
 }
 
 export type UpdateNewsletterEmailInput = {
-  description?: InputMaybe<Scalars['String']>;
-  folder?: InputMaybe<Scalars['String']>;
-  id: Scalars['ID'];
-  name?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  folder?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateNewsletterEmailResult = UpdateNewsletterEmailError | UpdateNewsletterEmailSuccess;
@@ -3978,14 +4196,14 @@ export enum UpdatePageErrorCode {
 }
 
 export type UpdatePageInput = {
-  byline?: InputMaybe<Scalars['String']>;
-  description?: InputMaybe<Scalars['String']>;
-  pageId: Scalars['ID'];
-  previewImage?: InputMaybe<Scalars['String']>;
-  publishedAt?: InputMaybe<Scalars['Date']>;
-  savedAt?: InputMaybe<Scalars['Date']>;
+  byline?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  pageId: Scalars['ID']['input'];
+  previewImage?: InputMaybe<Scalars['String']['input']>;
+  publishedAt?: InputMaybe<Scalars['Date']['input']>;
+  savedAt?: InputMaybe<Scalars['Date']['input']>;
   state?: InputMaybe<ArticleSavingRequestStatus>;
-  title?: InputMaybe<Scalars['String']>;
+  title?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdatePageResult = UpdatePageError | UpdatePageSuccess;
@@ -4006,13 +4224,13 @@ export enum UpdatePostErrorCode {
 }
 
 export type UpdatePostInput = {
-  content?: InputMaybe<Scalars['String']>;
-  highlightIds?: InputMaybe<Array<Scalars['ID']>>;
-  id: Scalars['ID'];
-  libraryItemIds?: InputMaybe<Array<Scalars['ID']>>;
-  thought?: InputMaybe<Scalars['String']>;
-  thumbnail?: InputMaybe<Scalars['String']>;
-  title?: InputMaybe<Scalars['String']>;
+  content?: InputMaybe<Scalars['String']['input']>;
+  highlightIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  id: Scalars['ID']['input'];
+  libraryItemIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  thought?: InputMaybe<Scalars['String']['input']>;
+  thumbnail?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdatePostResult = UpdatePostError | UpdatePostSuccess;
@@ -4040,10 +4258,10 @@ export enum UpdateReminderErrorCode {
 }
 
 export type UpdateReminderInput = {
-  archiveUntil: Scalars['Boolean'];
-  id: Scalars['ID'];
-  remindAt: Scalars['Date'];
-  sendNotification: Scalars['Boolean'];
+  archiveUntil: Scalars['Boolean']['input'];
+  id: Scalars['ID']['input'];
+  remindAt: Scalars['Date']['input'];
+  sendNotification: Scalars['Boolean']['input'];
 };
 
 export type UpdateReminderResult = UpdateReminderError | UpdateReminderSuccess;
@@ -4064,16 +4282,16 @@ export enum UpdateSharedCommentErrorCode {
 }
 
 export type UpdateSharedCommentInput = {
-  articleID: Scalars['ID'];
-  sharedComment: Scalars['String'];
+  articleID: Scalars['ID']['input'];
+  sharedComment: Scalars['String']['input'];
 };
 
 export type UpdateSharedCommentResult = UpdateSharedCommentError | UpdateSharedCommentSuccess;
 
 export type UpdateSharedCommentSuccess = {
   __typename?: 'UpdateSharedCommentSuccess';
-  articleID: Scalars['ID'];
-  sharedComment: Scalars['String'];
+  articleID: Scalars['ID']['output'];
+  sharedComment: Scalars['String']['output'];
 };
 
 export type UpdateSubscriptionError = {
@@ -4088,19 +4306,19 @@ export enum UpdateSubscriptionErrorCode {
 }
 
 export type UpdateSubscriptionInput = {
-  autoAddToLibrary?: InputMaybe<Scalars['Boolean']>;
-  description?: InputMaybe<Scalars['String']>;
-  failedAt?: InputMaybe<Scalars['Date']>;
-  fetchContent?: InputMaybe<Scalars['Boolean']>;
+  autoAddToLibrary?: InputMaybe<Scalars['Boolean']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  failedAt?: InputMaybe<Scalars['Date']['input']>;
+  fetchContent?: InputMaybe<Scalars['Boolean']['input']>;
   fetchContentType?: InputMaybe<FetchContentType>;
-  folder?: InputMaybe<Scalars['String']>;
-  id: Scalars['ID'];
-  isPrivate?: InputMaybe<Scalars['Boolean']>;
-  lastFetchedChecksum?: InputMaybe<Scalars['String']>;
-  mostRecentItemDate?: InputMaybe<Scalars['Date']>;
-  name?: InputMaybe<Scalars['String']>;
-  refreshedAt?: InputMaybe<Scalars['Date']>;
-  scheduledAt?: InputMaybe<Scalars['Date']>;
+  folder?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  isPrivate?: InputMaybe<Scalars['Boolean']['input']>;
+  lastFetchedChecksum?: InputMaybe<Scalars['String']['input']>;
+  mostRecentItemDate?: InputMaybe<Scalars['Date']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  refreshedAt?: InputMaybe<Scalars['Date']['input']>;
+  scheduledAt?: InputMaybe<Scalars['Date']['input']>;
   status?: InputMaybe<SubscriptionStatus>;
 };
 
@@ -4124,8 +4342,8 @@ export enum UpdateUserErrorCode {
 }
 
 export type UpdateUserInput = {
-  bio?: InputMaybe<Scalars['String']>;
-  name: Scalars['String'];
+  bio?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
 };
 
 export type UpdateUserProfileError = {
@@ -4142,10 +4360,10 @@ export enum UpdateUserProfileErrorCode {
 }
 
 export type UpdateUserProfileInput = {
-  bio?: InputMaybe<Scalars['String']>;
-  pictureUrl?: InputMaybe<Scalars['String']>;
-  userId: Scalars['ID'];
-  username?: InputMaybe<Scalars['String']>;
+  bio?: InputMaybe<Scalars['String']['input']>;
+  pictureUrl?: InputMaybe<Scalars['String']['input']>;
+  userId: Scalars['ID']['input'];
+  username?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateUserProfileResult = UpdateUserProfileError | UpdateUserProfileSuccess;
@@ -4191,20 +4409,20 @@ export enum UploadFileRequestErrorCode {
 }
 
 export type UploadFileRequestInput = {
-  clientRequestId?: InputMaybe<Scalars['String']>;
-  contentType: Scalars['String'];
-  createPageEntry?: InputMaybe<Scalars['Boolean']>;
-  url: Scalars['String'];
+  clientRequestId?: InputMaybe<Scalars['String']['input']>;
+  contentType: Scalars['String']['input'];
+  createPageEntry?: InputMaybe<Scalars['Boolean']['input']>;
+  url: Scalars['String']['input'];
 };
 
 export type UploadFileRequestResult = UploadFileRequestError | UploadFileRequestSuccess;
 
 export type UploadFileRequestSuccess = {
   __typename?: 'UploadFileRequestSuccess';
-  createdPageId?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  uploadFileId?: Maybe<Scalars['ID']>;
-  uploadSignedUrl?: Maybe<Scalars['String']>;
+  createdPageId?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  uploadFileId?: Maybe<Scalars['ID']['output']>;
+  uploadSignedUrl?: Maybe<Scalars['String']['output']>;
 };
 
 export enum UploadFileStatus {
@@ -4227,7 +4445,7 @@ export type UploadImportFileResult = UploadImportFileError | UploadImportFileSuc
 
 export type UploadImportFileSuccess = {
   __typename?: 'UploadImportFileSuccess';
-  uploadSignedUrl?: Maybe<Scalars['String']>;
+  uploadSignedUrl?: Maybe<Scalars['String']['output']>;
 };
 
 export enum UploadImportFileType {
@@ -4238,26 +4456,26 @@ export enum UploadImportFileType {
 
 export type User = {
   __typename?: 'User';
-  createdAt: Scalars['Date'];
-  email?: Maybe<Scalars['String']>;
+  createdAt: Scalars['Date']['output'];
+  email?: Maybe<Scalars['String']['output']>;
   featureList?: Maybe<Array<Feature>>;
-  features?: Maybe<Array<Maybe<Scalars['String']>>>;
-  followersCount?: Maybe<Scalars['Int']>;
-  friendsCount?: Maybe<Scalars['Int']>;
-  id: Scalars['ID'];
-  intercomHash?: Maybe<Scalars['String']>;
+  features?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  followersCount?: Maybe<Scalars['Int']['output']>;
+  friendsCount?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['ID']['output'];
+  intercomHash?: Maybe<Scalars['String']['output']>;
   /** @deprecated isFriend has been replaced with viewerIsFollowing */
-  isFriend?: Maybe<Scalars['Boolean']>;
-  isFullUser?: Maybe<Scalars['Boolean']>;
-  name: Scalars['String'];
-  picture?: Maybe<Scalars['String']>;
+  isFriend?: Maybe<Scalars['Boolean']['output']>;
+  isFullUser?: Maybe<Scalars['Boolean']['output']>;
+  name: Scalars['String']['output'];
+  picture?: Maybe<Scalars['String']['output']>;
   profile: Profile;
   sharedArticles: Array<FeedArticle>;
-  sharedArticlesCount?: Maybe<Scalars['Int']>;
-  sharedHighlightsCount?: Maybe<Scalars['Int']>;
-  sharedNotesCount?: Maybe<Scalars['Int']>;
-  source?: Maybe<Scalars['String']>;
-  viewerIsFollowing?: Maybe<Scalars['Boolean']>;
+  sharedArticlesCount?: Maybe<Scalars['Int']['output']>;
+  sharedHighlightsCount?: Maybe<Scalars['Int']['output']>;
+  sharedNotesCount?: Maybe<Scalars['Int']['output']>;
+  source?: Maybe<Scalars['String']['output']>;
+  viewerIsFollowing?: Maybe<Scalars['Boolean']['output']>;
 };
 
 export type UserError = {
@@ -4273,21 +4491,21 @@ export enum UserErrorCode {
 
 export type UserPersonalization = {
   __typename?: 'UserPersonalization';
-  autoTranslate?: Maybe<Scalars['Boolean']>;
+  autoTranslate?: Maybe<Scalars['Boolean']['output']>;
   digestConfig?: Maybe<DigestConfig>;
-  fields?: Maybe<Scalars['JSON']>;
-  fontFamily?: Maybe<Scalars['String']>;
-  fontSize?: Maybe<Scalars['Int']>;
-  id?: Maybe<Scalars['ID']>;
-  libraryLayoutType?: Maybe<Scalars['String']>;
+  fields?: Maybe<Scalars['JSON']['output']>;
+  fontFamily?: Maybe<Scalars['String']['output']>;
+  fontSize?: Maybe<Scalars['Int']['output']>;
+  id?: Maybe<Scalars['ID']['output']>;
+  libraryLayoutType?: Maybe<Scalars['String']['output']>;
   librarySortOrder?: Maybe<SortOrder>;
-  margin?: Maybe<Scalars['Int']>;
-  preferredLanguage?: Maybe<Scalars['String']>;
-  speechRate?: Maybe<Scalars['String']>;
-  speechSecondaryVoice?: Maybe<Scalars['String']>;
-  speechVoice?: Maybe<Scalars['String']>;
-  speechVolume?: Maybe<Scalars['String']>;
-  theme?: Maybe<Scalars['String']>;
+  margin?: Maybe<Scalars['Int']['output']>;
+  preferredLanguage?: Maybe<Scalars['String']['output']>;
+  speechRate?: Maybe<Scalars['String']['output']>;
+  speechSecondaryVoice?: Maybe<Scalars['String']['output']>;
+  speechVoice?: Maybe<Scalars['String']['output']>;
+  speechVolume?: Maybe<Scalars['String']['output']>;
+  theme?: Maybe<Scalars['String']['output']>;
 };
 
 export type UserResult = UserError | UserSuccess;
@@ -4315,14 +4533,14 @@ export type UsersSuccess = {
 
 export type Webhook = {
   __typename?: 'Webhook';
-  contentType: Scalars['String'];
-  createdAt: Scalars['Date'];
-  enabled: Scalars['Boolean'];
+  contentType: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+  enabled: Scalars['Boolean']['output'];
   eventTypes: Array<WebhookEvent>;
-  id: Scalars['ID'];
-  method: Scalars['String'];
-  updatedAt?: Maybe<Scalars['Date']>;
-  url: Scalars['String'];
+  id: Scalars['ID']['output'];
+  method: Scalars['String']['output'];
+  updatedAt?: Maybe<Scalars['Date']['output']>;
+  url: Scalars['String']['output'];
 };
 
 export type WebhookError = {
@@ -4439,71 +4657,227 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
   info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
 
+/** Mapping of union types */
+export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
+  AddDiscoverFeedResult: ( AddDiscoverFeedError ) | ( AddDiscoverFeedSuccess );
+  AddPopularReadResult: ( AddPopularReadError ) | ( AddPopularReadSuccess );
+  AnkiCardBatchesResult: ( AnkiCardBatchesError ) | ( AnkiCardBatchesSuccess );
+  AnkiCardsResult: ( AnkiCardsError ) | ( AnkiCardsSuccess );
+  AnkiIntegrationResult: ( AnkiIntegrationError ) | ( AnkiIntegrationSuccess );
+  ApiKeysResult: ( ApiKeysError ) | ( ApiKeysSuccess );
+  ArchiveLinkResult: ( ArchiveLinkError ) | ( ArchiveLinkSuccess );
+  ArticleResult: ( ArticleError ) | ( ArticleSuccess );
+  ArticleSavingRequestResult: ( ArticleSavingRequestError ) | ( ArticleSavingRequestSuccess );
+  ArticlesResult: ( ArticlesError ) | ( ArticlesSuccess );
+  BulkActionResult: ( BulkActionError ) | ( BulkActionSuccess );
+  CreateArticleResult: ( CreateArticleError ) | ( CreateArticleSuccess );
+  CreateArticleSavingRequestResult: ( CreateArticleSavingRequestError ) | ( CreateArticleSavingRequestSuccess );
+  CreateFolderPolicyResult: ( CreateFolderPolicyError ) | ( CreateFolderPolicySuccess );
+  CreateGroupResult: ( CreateGroupError ) | ( CreateGroupSuccess );
+  CreateHighlightReplyResult: ( CreateHighlightReplyError ) | ( CreateHighlightReplySuccess );
+  CreateHighlightResult: ( CreateHighlightError ) | ( CreateHighlightSuccess );
+  CreateLabelResult: ( CreateLabelError ) | ( CreateLabelSuccess );
+  CreateNewsletterEmailResult: ( CreateNewsletterEmailError ) | ( CreateNewsletterEmailSuccess );
+  CreatePostResult: ( CreatePostError ) | ( CreatePostSuccess );
+  CreateReactionResult: ( CreateReactionError ) | ( CreateReactionSuccess );
+  CreateReminderResult: ( CreateReminderError ) | ( CreateReminderSuccess );
+  DeleteAccountResult: ( DeleteAccountError ) | ( DeleteAccountSuccess );
+  DeleteDiscoverArticleResult: ( DeleteDiscoverArticleError ) | ( DeleteDiscoverArticleSuccess );
+  DeleteDiscoverFeedResult: ( DeleteDiscoverFeedError ) | ( DeleteDiscoverFeedSuccess );
+  DeleteFilterResult: ( DeleteFilterError ) | ( DeleteFilterSuccess );
+  DeleteFolderPolicyResult: ( DeleteFolderPolicyError ) | ( DeleteFolderPolicySuccess );
+  DeleteHighlightReplyResult: ( DeleteHighlightReplyError ) | ( DeleteHighlightReplySuccess );
+  DeleteHighlightResult: ( DeleteHighlightError ) | ( DeleteHighlightSuccess );
+  DeleteIntegrationResult: ( DeleteIntegrationError ) | ( DeleteIntegrationSuccess );
+  DeleteLabelResult: ( DeleteLabelError ) | ( DeleteLabelSuccess );
+  DeleteNewsletterEmailResult: ( DeleteNewsletterEmailError ) | ( DeleteNewsletterEmailSuccess );
+  DeletePostResult: ( DeletePostError ) | ( DeletePostSuccess );
+  DeleteReactionResult: ( DeleteReactionError ) | ( DeleteReactionSuccess );
+  DeleteReminderResult: ( DeleteReminderError ) | ( DeleteReminderSuccess );
+  DeleteRuleResult: ( DeleteRuleError ) | ( DeleteRuleSuccess );
+  DeleteWebhookResult: ( DeleteWebhookError ) | ( DeleteWebhookSuccess );
+  DeviceTokensResult: ( DeviceTokensError ) | ( DeviceTokensSuccess );
+  DiscoverFeedResult: ( DiscoverFeedError ) | ( DiscoverFeedSuccess );
+  EditDiscoverFeedResult: ( EditDiscoverFeedError ) | ( EditDiscoverFeedSuccess );
+  EmptyTrashResult: ( EmptyTrashError ) | ( EmptyTrashSuccess );
+  ExportToIntegrationResult: ( ExportToIntegrationError ) | ( ExportToIntegrationSuccess );
+  FeedArticlesResult: ( FeedArticlesError ) | ( FeedArticlesSuccess );
+  FeedsResult: ( FeedsError ) | ( FeedsSuccess );
+  FetchContentResult: ( FetchContentError ) | ( FetchContentSuccess );
+  FiltersResult: ( FiltersError ) | ( FiltersSuccess );
+  FolderPoliciesResult: ( FolderPoliciesError ) | ( FolderPoliciesSuccess );
+  GenerateAnkiCardsBatchResult: ( GenerateAnkiCardsBatchError ) | ( GenerateAnkiCardsBatchSuccess );
+  GenerateAnkiCardsResult: ( GenerateAnkiCardsError ) | ( GenerateAnkiCardsSuccess );
+  GenerateApiKeyResult: ( GenerateApiKeyError ) | ( GenerateApiKeySuccess );
+  GetDiscoverFeedArticleResults: ( GetDiscoverFeedArticleError ) | ( GetDiscoverFeedArticleSuccess );
+  GetDiscoverTopicResults: ( GetDiscoverTopicError ) | ( GetDiscoverTopicSuccess );
+  GetFollowersResult: ( GetFollowersError ) | ( GetFollowersSuccess );
+  GetFollowingResult: ( GetFollowingError ) | ( GetFollowingSuccess );
+  GetUserPersonalizationResult: ( GetUserPersonalizationError ) | ( GetUserPersonalizationSuccess );
+  GoogleSignupResult: ( GoogleSignupError ) | ( GoogleSignupSuccess );
+  GroupsResult: ( GroupsError ) | ( GroupsSuccess );
+  HiddenHomeSectionResult: ( HiddenHomeSectionError ) | ( HiddenHomeSectionSuccess );
+  HighlightsResult: ( HighlightsError ) | ( HighlightsSuccess );
+  HomeResult: ( HomeError ) | ( HomeSuccess );
+  ImportFromIntegrationResult: ( ImportFromIntegrationError ) | ( ImportFromIntegrationSuccess );
+  IntegrationResult: ( IntegrationError ) | ( IntegrationSuccess );
+  IntegrationsResult: ( IntegrationsError ) | ( IntegrationsSuccess );
+  JoinGroupResult: ( JoinGroupError ) | ( JoinGroupSuccess );
+  LabelsResult: ( LabelsError ) | ( LabelsSuccess );
+  LeaveGroupResult: ( LeaveGroupError ) | ( LeaveGroupSuccess );
+  LogOutResult: ( LogOutError ) | ( LogOutSuccess );
+  LoginResult: ( LoginError ) | ( LoginSuccess );
+  MarkEmailAsItemResult: ( MarkEmailAsItemError ) | ( MarkEmailAsItemSuccess );
+  MergeHighlightResult: ( MergeHighlightError ) | ( MergeHighlightSuccess );
+  MoveFilterResult: ( MoveFilterError ) | ( MoveFilterSuccess );
+  MoveLabelResult: ( MoveLabelError ) | ( MoveLabelSuccess );
+  MoveToFolderResult: ( MoveToFolderError ) | ( MoveToFolderSuccess );
+  NewsletterEmailsResult: ( NewsletterEmailsError ) | ( NewsletterEmailsSuccess );
+  OptInFeatureResult: ( OptInFeatureError ) | ( OptInFeatureSuccess );
+  PostResult: ( PostError ) | ( PostSuccess );
+  PostsResult: ( PostsError ) | ( PostsSuccess );
+  RecentEmailsResult: ( RecentEmailsError ) | ( RecentEmailsSuccess );
+  RecentSearchesResult: ( RecentSearchesError ) | ( RecentSearchesSuccess );
+  RecommendHighlightsResult: ( RecommendHighlightsError ) | ( RecommendHighlightsSuccess );
+  RecommendResult: ( RecommendError ) | ( RecommendSuccess );
+  RefreshHomeResult: ( RefreshHomeError ) | ( RefreshHomeSuccess );
+  RegenerateAnkiCardsResult: ( RegenerateAnkiCardsError ) | ( RegenerateAnkiCardsSuccess );
+  ReminderResult: ( ReminderError ) | ( ReminderSuccess );
+  ReplyToEmailResult: ( ReplyToEmailError ) | ( ReplyToEmailSuccess );
+  RevokeApiKeyResult: ( RevokeApiKeyError ) | ( RevokeApiKeySuccess );
+  RulesResult: ( RulesError ) | ( RulesSuccess );
+  SaveArticleReadingProgressResult: ( SaveArticleReadingProgressError ) | ( SaveArticleReadingProgressSuccess );
+  SaveDiscoverArticleResult: ( SaveDiscoverArticleError ) | ( SaveDiscoverArticleSuccess );
+  SaveFilterResult: ( SaveFilterError ) | ( SaveFilterSuccess );
+  SaveResult: ( SaveError ) | ( SaveSuccess );
+  ScanFeedsResult: ( ScanFeedsError ) | ( ScanFeedsSuccess );
+  SearchResult: ( SearchError ) | ( SearchSuccess );
+  SendInstallInstructionsResult: ( SendInstallInstructionsError ) | ( SendInstallInstructionsSuccess );
+  SetBookmarkArticleResult: ( SetBookmarkArticleError ) | ( SetBookmarkArticleSuccess );
+  SetDeviceTokenResult: ( SetDeviceTokenError ) | ( SetDeviceTokenSuccess );
+  SetFavoriteArticleResult: ( SetFavoriteArticleError ) | ( SetFavoriteArticleSuccess );
+  SetFollowResult: ( SetFollowError ) | ( SetFollowSuccess );
+  SetIntegrationResult: ( SetIntegrationError ) | ( SetIntegrationSuccess );
+  SetLabelsResult: ( SetLabelsError ) | ( SetLabelsSuccess );
+  SetRuleResult: ( SetRuleError ) | ( SetRuleSuccess );
+  SetShareArticleResult: ( SetShareArticleError ) | ( SetShareArticleSuccess );
+  SetShareHighlightResult: ( SetShareHighlightError ) | ( SetShareHighlightSuccess );
+  SetShowTranslatedResult: ( SetShowTranslatedError ) | ( SetShowTranslatedSuccess );
+  SetUserPersonalizationResult: ( SetUserPersonalizationError ) | ( SetUserPersonalizationSuccess );
+  SetWebhookResult: ( SetWebhookError ) | ( SetWebhookSuccess );
+  SharedArticleResult: ( SharedArticleError ) | ( SharedArticleSuccess );
+  SubscribeResult: ( SubscribeError ) | ( SubscribeSuccess );
+  SubscriptionResult: ( SubscriptionError ) | ( SubscriptionSuccess );
+  SubscriptionsResult: ( SubscriptionsError ) | ( SubscriptionsSuccess );
+  TestAnkiConnectionResult: ( TestAnkiConnectionError ) | ( TestAnkiConnectionSuccess );
+  TypeaheadSearchResult: ( TypeaheadSearchError ) | ( TypeaheadSearchSuccess );
+  UnsubscribeResult: ( UnsubscribeError ) | ( UnsubscribeSuccess );
+  UpdateEmailResult: ( UpdateEmailError ) | ( UpdateEmailSuccess );
+  UpdateFilterResult: ( UpdateFilterError ) | ( UpdateFilterSuccess );
+  UpdateFolderPolicyResult: ( UpdateFolderPolicyError ) | ( UpdateFolderPolicySuccess );
+  UpdateHighlightReplyResult: ( UpdateHighlightReplyError ) | ( UpdateHighlightReplySuccess );
+  UpdateHighlightResult: ( UpdateHighlightError ) | ( UpdateHighlightSuccess );
+  UpdateLabelResult: ( UpdateLabelError ) | ( UpdateLabelSuccess );
+  UpdateLinkShareInfoResult: ( UpdateLinkShareInfoError ) | ( UpdateLinkShareInfoSuccess );
+  UpdateNewsletterEmailResult: ( UpdateNewsletterEmailError ) | ( UpdateNewsletterEmailSuccess );
+  UpdatePageResult: ( UpdatePageError ) | ( UpdatePageSuccess );
+  UpdatePostResult: ( UpdatePostError ) | ( UpdatePostSuccess );
+  UpdateReminderResult: ( UpdateReminderError ) | ( UpdateReminderSuccess );
+  UpdateSharedCommentResult: ( UpdateSharedCommentError ) | ( UpdateSharedCommentSuccess );
+  UpdateSubscriptionResult: ( UpdateSubscriptionError ) | ( UpdateSubscriptionSuccess );
+  UpdateUserProfileResult: ( UpdateUserProfileError ) | ( UpdateUserProfileSuccess );
+  UpdateUserResult: ( UpdateUserError ) | ( UpdateUserSuccess );
+  UpdatesSinceResult: ( UpdatesSinceError ) | ( UpdatesSinceSuccess );
+  UploadFileRequestResult: ( UploadFileRequestError ) | ( UploadFileRequestSuccess );
+  UploadImportFileResult: ( UploadImportFileError ) | ( UploadImportFileSuccess );
+  UserResult: ( UserError ) | ( UserSuccess );
+  UsersResult: ( UsersError ) | ( UsersSuccess );
+  WebhookResult: ( WebhookError ) | ( WebhookSuccess );
+  WebhooksResult: ( WebhooksError ) | ( WebhooksSuccess );
+};
+
+
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   AddDiscoverFeedError: ResolverTypeWrapper<AddDiscoverFeedError>;
   AddDiscoverFeedErrorCode: AddDiscoverFeedErrorCode;
   AddDiscoverFeedInput: AddDiscoverFeedInput;
-  AddDiscoverFeedResult: ResolversTypes['AddDiscoverFeedError'] | ResolversTypes['AddDiscoverFeedSuccess'];
+  AddDiscoverFeedResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['AddDiscoverFeedResult']>;
   AddDiscoverFeedSuccess: ResolverTypeWrapper<AddDiscoverFeedSuccess>;
   AddPopularReadError: ResolverTypeWrapper<AddPopularReadError>;
   AddPopularReadErrorCode: AddPopularReadErrorCode;
-  AddPopularReadResult: ResolversTypes['AddPopularReadError'] | ResolversTypes['AddPopularReadSuccess'];
+  AddPopularReadResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['AddPopularReadResult']>;
   AddPopularReadSuccess: ResolverTypeWrapper<AddPopularReadSuccess>;
   AllowedReply: AllowedReply;
+  AnkiCardBatch: ResolverTypeWrapper<AnkiCardBatch>;
+  AnkiCardBatchesError: ResolverTypeWrapper<AnkiCardBatchesError>;
+  AnkiCardBatchesErrorCode: AnkiCardBatchesErrorCode;
+  AnkiCardBatchesInput: AnkiCardBatchesInput;
+  AnkiCardBatchesResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['AnkiCardBatchesResult']>;
+  AnkiCardBatchesSuccess: ResolverTypeWrapper<AnkiCardBatchesSuccess>;
+  AnkiCardDetail: ResolverTypeWrapper<AnkiCardDetail>;
+  AnkiCardStatus: AnkiCardStatus;
+  AnkiCardsError: ResolverTypeWrapper<AnkiCardsError>;
+  AnkiCardsErrorCode: AnkiCardsErrorCode;
+  AnkiCardsResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['AnkiCardsResult']>;
+  AnkiCardsSuccess: ResolverTypeWrapper<AnkiCardsSuccess>;
+  AnkiIntegrationError: ResolverTypeWrapper<AnkiIntegrationError>;
+  AnkiIntegrationErrorCode: AnkiIntegrationErrorCode;
+  AnkiIntegrationResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['AnkiIntegrationResult']>;
+  AnkiIntegrationSuccess: ResolverTypeWrapper<AnkiIntegrationSuccess>;
   ApiKey: ResolverTypeWrapper<ApiKey>;
   ApiKeysError: ResolverTypeWrapper<ApiKeysError>;
   ApiKeysErrorCode: ApiKeysErrorCode;
-  ApiKeysResult: ResolversTypes['ApiKeysError'] | ResolversTypes['ApiKeysSuccess'];
+  ApiKeysResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ApiKeysResult']>;
   ApiKeysSuccess: ResolverTypeWrapper<ApiKeysSuccess>;
   ArchiveLinkError: ResolverTypeWrapper<ArchiveLinkError>;
   ArchiveLinkErrorCode: ArchiveLinkErrorCode;
   ArchiveLinkInput: ArchiveLinkInput;
-  ArchiveLinkResult: ResolversTypes['ArchiveLinkError'] | ResolversTypes['ArchiveLinkSuccess'];
+  ArchiveLinkResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ArchiveLinkResult']>;
   ArchiveLinkSuccess: ResolverTypeWrapper<ArchiveLinkSuccess>;
   Article: ResolverTypeWrapper<Article>;
   ArticleEdge: ResolverTypeWrapper<ArticleEdge>;
   ArticleError: ResolverTypeWrapper<ArticleError>;
   ArticleErrorCode: ArticleErrorCode;
   ArticleHighlightsInput: ArticleHighlightsInput;
-  ArticleResult: ResolversTypes['ArticleError'] | ResolversTypes['ArticleSuccess'];
+  ArticleResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ArticleResult']>;
   ArticleSavingRequest: ResolverTypeWrapper<ArticleSavingRequest>;
   ArticleSavingRequestError: ResolverTypeWrapper<ArticleSavingRequestError>;
   ArticleSavingRequestErrorCode: ArticleSavingRequestErrorCode;
-  ArticleSavingRequestResult: ResolversTypes['ArticleSavingRequestError'] | ResolversTypes['ArticleSavingRequestSuccess'];
+  ArticleSavingRequestResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ArticleSavingRequestResult']>;
   ArticleSavingRequestStatus: ArticleSavingRequestStatus;
   ArticleSavingRequestSuccess: ResolverTypeWrapper<ArticleSavingRequestSuccess>;
   ArticleSuccess: ResolverTypeWrapper<ArticleSuccess>;
   ArticlesError: ResolverTypeWrapper<ArticlesError>;
   ArticlesErrorCode: ArticlesErrorCode;
-  ArticlesResult: ResolversTypes['ArticlesError'] | ResolversTypes['ArticlesSuccess'];
+  ArticlesResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ArticlesResult']>;
   ArticlesSuccess: ResolverTypeWrapper<ArticlesSuccess>;
-  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+  Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   BulkActionError: ResolverTypeWrapper<BulkActionError>;
   BulkActionErrorCode: BulkActionErrorCode;
-  BulkActionResult: ResolversTypes['BulkActionError'] | ResolversTypes['BulkActionSuccess'];
+  BulkActionResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['BulkActionResult']>;
   BulkActionSuccess: ResolverTypeWrapper<BulkActionSuccess>;
   BulkActionType: BulkActionType;
   ContentReader: ContentReader;
   CreateArticleError: ResolverTypeWrapper<CreateArticleError>;
   CreateArticleErrorCode: CreateArticleErrorCode;
   CreateArticleInput: CreateArticleInput;
-  CreateArticleResult: ResolversTypes['CreateArticleError'] | ResolversTypes['CreateArticleSuccess'];
+  CreateArticleResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateArticleResult']>;
   CreateArticleSavingRequestError: ResolverTypeWrapper<CreateArticleSavingRequestError>;
   CreateArticleSavingRequestErrorCode: CreateArticleSavingRequestErrorCode;
   CreateArticleSavingRequestInput: CreateArticleSavingRequestInput;
-  CreateArticleSavingRequestResult: ResolversTypes['CreateArticleSavingRequestError'] | ResolversTypes['CreateArticleSavingRequestSuccess'];
+  CreateArticleSavingRequestResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateArticleSavingRequestResult']>;
   CreateArticleSavingRequestSuccess: ResolverTypeWrapper<CreateArticleSavingRequestSuccess>;
   CreateArticleSuccess: ResolverTypeWrapper<CreateArticleSuccess>;
   CreateFolderPolicyError: ResolverTypeWrapper<CreateFolderPolicyError>;
   CreateFolderPolicyErrorCode: CreateFolderPolicyErrorCode;
   CreateFolderPolicyInput: CreateFolderPolicyInput;
-  CreateFolderPolicyResult: ResolversTypes['CreateFolderPolicyError'] | ResolversTypes['CreateFolderPolicySuccess'];
+  CreateFolderPolicyResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateFolderPolicyResult']>;
   CreateFolderPolicySuccess: ResolverTypeWrapper<CreateFolderPolicySuccess>;
   CreateGroupError: ResolverTypeWrapper<CreateGroupError>;
   CreateGroupErrorCode: CreateGroupErrorCode;
   CreateGroupInput: CreateGroupInput;
-  CreateGroupResult: ResolversTypes['CreateGroupError'] | ResolversTypes['CreateGroupSuccess'];
+  CreateGroupResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateGroupResult']>;
   CreateGroupSuccess: ResolverTypeWrapper<CreateGroupSuccess>;
   CreateHighlightError: ResolverTypeWrapper<CreateHighlightError>;
   CreateHighlightErrorCode: CreateHighlightErrorCode;
@@ -4511,102 +4885,102 @@ export type ResolversTypes = {
   CreateHighlightReplyError: ResolverTypeWrapper<CreateHighlightReplyError>;
   CreateHighlightReplyErrorCode: CreateHighlightReplyErrorCode;
   CreateHighlightReplyInput: CreateHighlightReplyInput;
-  CreateHighlightReplyResult: ResolversTypes['CreateHighlightReplyError'] | ResolversTypes['CreateHighlightReplySuccess'];
+  CreateHighlightReplyResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateHighlightReplyResult']>;
   CreateHighlightReplySuccess: ResolverTypeWrapper<CreateHighlightReplySuccess>;
-  CreateHighlightResult: ResolversTypes['CreateHighlightError'] | ResolversTypes['CreateHighlightSuccess'];
+  CreateHighlightResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateHighlightResult']>;
   CreateHighlightSuccess: ResolverTypeWrapper<CreateHighlightSuccess>;
   CreateLabelError: ResolverTypeWrapper<CreateLabelError>;
   CreateLabelErrorCode: CreateLabelErrorCode;
   CreateLabelInput: CreateLabelInput;
-  CreateLabelResult: ResolversTypes['CreateLabelError'] | ResolversTypes['CreateLabelSuccess'];
+  CreateLabelResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateLabelResult']>;
   CreateLabelSuccess: ResolverTypeWrapper<CreateLabelSuccess>;
   CreateNewsletterEmailError: ResolverTypeWrapper<CreateNewsletterEmailError>;
   CreateNewsletterEmailErrorCode: CreateNewsletterEmailErrorCode;
   CreateNewsletterEmailInput: CreateNewsletterEmailInput;
-  CreateNewsletterEmailResult: ResolversTypes['CreateNewsletterEmailError'] | ResolversTypes['CreateNewsletterEmailSuccess'];
+  CreateNewsletterEmailResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateNewsletterEmailResult']>;
   CreateNewsletterEmailSuccess: ResolverTypeWrapper<CreateNewsletterEmailSuccess>;
   CreatePostError: ResolverTypeWrapper<CreatePostError>;
   CreatePostErrorCode: CreatePostErrorCode;
   CreatePostInput: CreatePostInput;
-  CreatePostResult: ResolversTypes['CreatePostError'] | ResolversTypes['CreatePostSuccess'];
+  CreatePostResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreatePostResult']>;
   CreatePostSuccess: ResolverTypeWrapper<CreatePostSuccess>;
   CreateReactionError: ResolverTypeWrapper<CreateReactionError>;
   CreateReactionErrorCode: CreateReactionErrorCode;
   CreateReactionInput: CreateReactionInput;
-  CreateReactionResult: ResolversTypes['CreateReactionError'] | ResolversTypes['CreateReactionSuccess'];
+  CreateReactionResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateReactionResult']>;
   CreateReactionSuccess: ResolverTypeWrapper<CreateReactionSuccess>;
   CreateReminderError: ResolverTypeWrapper<CreateReminderError>;
   CreateReminderErrorCode: CreateReminderErrorCode;
   CreateReminderInput: CreateReminderInput;
-  CreateReminderResult: ResolversTypes['CreateReminderError'] | ResolversTypes['CreateReminderSuccess'];
+  CreateReminderResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateReminderResult']>;
   CreateReminderSuccess: ResolverTypeWrapper<CreateReminderSuccess>;
-  Date: ResolverTypeWrapper<Scalars['Date']>;
+  Date: ResolverTypeWrapper<Scalars['Date']['output']>;
   DeleteAccountError: ResolverTypeWrapper<DeleteAccountError>;
   DeleteAccountErrorCode: DeleteAccountErrorCode;
-  DeleteAccountResult: ResolversTypes['DeleteAccountError'] | ResolversTypes['DeleteAccountSuccess'];
+  DeleteAccountResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteAccountResult']>;
   DeleteAccountSuccess: ResolverTypeWrapper<DeleteAccountSuccess>;
   DeleteDiscoverArticleError: ResolverTypeWrapper<DeleteDiscoverArticleError>;
   DeleteDiscoverArticleErrorCode: DeleteDiscoverArticleErrorCode;
   DeleteDiscoverArticleInput: DeleteDiscoverArticleInput;
-  DeleteDiscoverArticleResult: ResolversTypes['DeleteDiscoverArticleError'] | ResolversTypes['DeleteDiscoverArticleSuccess'];
+  DeleteDiscoverArticleResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteDiscoverArticleResult']>;
   DeleteDiscoverArticleSuccess: ResolverTypeWrapper<DeleteDiscoverArticleSuccess>;
   DeleteDiscoverFeedError: ResolverTypeWrapper<DeleteDiscoverFeedError>;
   DeleteDiscoverFeedErrorCode: DeleteDiscoverFeedErrorCode;
   DeleteDiscoverFeedInput: DeleteDiscoverFeedInput;
-  DeleteDiscoverFeedResult: ResolversTypes['DeleteDiscoverFeedError'] | ResolversTypes['DeleteDiscoverFeedSuccess'];
+  DeleteDiscoverFeedResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteDiscoverFeedResult']>;
   DeleteDiscoverFeedSuccess: ResolverTypeWrapper<DeleteDiscoverFeedSuccess>;
   DeleteFilterError: ResolverTypeWrapper<DeleteFilterError>;
   DeleteFilterErrorCode: DeleteFilterErrorCode;
-  DeleteFilterResult: ResolversTypes['DeleteFilterError'] | ResolversTypes['DeleteFilterSuccess'];
+  DeleteFilterResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteFilterResult']>;
   DeleteFilterSuccess: ResolverTypeWrapper<DeleteFilterSuccess>;
   DeleteFolderPolicyError: ResolverTypeWrapper<DeleteFolderPolicyError>;
   DeleteFolderPolicyErrorCode: DeleteFolderPolicyErrorCode;
-  DeleteFolderPolicyResult: ResolversTypes['DeleteFolderPolicyError'] | ResolversTypes['DeleteFolderPolicySuccess'];
+  DeleteFolderPolicyResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteFolderPolicyResult']>;
   DeleteFolderPolicySuccess: ResolverTypeWrapper<DeleteFolderPolicySuccess>;
   DeleteHighlightError: ResolverTypeWrapper<DeleteHighlightError>;
   DeleteHighlightErrorCode: DeleteHighlightErrorCode;
   DeleteHighlightReplyError: ResolverTypeWrapper<DeleteHighlightReplyError>;
   DeleteHighlightReplyErrorCode: DeleteHighlightReplyErrorCode;
-  DeleteHighlightReplyResult: ResolversTypes['DeleteHighlightReplyError'] | ResolversTypes['DeleteHighlightReplySuccess'];
+  DeleteHighlightReplyResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteHighlightReplyResult']>;
   DeleteHighlightReplySuccess: ResolverTypeWrapper<DeleteHighlightReplySuccess>;
-  DeleteHighlightResult: ResolversTypes['DeleteHighlightError'] | ResolversTypes['DeleteHighlightSuccess'];
+  DeleteHighlightResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteHighlightResult']>;
   DeleteHighlightSuccess: ResolverTypeWrapper<DeleteHighlightSuccess>;
   DeleteIntegrationError: ResolverTypeWrapper<DeleteIntegrationError>;
   DeleteIntegrationErrorCode: DeleteIntegrationErrorCode;
-  DeleteIntegrationResult: ResolversTypes['DeleteIntegrationError'] | ResolversTypes['DeleteIntegrationSuccess'];
+  DeleteIntegrationResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteIntegrationResult']>;
   DeleteIntegrationSuccess: ResolverTypeWrapper<DeleteIntegrationSuccess>;
   DeleteLabelError: ResolverTypeWrapper<DeleteLabelError>;
   DeleteLabelErrorCode: DeleteLabelErrorCode;
-  DeleteLabelResult: ResolversTypes['DeleteLabelError'] | ResolversTypes['DeleteLabelSuccess'];
+  DeleteLabelResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteLabelResult']>;
   DeleteLabelSuccess: ResolverTypeWrapper<DeleteLabelSuccess>;
   DeleteNewsletterEmailError: ResolverTypeWrapper<DeleteNewsletterEmailError>;
   DeleteNewsletterEmailErrorCode: DeleteNewsletterEmailErrorCode;
-  DeleteNewsletterEmailResult: ResolversTypes['DeleteNewsletterEmailError'] | ResolversTypes['DeleteNewsletterEmailSuccess'];
+  DeleteNewsletterEmailResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteNewsletterEmailResult']>;
   DeleteNewsletterEmailSuccess: ResolverTypeWrapper<DeleteNewsletterEmailSuccess>;
   DeletePostError: ResolverTypeWrapper<DeletePostError>;
   DeletePostErrorCode: DeletePostErrorCode;
-  DeletePostResult: ResolversTypes['DeletePostError'] | ResolversTypes['DeletePostSuccess'];
+  DeletePostResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeletePostResult']>;
   DeletePostSuccess: ResolverTypeWrapper<DeletePostSuccess>;
   DeleteReactionError: ResolverTypeWrapper<DeleteReactionError>;
   DeleteReactionErrorCode: DeleteReactionErrorCode;
-  DeleteReactionResult: ResolversTypes['DeleteReactionError'] | ResolversTypes['DeleteReactionSuccess'];
+  DeleteReactionResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteReactionResult']>;
   DeleteReactionSuccess: ResolverTypeWrapper<DeleteReactionSuccess>;
   DeleteReminderError: ResolverTypeWrapper<DeleteReminderError>;
   DeleteReminderErrorCode: DeleteReminderErrorCode;
-  DeleteReminderResult: ResolversTypes['DeleteReminderError'] | ResolversTypes['DeleteReminderSuccess'];
+  DeleteReminderResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteReminderResult']>;
   DeleteReminderSuccess: ResolverTypeWrapper<DeleteReminderSuccess>;
   DeleteRuleError: ResolverTypeWrapper<DeleteRuleError>;
   DeleteRuleErrorCode: DeleteRuleErrorCode;
-  DeleteRuleResult: ResolversTypes['DeleteRuleError'] | ResolversTypes['DeleteRuleSuccess'];
+  DeleteRuleResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteRuleResult']>;
   DeleteRuleSuccess: ResolverTypeWrapper<DeleteRuleSuccess>;
   DeleteWebhookError: ResolverTypeWrapper<DeleteWebhookError>;
   DeleteWebhookErrorCode: DeleteWebhookErrorCode;
-  DeleteWebhookResult: ResolversTypes['DeleteWebhookError'] | ResolversTypes['DeleteWebhookSuccess'];
+  DeleteWebhookResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteWebhookResult']>;
   DeleteWebhookSuccess: ResolverTypeWrapper<DeleteWebhookSuccess>;
   DeviceToken: ResolverTypeWrapper<DeviceToken>;
   DeviceTokensError: ResolverTypeWrapper<DeviceTokensError>;
   DeviceTokensErrorCode: DeviceTokensErrorCode;
-  DeviceTokensResult: ResolversTypes['DeviceTokensError'] | ResolversTypes['DeviceTokensSuccess'];
+  DeviceTokensResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeviceTokensResult']>;
   DeviceTokensSuccess: ResolverTypeWrapper<DeviceTokensSuccess>;
   DigestConfig: ResolverTypeWrapper<DigestConfig>;
   DigestConfigInput: DigestConfigInput;
@@ -4615,22 +4989,22 @@ export type ResolversTypes = {
   DiscoverFeedArticle: ResolverTypeWrapper<DiscoverFeedArticle>;
   DiscoverFeedError: ResolverTypeWrapper<DiscoverFeedError>;
   DiscoverFeedErrorCode: DiscoverFeedErrorCode;
-  DiscoverFeedResult: ResolversTypes['DiscoverFeedError'] | ResolversTypes['DiscoverFeedSuccess'];
+  DiscoverFeedResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DiscoverFeedResult']>;
   DiscoverFeedSuccess: ResolverTypeWrapper<DiscoverFeedSuccess>;
   DiscoverTopic: ResolverTypeWrapper<DiscoverTopic>;
   EditDiscoverFeedError: ResolverTypeWrapper<EditDiscoverFeedError>;
   EditDiscoverFeedErrorCode: EditDiscoverFeedErrorCode;
   EditDiscoverFeedInput: EditDiscoverFeedInput;
-  EditDiscoverFeedResult: ResolversTypes['EditDiscoverFeedError'] | ResolversTypes['EditDiscoverFeedSuccess'];
+  EditDiscoverFeedResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['EditDiscoverFeedResult']>;
   EditDiscoverFeedSuccess: ResolverTypeWrapper<EditDiscoverFeedSuccess>;
   EmptyTrashError: ResolverTypeWrapper<EmptyTrashError>;
   EmptyTrashErrorCode: EmptyTrashErrorCode;
-  EmptyTrashResult: ResolversTypes['EmptyTrashError'] | ResolversTypes['EmptyTrashSuccess'];
+  EmptyTrashResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['EmptyTrashResult']>;
   EmptyTrashSuccess: ResolverTypeWrapper<EmptyTrashSuccess>;
   ErrorCode: ErrorCode;
   ExportToIntegrationError: ResolverTypeWrapper<ExportToIntegrationError>;
   ExportToIntegrationErrorCode: ExportToIntegrationErrorCode;
-  ExportToIntegrationResult: ResolversTypes['ExportToIntegrationError'] | ResolversTypes['ExportToIntegrationSuccess'];
+  ExportToIntegrationResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ExportToIntegrationResult']>;
   ExportToIntegrationSuccess: ResolverTypeWrapper<ExportToIntegrationSuccess>;
   Feature: ResolverTypeWrapper<Feature>;
   Feed: ResolverTypeWrapper<Feed>;
@@ -4638,68 +5012,77 @@ export type ResolversTypes = {
   FeedArticleEdge: ResolverTypeWrapper<FeedArticleEdge>;
   FeedArticlesError: ResolverTypeWrapper<FeedArticlesError>;
   FeedArticlesErrorCode: FeedArticlesErrorCode;
-  FeedArticlesResult: ResolversTypes['FeedArticlesError'] | ResolversTypes['FeedArticlesSuccess'];
+  FeedArticlesResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['FeedArticlesResult']>;
   FeedArticlesSuccess: ResolverTypeWrapper<FeedArticlesSuccess>;
   FeedEdge: ResolverTypeWrapper<FeedEdge>;
   FeedsError: ResolverTypeWrapper<FeedsError>;
   FeedsErrorCode: FeedsErrorCode;
   FeedsInput: FeedsInput;
-  FeedsResult: ResolversTypes['FeedsError'] | ResolversTypes['FeedsSuccess'];
+  FeedsResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['FeedsResult']>;
   FeedsSuccess: ResolverTypeWrapper<FeedsSuccess>;
   FetchContentError: ResolverTypeWrapper<FetchContentError>;
   FetchContentErrorCode: FetchContentErrorCode;
-  FetchContentResult: ResolversTypes['FetchContentError'] | ResolversTypes['FetchContentSuccess'];
+  FetchContentResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['FetchContentResult']>;
   FetchContentSuccess: ResolverTypeWrapper<FetchContentSuccess>;
   FetchContentType: FetchContentType;
   Filter: ResolverTypeWrapper<Filter>;
   FiltersError: ResolverTypeWrapper<FiltersError>;
   FiltersErrorCode: FiltersErrorCode;
-  FiltersResult: ResolversTypes['FiltersError'] | ResolversTypes['FiltersSuccess'];
+  FiltersResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['FiltersResult']>;
   FiltersSuccess: ResolverTypeWrapper<FiltersSuccess>;
-  Float: ResolverTypeWrapper<Scalars['Float']>;
+  Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   FolderPoliciesError: ResolverTypeWrapper<FolderPoliciesError>;
   FolderPoliciesErrorCode: FolderPoliciesErrorCode;
-  FolderPoliciesResult: ResolversTypes['FolderPoliciesError'] | ResolversTypes['FolderPoliciesSuccess'];
+  FolderPoliciesResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['FolderPoliciesResult']>;
   FolderPoliciesSuccess: ResolverTypeWrapper<FolderPoliciesSuccess>;
   FolderPolicy: ResolverTypeWrapper<FolderPolicy>;
   FolderPolicyAction: FolderPolicyAction;
+  GenerateAnkiCardsBatchError: ResolverTypeWrapper<GenerateAnkiCardsBatchError>;
+  GenerateAnkiCardsBatchErrorCode: GenerateAnkiCardsBatchErrorCode;
+  GenerateAnkiCardsBatchInput: GenerateAnkiCardsBatchInput;
+  GenerateAnkiCardsBatchResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GenerateAnkiCardsBatchResult']>;
+  GenerateAnkiCardsBatchSuccess: ResolverTypeWrapper<GenerateAnkiCardsBatchSuccess>;
+  GenerateAnkiCardsError: ResolverTypeWrapper<GenerateAnkiCardsError>;
+  GenerateAnkiCardsErrorCode: GenerateAnkiCardsErrorCode;
+  GenerateAnkiCardsResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GenerateAnkiCardsResult']>;
+  GenerateAnkiCardsSuccess: ResolverTypeWrapper<GenerateAnkiCardsSuccess>;
   GenerateApiKeyError: ResolverTypeWrapper<GenerateApiKeyError>;
   GenerateApiKeyErrorCode: GenerateApiKeyErrorCode;
   GenerateApiKeyInput: GenerateApiKeyInput;
-  GenerateApiKeyResult: ResolversTypes['GenerateApiKeyError'] | ResolversTypes['GenerateApiKeySuccess'];
+  GenerateApiKeyResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GenerateApiKeyResult']>;
   GenerateApiKeySuccess: ResolverTypeWrapper<GenerateApiKeySuccess>;
   GetDiscoverFeedArticleError: ResolverTypeWrapper<GetDiscoverFeedArticleError>;
   GetDiscoverFeedArticleErrorCode: GetDiscoverFeedArticleErrorCode;
-  GetDiscoverFeedArticleResults: ResolversTypes['GetDiscoverFeedArticleError'] | ResolversTypes['GetDiscoverFeedArticleSuccess'];
+  GetDiscoverFeedArticleResults: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetDiscoverFeedArticleResults']>;
   GetDiscoverFeedArticleSuccess: ResolverTypeWrapper<GetDiscoverFeedArticleSuccess>;
   GetDiscoverTopicError: ResolverTypeWrapper<GetDiscoverTopicError>;
   GetDiscoverTopicErrorCode: GetDiscoverTopicErrorCode;
-  GetDiscoverTopicResults: ResolversTypes['GetDiscoverTopicError'] | ResolversTypes['GetDiscoverTopicSuccess'];
+  GetDiscoverTopicResults: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetDiscoverTopicResults']>;
   GetDiscoverTopicSuccess: ResolverTypeWrapper<GetDiscoverTopicSuccess>;
   GetFollowersError: ResolverTypeWrapper<GetFollowersError>;
   GetFollowersErrorCode: GetFollowersErrorCode;
-  GetFollowersResult: ResolversTypes['GetFollowersError'] | ResolversTypes['GetFollowersSuccess'];
+  GetFollowersResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetFollowersResult']>;
   GetFollowersSuccess: ResolverTypeWrapper<GetFollowersSuccess>;
   GetFollowingError: ResolverTypeWrapper<GetFollowingError>;
   GetFollowingErrorCode: GetFollowingErrorCode;
-  GetFollowingResult: ResolversTypes['GetFollowingError'] | ResolversTypes['GetFollowingSuccess'];
+  GetFollowingResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetFollowingResult']>;
   GetFollowingSuccess: ResolverTypeWrapper<GetFollowingSuccess>;
   GetUserPersonalizationError: ResolverTypeWrapper<GetUserPersonalizationError>;
   GetUserPersonalizationErrorCode: GetUserPersonalizationErrorCode;
-  GetUserPersonalizationResult: ResolversTypes['GetUserPersonalizationError'] | ResolversTypes['GetUserPersonalizationSuccess'];
+  GetUserPersonalizationResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetUserPersonalizationResult']>;
   GetUserPersonalizationSuccess: ResolverTypeWrapper<GetUserPersonalizationSuccess>;
   GoogleLoginInput: GoogleLoginInput;
   GoogleSignupError: ResolverTypeWrapper<GoogleSignupError>;
   GoogleSignupInput: GoogleSignupInput;
-  GoogleSignupResult: ResolversTypes['GoogleSignupError'] | ResolversTypes['GoogleSignupSuccess'];
+  GoogleSignupResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GoogleSignupResult']>;
   GoogleSignupSuccess: ResolverTypeWrapper<GoogleSignupSuccess>;
   GroupsError: ResolverTypeWrapper<GroupsError>;
   GroupsErrorCode: GroupsErrorCode;
-  GroupsResult: ResolversTypes['GroupsError'] | ResolversTypes['GroupsSuccess'];
+  GroupsResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GroupsResult']>;
   GroupsSuccess: ResolverTypeWrapper<GroupsSuccess>;
   HiddenHomeSectionError: ResolverTypeWrapper<HiddenHomeSectionError>;
   HiddenHomeSectionErrorCode: HiddenHomeSectionErrorCode;
-  HiddenHomeSectionResult: ResolversTypes['HiddenHomeSectionError'] | ResolversTypes['HiddenHomeSectionSuccess'];
+  HiddenHomeSectionResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['HiddenHomeSectionResult']>;
   HiddenHomeSectionSuccess: ResolverTypeWrapper<HiddenHomeSectionSuccess>;
   Highlight: ResolverTypeWrapper<Highlight>;
   HighlightEdge: ResolverTypeWrapper<HighlightEdge>;
@@ -4708,7 +5091,7 @@ export type ResolversTypes = {
   HighlightType: HighlightType;
   HighlightsError: ResolverTypeWrapper<HighlightsError>;
   HighlightsErrorCode: HighlightsErrorCode;
-  HighlightsResult: ResolversTypes['HighlightsError'] | ResolversTypes['HighlightsSuccess'];
+  HighlightsResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['HighlightsResult']>;
   HighlightsSuccess: ResolverTypeWrapper<HighlightsSuccess>;
   HomeEdge: ResolverTypeWrapper<HomeEdge>;
   HomeError: ResolverTypeWrapper<HomeError>;
@@ -4716,83 +5099,83 @@ export type ResolversTypes = {
   HomeItem: ResolverTypeWrapper<HomeItem>;
   HomeItemSource: ResolverTypeWrapper<HomeItemSource>;
   HomeItemSourceType: HomeItemSourceType;
-  HomeResult: ResolversTypes['HomeError'] | ResolversTypes['HomeSuccess'];
+  HomeResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['HomeResult']>;
   HomeSection: ResolverTypeWrapper<HomeSection>;
   HomeSuccess: ResolverTypeWrapper<HomeSuccess>;
-  ID: ResolverTypeWrapper<Scalars['ID']>;
+  ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   ImportFromIntegrationError: ResolverTypeWrapper<ImportFromIntegrationError>;
   ImportFromIntegrationErrorCode: ImportFromIntegrationErrorCode;
-  ImportFromIntegrationResult: ResolversTypes['ImportFromIntegrationError'] | ResolversTypes['ImportFromIntegrationSuccess'];
+  ImportFromIntegrationResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ImportFromIntegrationResult']>;
   ImportFromIntegrationSuccess: ResolverTypeWrapper<ImportFromIntegrationSuccess>;
   ImportItemState: ImportItemState;
-  Int: ResolverTypeWrapper<Scalars['Int']>;
+  Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Integration: ResolverTypeWrapper<Integration>;
   IntegrationError: ResolverTypeWrapper<IntegrationError>;
   IntegrationErrorCode: IntegrationErrorCode;
-  IntegrationResult: ResolversTypes['IntegrationError'] | ResolversTypes['IntegrationSuccess'];
+  IntegrationResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['IntegrationResult']>;
   IntegrationSuccess: ResolverTypeWrapper<IntegrationSuccess>;
   IntegrationType: IntegrationType;
   IntegrationsError: ResolverTypeWrapper<IntegrationsError>;
   IntegrationsErrorCode: IntegrationsErrorCode;
-  IntegrationsResult: ResolversTypes['IntegrationsError'] | ResolversTypes['IntegrationsSuccess'];
+  IntegrationsResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['IntegrationsResult']>;
   IntegrationsSuccess: ResolverTypeWrapper<IntegrationsSuccess>;
-  JSON: ResolverTypeWrapper<Scalars['JSON']>;
+  JSON: ResolverTypeWrapper<Scalars['JSON']['output']>;
   JoinGroupError: ResolverTypeWrapper<JoinGroupError>;
   JoinGroupErrorCode: JoinGroupErrorCode;
-  JoinGroupResult: ResolversTypes['JoinGroupError'] | ResolversTypes['JoinGroupSuccess'];
+  JoinGroupResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['JoinGroupResult']>;
   JoinGroupSuccess: ResolverTypeWrapper<JoinGroupSuccess>;
   Label: ResolverTypeWrapper<Label>;
   LabelsError: ResolverTypeWrapper<LabelsError>;
   LabelsErrorCode: LabelsErrorCode;
-  LabelsResult: ResolversTypes['LabelsError'] | ResolversTypes['LabelsSuccess'];
+  LabelsResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LabelsResult']>;
   LabelsSuccess: ResolverTypeWrapper<LabelsSuccess>;
   LeaveGroupError: ResolverTypeWrapper<LeaveGroupError>;
   LeaveGroupErrorCode: LeaveGroupErrorCode;
-  LeaveGroupResult: ResolversTypes['LeaveGroupError'] | ResolversTypes['LeaveGroupSuccess'];
+  LeaveGroupResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LeaveGroupResult']>;
   LeaveGroupSuccess: ResolverTypeWrapper<LeaveGroupSuccess>;
   Link: ResolverTypeWrapper<Link>;
   LinkShareInfo: ResolverTypeWrapper<LinkShareInfo>;
   LogOutError: ResolverTypeWrapper<LogOutError>;
   LogOutErrorCode: LogOutErrorCode;
-  LogOutResult: ResolversTypes['LogOutError'] | ResolversTypes['LogOutSuccess'];
+  LogOutResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LogOutResult']>;
   LogOutSuccess: ResolverTypeWrapper<LogOutSuccess>;
   LoginError: ResolverTypeWrapper<LoginError>;
   LoginErrorCode: LoginErrorCode;
-  LoginResult: ResolversTypes['LoginError'] | ResolversTypes['LoginSuccess'];
+  LoginResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LoginResult']>;
   LoginSuccess: ResolverTypeWrapper<LoginSuccess>;
   MarkEmailAsItemError: ResolverTypeWrapper<MarkEmailAsItemError>;
   MarkEmailAsItemErrorCode: MarkEmailAsItemErrorCode;
-  MarkEmailAsItemResult: ResolversTypes['MarkEmailAsItemError'] | ResolversTypes['MarkEmailAsItemSuccess'];
+  MarkEmailAsItemResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['MarkEmailAsItemResult']>;
   MarkEmailAsItemSuccess: ResolverTypeWrapper<MarkEmailAsItemSuccess>;
   MergeHighlightError: ResolverTypeWrapper<MergeHighlightError>;
   MergeHighlightErrorCode: MergeHighlightErrorCode;
   MergeHighlightInput: MergeHighlightInput;
-  MergeHighlightResult: ResolversTypes['MergeHighlightError'] | ResolversTypes['MergeHighlightSuccess'];
+  MergeHighlightResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['MergeHighlightResult']>;
   MergeHighlightSuccess: ResolverTypeWrapper<MergeHighlightSuccess>;
   MoveFilterError: ResolverTypeWrapper<MoveFilterError>;
   MoveFilterErrorCode: MoveFilterErrorCode;
   MoveFilterInput: MoveFilterInput;
-  MoveFilterResult: ResolversTypes['MoveFilterError'] | ResolversTypes['MoveFilterSuccess'];
+  MoveFilterResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['MoveFilterResult']>;
   MoveFilterSuccess: ResolverTypeWrapper<MoveFilterSuccess>;
   MoveLabelError: ResolverTypeWrapper<MoveLabelError>;
   MoveLabelErrorCode: MoveLabelErrorCode;
   MoveLabelInput: MoveLabelInput;
-  MoveLabelResult: ResolversTypes['MoveLabelError'] | ResolversTypes['MoveLabelSuccess'];
+  MoveLabelResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['MoveLabelResult']>;
   MoveLabelSuccess: ResolverTypeWrapper<MoveLabelSuccess>;
   MoveToFolderError: ResolverTypeWrapper<MoveToFolderError>;
   MoveToFolderErrorCode: MoveToFolderErrorCode;
-  MoveToFolderResult: ResolversTypes['MoveToFolderError'] | ResolversTypes['MoveToFolderSuccess'];
+  MoveToFolderResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['MoveToFolderResult']>;
   MoveToFolderSuccess: ResolverTypeWrapper<MoveToFolderSuccess>;
   Mutation: ResolverTypeWrapper<{}>;
   NewsletterEmail: ResolverTypeWrapper<NewsletterEmail>;
   NewsletterEmailsError: ResolverTypeWrapper<NewsletterEmailsError>;
   NewsletterEmailsErrorCode: NewsletterEmailsErrorCode;
-  NewsletterEmailsResult: ResolversTypes['NewsletterEmailsError'] | ResolversTypes['NewsletterEmailsSuccess'];
+  NewsletterEmailsResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['NewsletterEmailsResult']>;
   NewsletterEmailsSuccess: ResolverTypeWrapper<NewsletterEmailsSuccess>;
   OptInFeatureError: ResolverTypeWrapper<OptInFeatureError>;
   OptInFeatureErrorCode: OptInFeatureErrorCode;
   OptInFeatureInput: OptInFeatureInput;
-  OptInFeatureResult: ResolversTypes['OptInFeatureError'] | ResolversTypes['OptInFeatureSuccess'];
+  OptInFeatureResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['OptInFeatureResult']>;
   OptInFeatureSuccess: ResolverTypeWrapper<OptInFeatureSuccess>;
   Page: ResolverTypeWrapper<Page>;
   PageInfo: ResolverTypeWrapper<PageInfo>;
@@ -4803,11 +5186,11 @@ export type ResolversTypes = {
   PostEdge: ResolverTypeWrapper<PostEdge>;
   PostError: ResolverTypeWrapper<PostError>;
   PostErrorCode: PostErrorCode;
-  PostResult: ResolversTypes['PostError'] | ResolversTypes['PostSuccess'];
+  PostResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['PostResult']>;
   PostSuccess: ResolverTypeWrapper<PostSuccess>;
   PostsError: ResolverTypeWrapper<PostsError>;
   PostsErrorCode: PostsErrorCode;
-  PostsResult: ResolversTypes['PostsError'] | ResolversTypes['PostsSuccess'];
+  PostsResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['PostsResult']>;
   PostsSuccess: ResolverTypeWrapper<PostsSuccess>;
   PreparedDocumentInput: PreparedDocumentInput;
   Profile: ResolverTypeWrapper<Profile>;
@@ -4818,38 +5201,42 @@ export type ResolversTypes = {
   RecentEmail: ResolverTypeWrapper<RecentEmail>;
   RecentEmailsError: ResolverTypeWrapper<RecentEmailsError>;
   RecentEmailsErrorCode: RecentEmailsErrorCode;
-  RecentEmailsResult: ResolversTypes['RecentEmailsError'] | ResolversTypes['RecentEmailsSuccess'];
+  RecentEmailsResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RecentEmailsResult']>;
   RecentEmailsSuccess: ResolverTypeWrapper<RecentEmailsSuccess>;
   RecentSearch: ResolverTypeWrapper<RecentSearch>;
   RecentSearchesError: ResolverTypeWrapper<RecentSearchesError>;
   RecentSearchesErrorCode: RecentSearchesErrorCode;
-  RecentSearchesResult: ResolversTypes['RecentSearchesError'] | ResolversTypes['RecentSearchesSuccess'];
+  RecentSearchesResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RecentSearchesResult']>;
   RecentSearchesSuccess: ResolverTypeWrapper<RecentSearchesSuccess>;
   RecommendError: ResolverTypeWrapper<RecommendError>;
   RecommendErrorCode: RecommendErrorCode;
   RecommendHighlightsError: ResolverTypeWrapper<RecommendHighlightsError>;
   RecommendHighlightsErrorCode: RecommendHighlightsErrorCode;
   RecommendHighlightsInput: RecommendHighlightsInput;
-  RecommendHighlightsResult: ResolversTypes['RecommendHighlightsError'] | ResolversTypes['RecommendHighlightsSuccess'];
+  RecommendHighlightsResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RecommendHighlightsResult']>;
   RecommendHighlightsSuccess: ResolverTypeWrapper<RecommendHighlightsSuccess>;
   RecommendInput: RecommendInput;
-  RecommendResult: ResolversTypes['RecommendError'] | ResolversTypes['RecommendSuccess'];
+  RecommendResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RecommendResult']>;
   RecommendSuccess: ResolverTypeWrapper<RecommendSuccess>;
   Recommendation: ResolverTypeWrapper<Recommendation>;
   RecommendationGroup: ResolverTypeWrapper<RecommendationGroup>;
   RecommendingUser: ResolverTypeWrapper<RecommendingUser>;
   RefreshHomeError: ResolverTypeWrapper<RefreshHomeError>;
   RefreshHomeErrorCode: RefreshHomeErrorCode;
-  RefreshHomeResult: ResolversTypes['RefreshHomeError'] | ResolversTypes['RefreshHomeSuccess'];
+  RefreshHomeResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RefreshHomeResult']>;
   RefreshHomeSuccess: ResolverTypeWrapper<RefreshHomeSuccess>;
+  RegenerateAnkiCardsError: ResolverTypeWrapper<RegenerateAnkiCardsError>;
+  RegenerateAnkiCardsErrorCode: RegenerateAnkiCardsErrorCode;
+  RegenerateAnkiCardsResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RegenerateAnkiCardsResult']>;
+  RegenerateAnkiCardsSuccess: ResolverTypeWrapper<RegenerateAnkiCardsSuccess>;
   Reminder: ResolverTypeWrapper<Reminder>;
   ReminderError: ResolverTypeWrapper<ReminderError>;
   ReminderErrorCode: ReminderErrorCode;
-  ReminderResult: ResolversTypes['ReminderError'] | ResolversTypes['ReminderSuccess'];
+  ReminderResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ReminderResult']>;
   ReminderSuccess: ResolverTypeWrapper<ReminderSuccess>;
   ReplyToEmailError: ResolverTypeWrapper<ReplyToEmailError>;
   ReplyToEmailErrorCode: ReplyToEmailErrorCode;
-  ReplyToEmailResult: ResolversTypes['ReplyToEmailError'] | ResolversTypes['ReplyToEmailSuccess'];
+  ReplyToEmailResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ReplyToEmailResult']>;
   ReplyToEmailSuccess: ResolverTypeWrapper<ReplyToEmailSuccess>;
   ReportItemInput: ReportItemInput;
   ReportItemResult: ResolverTypeWrapper<ReportItemResult>;
@@ -4857,7 +5244,7 @@ export type ResolversTypes = {
   RepresentationType: RepresentationType;
   RevokeApiKeyError: ResolverTypeWrapper<RevokeApiKeyError>;
   RevokeApiKeyErrorCode: RevokeApiKeyErrorCode;
-  RevokeApiKeyResult: ResolversTypes['RevokeApiKeyError'] | ResolversTypes['RevokeApiKeySuccess'];
+  RevokeApiKeyResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RevokeApiKeyResult']>;
   RevokeApiKeySuccess: ResolverTypeWrapper<RevokeApiKeySuccess>;
   Rule: ResolverTypeWrapper<Rule>;
   RuleAction: ResolverTypeWrapper<RuleAction>;
@@ -4866,17 +5253,17 @@ export type ResolversTypes = {
   RuleEventType: RuleEventType;
   RulesError: ResolverTypeWrapper<RulesError>;
   RulesErrorCode: RulesErrorCode;
-  RulesResult: ResolversTypes['RulesError'] | ResolversTypes['RulesSuccess'];
+  RulesResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RulesResult']>;
   RulesSuccess: ResolverTypeWrapper<RulesSuccess>;
   SaveArticleReadingProgressError: ResolverTypeWrapper<SaveArticleReadingProgressError>;
   SaveArticleReadingProgressErrorCode: SaveArticleReadingProgressErrorCode;
   SaveArticleReadingProgressInput: SaveArticleReadingProgressInput;
-  SaveArticleReadingProgressResult: ResolversTypes['SaveArticleReadingProgressError'] | ResolversTypes['SaveArticleReadingProgressSuccess'];
+  SaveArticleReadingProgressResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SaveArticleReadingProgressResult']>;
   SaveArticleReadingProgressSuccess: ResolverTypeWrapper<SaveArticleReadingProgressSuccess>;
   SaveDiscoverArticleError: ResolverTypeWrapper<SaveDiscoverArticleError>;
   SaveDiscoverArticleErrorCode: SaveDiscoverArticleErrorCode;
   SaveDiscoverArticleInput: SaveDiscoverArticleInput;
-  SaveDiscoverArticleResult: ResolversTypes['SaveDiscoverArticleError'] | ResolversTypes['SaveDiscoverArticleSuccess'];
+  SaveDiscoverArticleResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SaveDiscoverArticleResult']>;
   SaveDiscoverArticleSuccess: ResolverTypeWrapper<SaveDiscoverArticleSuccess>;
   SaveError: ResolverTypeWrapper<SaveError>;
   SaveErrorCode: SaveErrorCode;
@@ -4884,139 +5271,144 @@ export type ResolversTypes = {
   SaveFilterError: ResolverTypeWrapper<SaveFilterError>;
   SaveFilterErrorCode: SaveFilterErrorCode;
   SaveFilterInput: SaveFilterInput;
-  SaveFilterResult: ResolversTypes['SaveFilterError'] | ResolversTypes['SaveFilterSuccess'];
+  SaveFilterResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SaveFilterResult']>;
   SaveFilterSuccess: ResolverTypeWrapper<SaveFilterSuccess>;
   SavePageInput: SavePageInput;
-  SaveResult: ResolversTypes['SaveError'] | ResolversTypes['SaveSuccess'];
+  SaveResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SaveResult']>;
   SaveSuccess: ResolverTypeWrapper<SaveSuccess>;
   SaveUrlInput: SaveUrlInput;
   ScanFeedsError: ResolverTypeWrapper<ScanFeedsError>;
   ScanFeedsErrorCode: ScanFeedsErrorCode;
   ScanFeedsInput: ScanFeedsInput;
-  ScanFeedsResult: ResolversTypes['ScanFeedsError'] | ResolversTypes['ScanFeedsSuccess'];
+  ScanFeedsResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ScanFeedsResult']>;
   ScanFeedsSuccess: ResolverTypeWrapper<ScanFeedsSuccess>;
   SearchError: ResolverTypeWrapper<SearchError>;
   SearchErrorCode: SearchErrorCode;
   SearchItem: ResolverTypeWrapper<SearchItem>;
   SearchItemEdge: ResolverTypeWrapper<SearchItemEdge>;
-  SearchResult: ResolversTypes['SearchError'] | ResolversTypes['SearchSuccess'];
+  SearchResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SearchResult']>;
   SearchSuccess: ResolverTypeWrapper<SearchSuccess>;
   SendInstallInstructionsError: ResolverTypeWrapper<SendInstallInstructionsError>;
   SendInstallInstructionsErrorCode: SendInstallInstructionsErrorCode;
-  SendInstallInstructionsResult: ResolversTypes['SendInstallInstructionsError'] | ResolversTypes['SendInstallInstructionsSuccess'];
+  SendInstallInstructionsResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SendInstallInstructionsResult']>;
   SendInstallInstructionsSuccess: ResolverTypeWrapper<SendInstallInstructionsSuccess>;
   SetBookmarkArticleError: ResolverTypeWrapper<SetBookmarkArticleError>;
   SetBookmarkArticleErrorCode: SetBookmarkArticleErrorCode;
   SetBookmarkArticleInput: SetBookmarkArticleInput;
-  SetBookmarkArticleResult: ResolversTypes['SetBookmarkArticleError'] | ResolversTypes['SetBookmarkArticleSuccess'];
+  SetBookmarkArticleResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SetBookmarkArticleResult']>;
   SetBookmarkArticleSuccess: ResolverTypeWrapper<SetBookmarkArticleSuccess>;
   SetDeviceTokenError: ResolverTypeWrapper<SetDeviceTokenError>;
   SetDeviceTokenErrorCode: SetDeviceTokenErrorCode;
   SetDeviceTokenInput: SetDeviceTokenInput;
-  SetDeviceTokenResult: ResolversTypes['SetDeviceTokenError'] | ResolversTypes['SetDeviceTokenSuccess'];
+  SetDeviceTokenResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SetDeviceTokenResult']>;
   SetDeviceTokenSuccess: ResolverTypeWrapper<SetDeviceTokenSuccess>;
   SetFavoriteArticleError: ResolverTypeWrapper<SetFavoriteArticleError>;
   SetFavoriteArticleErrorCode: SetFavoriteArticleErrorCode;
-  SetFavoriteArticleResult: ResolversTypes['SetFavoriteArticleError'] | ResolversTypes['SetFavoriteArticleSuccess'];
+  SetFavoriteArticleResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SetFavoriteArticleResult']>;
   SetFavoriteArticleSuccess: ResolverTypeWrapper<SetFavoriteArticleSuccess>;
   SetFollowError: ResolverTypeWrapper<SetFollowError>;
   SetFollowErrorCode: SetFollowErrorCode;
   SetFollowInput: SetFollowInput;
-  SetFollowResult: ResolversTypes['SetFollowError'] | ResolversTypes['SetFollowSuccess'];
+  SetFollowResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SetFollowResult']>;
   SetFollowSuccess: ResolverTypeWrapper<SetFollowSuccess>;
   SetIntegrationError: ResolverTypeWrapper<SetIntegrationError>;
   SetIntegrationErrorCode: SetIntegrationErrorCode;
   SetIntegrationInput: SetIntegrationInput;
-  SetIntegrationResult: ResolversTypes['SetIntegrationError'] | ResolversTypes['SetIntegrationSuccess'];
+  SetIntegrationResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SetIntegrationResult']>;
   SetIntegrationSuccess: ResolverTypeWrapper<SetIntegrationSuccess>;
   SetLabelsError: ResolverTypeWrapper<SetLabelsError>;
   SetLabelsErrorCode: SetLabelsErrorCode;
   SetLabelsForHighlightInput: SetLabelsForHighlightInput;
   SetLabelsInput: SetLabelsInput;
-  SetLabelsResult: ResolversTypes['SetLabelsError'] | ResolversTypes['SetLabelsSuccess'];
+  SetLabelsResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SetLabelsResult']>;
   SetLabelsSuccess: ResolverTypeWrapper<SetLabelsSuccess>;
   SetRuleError: ResolverTypeWrapper<SetRuleError>;
   SetRuleErrorCode: SetRuleErrorCode;
   SetRuleInput: SetRuleInput;
-  SetRuleResult: ResolversTypes['SetRuleError'] | ResolversTypes['SetRuleSuccess'];
+  SetRuleResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SetRuleResult']>;
   SetRuleSuccess: ResolverTypeWrapper<SetRuleSuccess>;
   SetShareArticleError: ResolverTypeWrapper<SetShareArticleError>;
   SetShareArticleErrorCode: SetShareArticleErrorCode;
   SetShareArticleInput: SetShareArticleInput;
-  SetShareArticleResult: ResolversTypes['SetShareArticleError'] | ResolversTypes['SetShareArticleSuccess'];
+  SetShareArticleResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SetShareArticleResult']>;
   SetShareArticleSuccess: ResolverTypeWrapper<SetShareArticleSuccess>;
   SetShareHighlightError: ResolverTypeWrapper<SetShareHighlightError>;
   SetShareHighlightErrorCode: SetShareHighlightErrorCode;
   SetShareHighlightInput: SetShareHighlightInput;
-  SetShareHighlightResult: ResolversTypes['SetShareHighlightError'] | ResolversTypes['SetShareHighlightSuccess'];
+  SetShareHighlightResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SetShareHighlightResult']>;
   SetShareHighlightSuccess: ResolverTypeWrapper<SetShareHighlightSuccess>;
   SetShowTranslatedError: ResolverTypeWrapper<SetShowTranslatedError>;
   SetShowTranslatedErrorCode: SetShowTranslatedErrorCode;
-  SetShowTranslatedResult: ResolversTypes['SetShowTranslatedError'] | ResolversTypes['SetShowTranslatedSuccess'];
+  SetShowTranslatedResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SetShowTranslatedResult']>;
   SetShowTranslatedSuccess: ResolverTypeWrapper<SetShowTranslatedSuccess>;
   SetUserPersonalizationError: ResolverTypeWrapper<SetUserPersonalizationError>;
   SetUserPersonalizationErrorCode: SetUserPersonalizationErrorCode;
   SetUserPersonalizationInput: SetUserPersonalizationInput;
-  SetUserPersonalizationResult: ResolversTypes['SetUserPersonalizationError'] | ResolversTypes['SetUserPersonalizationSuccess'];
+  SetUserPersonalizationResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SetUserPersonalizationResult']>;
   SetUserPersonalizationSuccess: ResolverTypeWrapper<SetUserPersonalizationSuccess>;
   SetWebhookError: ResolverTypeWrapper<SetWebhookError>;
   SetWebhookErrorCode: SetWebhookErrorCode;
   SetWebhookInput: SetWebhookInput;
-  SetWebhookResult: ResolversTypes['SetWebhookError'] | ResolversTypes['SetWebhookSuccess'];
+  SetWebhookResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SetWebhookResult']>;
   SetWebhookSuccess: ResolverTypeWrapper<SetWebhookSuccess>;
   ShareStats: ResolverTypeWrapper<ShareStats>;
   SharedArticleError: ResolverTypeWrapper<SharedArticleError>;
   SharedArticleErrorCode: SharedArticleErrorCode;
-  SharedArticleResult: ResolversTypes['SharedArticleError'] | ResolversTypes['SharedArticleSuccess'];
+  SharedArticleResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SharedArticleResult']>;
   SharedArticleSuccess: ResolverTypeWrapper<SharedArticleSuccess>;
   SignupErrorCode: SignupErrorCode;
   SortBy: SortBy;
   SortOrder: SortOrder;
   SortParams: SortParams;
-  String: ResolverTypeWrapper<Scalars['String']>;
+  String: ResolverTypeWrapper<Scalars['String']['output']>;
   SubscribeError: ResolverTypeWrapper<SubscribeError>;
   SubscribeErrorCode: SubscribeErrorCode;
   SubscribeInput: SubscribeInput;
-  SubscribeResult: ResolversTypes['SubscribeError'] | ResolversTypes['SubscribeSuccess'];
+  SubscribeResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SubscribeResult']>;
   SubscribeSuccess: ResolverTypeWrapper<SubscribeSuccess>;
   Subscription: ResolverTypeWrapper<Subscription>;
   SubscriptionError: ResolverTypeWrapper<SubscriptionError>;
-  SubscriptionResult: ResolversTypes['SubscriptionError'] | ResolversTypes['SubscriptionSuccess'];
+  SubscriptionResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SubscriptionResult']>;
   SubscriptionRootType: ResolverTypeWrapper<{}>;
   SubscriptionStatus: SubscriptionStatus;
   SubscriptionSuccess: ResolverTypeWrapper<SubscriptionSuccess>;
   SubscriptionType: SubscriptionType;
   SubscriptionsError: ResolverTypeWrapper<SubscriptionsError>;
   SubscriptionsErrorCode: SubscriptionsErrorCode;
-  SubscriptionsResult: ResolversTypes['SubscriptionsError'] | ResolversTypes['SubscriptionsSuccess'];
+  SubscriptionsResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SubscriptionsResult']>;
   SubscriptionsSuccess: ResolverTypeWrapper<SubscriptionsSuccess>;
   SyncUpdatedItemEdge: ResolverTypeWrapper<SyncUpdatedItemEdge>;
   Task: ResolverTypeWrapper<Task>;
   TaskState: TaskState;
+  TestAnkiConnectionError: ResolverTypeWrapper<TestAnkiConnectionError>;
+  TestAnkiConnectionErrorCode: TestAnkiConnectionErrorCode;
+  TestAnkiConnectionInput: TestAnkiConnectionInput;
+  TestAnkiConnectionResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['TestAnkiConnectionResult']>;
+  TestAnkiConnectionSuccess: ResolverTypeWrapper<TestAnkiConnectionSuccess>;
   TranslationStatus: TranslationStatus;
   TypeaheadSearchError: ResolverTypeWrapper<TypeaheadSearchError>;
   TypeaheadSearchErrorCode: TypeaheadSearchErrorCode;
   TypeaheadSearchItem: ResolverTypeWrapper<TypeaheadSearchItem>;
-  TypeaheadSearchResult: ResolversTypes['TypeaheadSearchError'] | ResolversTypes['TypeaheadSearchSuccess'];
+  TypeaheadSearchResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['TypeaheadSearchResult']>;
   TypeaheadSearchSuccess: ResolverTypeWrapper<TypeaheadSearchSuccess>;
   UnsubscribeError: ResolverTypeWrapper<UnsubscribeError>;
   UnsubscribeErrorCode: UnsubscribeErrorCode;
-  UnsubscribeResult: ResolversTypes['UnsubscribeError'] | ResolversTypes['UnsubscribeSuccess'];
+  UnsubscribeResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UnsubscribeResult']>;
   UnsubscribeSuccess: ResolverTypeWrapper<UnsubscribeSuccess>;
   UpdateEmailError: ResolverTypeWrapper<UpdateEmailError>;
   UpdateEmailErrorCode: UpdateEmailErrorCode;
   UpdateEmailInput: UpdateEmailInput;
-  UpdateEmailResult: ResolversTypes['UpdateEmailError'] | ResolversTypes['UpdateEmailSuccess'];
+  UpdateEmailResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateEmailResult']>;
   UpdateEmailSuccess: ResolverTypeWrapper<UpdateEmailSuccess>;
   UpdateFilterError: ResolverTypeWrapper<UpdateFilterError>;
   UpdateFilterErrorCode: UpdateFilterErrorCode;
   UpdateFilterInput: UpdateFilterInput;
-  UpdateFilterResult: ResolversTypes['UpdateFilterError'] | ResolversTypes['UpdateFilterSuccess'];
+  UpdateFilterResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateFilterResult']>;
   UpdateFilterSuccess: ResolverTypeWrapper<UpdateFilterSuccess>;
   UpdateFolderPolicyError: ResolverTypeWrapper<UpdateFolderPolicyError>;
   UpdateFolderPolicyErrorCode: UpdateFolderPolicyErrorCode;
   UpdateFolderPolicyInput: UpdateFolderPolicyInput;
-  UpdateFolderPolicyResult: ResolversTypes['UpdateFolderPolicyError'] | ResolversTypes['UpdateFolderPolicySuccess'];
+  UpdateFolderPolicyResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateFolderPolicyResult']>;
   UpdateFolderPolicySuccess: ResolverTypeWrapper<UpdateFolderPolicySuccess>;
   UpdateHighlightError: ResolverTypeWrapper<UpdateHighlightError>;
   UpdateHighlightErrorCode: UpdateHighlightErrorCode;
@@ -5024,50 +5416,50 @@ export type ResolversTypes = {
   UpdateHighlightReplyError: ResolverTypeWrapper<UpdateHighlightReplyError>;
   UpdateHighlightReplyErrorCode: UpdateHighlightReplyErrorCode;
   UpdateHighlightReplyInput: UpdateHighlightReplyInput;
-  UpdateHighlightReplyResult: ResolversTypes['UpdateHighlightReplyError'] | ResolversTypes['UpdateHighlightReplySuccess'];
+  UpdateHighlightReplyResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateHighlightReplyResult']>;
   UpdateHighlightReplySuccess: ResolverTypeWrapper<UpdateHighlightReplySuccess>;
-  UpdateHighlightResult: ResolversTypes['UpdateHighlightError'] | ResolversTypes['UpdateHighlightSuccess'];
+  UpdateHighlightResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateHighlightResult']>;
   UpdateHighlightSuccess: ResolverTypeWrapper<UpdateHighlightSuccess>;
   UpdateLabelError: ResolverTypeWrapper<UpdateLabelError>;
   UpdateLabelErrorCode: UpdateLabelErrorCode;
   UpdateLabelInput: UpdateLabelInput;
-  UpdateLabelResult: ResolversTypes['UpdateLabelError'] | ResolversTypes['UpdateLabelSuccess'];
+  UpdateLabelResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateLabelResult']>;
   UpdateLabelSuccess: ResolverTypeWrapper<UpdateLabelSuccess>;
   UpdateLinkShareInfoError: ResolverTypeWrapper<UpdateLinkShareInfoError>;
   UpdateLinkShareInfoErrorCode: UpdateLinkShareInfoErrorCode;
   UpdateLinkShareInfoInput: UpdateLinkShareInfoInput;
-  UpdateLinkShareInfoResult: ResolversTypes['UpdateLinkShareInfoError'] | ResolversTypes['UpdateLinkShareInfoSuccess'];
+  UpdateLinkShareInfoResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateLinkShareInfoResult']>;
   UpdateLinkShareInfoSuccess: ResolverTypeWrapper<UpdateLinkShareInfoSuccess>;
   UpdateNewsletterEmailError: ResolverTypeWrapper<UpdateNewsletterEmailError>;
   UpdateNewsletterEmailErrorCode: UpdateNewsletterEmailErrorCode;
   UpdateNewsletterEmailInput: UpdateNewsletterEmailInput;
-  UpdateNewsletterEmailResult: ResolversTypes['UpdateNewsletterEmailError'] | ResolversTypes['UpdateNewsletterEmailSuccess'];
+  UpdateNewsletterEmailResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateNewsletterEmailResult']>;
   UpdateNewsletterEmailSuccess: ResolverTypeWrapper<UpdateNewsletterEmailSuccess>;
   UpdatePageError: ResolverTypeWrapper<UpdatePageError>;
   UpdatePageErrorCode: UpdatePageErrorCode;
   UpdatePageInput: UpdatePageInput;
-  UpdatePageResult: ResolversTypes['UpdatePageError'] | ResolversTypes['UpdatePageSuccess'];
+  UpdatePageResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdatePageResult']>;
   UpdatePageSuccess: ResolverTypeWrapper<UpdatePageSuccess>;
   UpdatePostError: ResolverTypeWrapper<UpdatePostError>;
   UpdatePostErrorCode: UpdatePostErrorCode;
   UpdatePostInput: UpdatePostInput;
-  UpdatePostResult: ResolversTypes['UpdatePostError'] | ResolversTypes['UpdatePostSuccess'];
+  UpdatePostResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdatePostResult']>;
   UpdatePostSuccess: ResolverTypeWrapper<UpdatePostSuccess>;
   UpdateReason: UpdateReason;
   UpdateReminderError: ResolverTypeWrapper<UpdateReminderError>;
   UpdateReminderErrorCode: UpdateReminderErrorCode;
   UpdateReminderInput: UpdateReminderInput;
-  UpdateReminderResult: ResolversTypes['UpdateReminderError'] | ResolversTypes['UpdateReminderSuccess'];
+  UpdateReminderResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateReminderResult']>;
   UpdateReminderSuccess: ResolverTypeWrapper<UpdateReminderSuccess>;
   UpdateSharedCommentError: ResolverTypeWrapper<UpdateSharedCommentError>;
   UpdateSharedCommentErrorCode: UpdateSharedCommentErrorCode;
   UpdateSharedCommentInput: UpdateSharedCommentInput;
-  UpdateSharedCommentResult: ResolversTypes['UpdateSharedCommentError'] | ResolversTypes['UpdateSharedCommentSuccess'];
+  UpdateSharedCommentResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateSharedCommentResult']>;
   UpdateSharedCommentSuccess: ResolverTypeWrapper<UpdateSharedCommentSuccess>;
   UpdateSubscriptionError: ResolverTypeWrapper<UpdateSubscriptionError>;
   UpdateSubscriptionErrorCode: UpdateSubscriptionErrorCode;
   UpdateSubscriptionInput: UpdateSubscriptionInput;
-  UpdateSubscriptionResult: ResolversTypes['UpdateSubscriptionError'] | ResolversTypes['UpdateSubscriptionSuccess'];
+  UpdateSubscriptionResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateSubscriptionResult']>;
   UpdateSubscriptionSuccess: ResolverTypeWrapper<UpdateSubscriptionSuccess>;
   UpdateUserError: ResolverTypeWrapper<UpdateUserError>;
   UpdateUserErrorCode: UpdateUserErrorCode;
@@ -5075,44 +5467,44 @@ export type ResolversTypes = {
   UpdateUserProfileError: ResolverTypeWrapper<UpdateUserProfileError>;
   UpdateUserProfileErrorCode: UpdateUserProfileErrorCode;
   UpdateUserProfileInput: UpdateUserProfileInput;
-  UpdateUserProfileResult: ResolversTypes['UpdateUserProfileError'] | ResolversTypes['UpdateUserProfileSuccess'];
+  UpdateUserProfileResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateUserProfileResult']>;
   UpdateUserProfileSuccess: ResolverTypeWrapper<UpdateUserProfileSuccess>;
-  UpdateUserResult: ResolversTypes['UpdateUserError'] | ResolversTypes['UpdateUserSuccess'];
+  UpdateUserResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateUserResult']>;
   UpdateUserSuccess: ResolverTypeWrapper<UpdateUserSuccess>;
   UpdatesSinceError: ResolverTypeWrapper<UpdatesSinceError>;
   UpdatesSinceErrorCode: UpdatesSinceErrorCode;
-  UpdatesSinceResult: ResolversTypes['UpdatesSinceError'] | ResolversTypes['UpdatesSinceSuccess'];
+  UpdatesSinceResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdatesSinceResult']>;
   UpdatesSinceSuccess: ResolverTypeWrapper<UpdatesSinceSuccess>;
   UploadFileRequestError: ResolverTypeWrapper<UploadFileRequestError>;
   UploadFileRequestErrorCode: UploadFileRequestErrorCode;
   UploadFileRequestInput: UploadFileRequestInput;
-  UploadFileRequestResult: ResolversTypes['UploadFileRequestError'] | ResolversTypes['UploadFileRequestSuccess'];
+  UploadFileRequestResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UploadFileRequestResult']>;
   UploadFileRequestSuccess: ResolverTypeWrapper<UploadFileRequestSuccess>;
   UploadFileStatus: UploadFileStatus;
   UploadImportFileError: ResolverTypeWrapper<UploadImportFileError>;
   UploadImportFileErrorCode: UploadImportFileErrorCode;
-  UploadImportFileResult: ResolversTypes['UploadImportFileError'] | ResolversTypes['UploadImportFileSuccess'];
+  UploadImportFileResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UploadImportFileResult']>;
   UploadImportFileSuccess: ResolverTypeWrapper<UploadImportFileSuccess>;
   UploadImportFileType: UploadImportFileType;
   User: ResolverTypeWrapper<User>;
   UserError: ResolverTypeWrapper<UserError>;
   UserErrorCode: UserErrorCode;
   UserPersonalization: ResolverTypeWrapper<UserPersonalization>;
-  UserResult: ResolversTypes['UserError'] | ResolversTypes['UserSuccess'];
+  UserResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UserResult']>;
   UserSuccess: ResolverTypeWrapper<UserSuccess>;
   UsersError: ResolverTypeWrapper<UsersError>;
   UsersErrorCode: UsersErrorCode;
-  UsersResult: ResolversTypes['UsersError'] | ResolversTypes['UsersSuccess'];
+  UsersResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UsersResult']>;
   UsersSuccess: ResolverTypeWrapper<UsersSuccess>;
   Webhook: ResolverTypeWrapper<Webhook>;
   WebhookError: ResolverTypeWrapper<WebhookError>;
   WebhookErrorCode: WebhookErrorCode;
   WebhookEvent: WebhookEvent;
-  WebhookResult: ResolversTypes['WebhookError'] | ResolversTypes['WebhookSuccess'];
+  WebhookResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['WebhookResult']>;
   WebhookSuccess: ResolverTypeWrapper<WebhookSuccess>;
   WebhooksError: ResolverTypeWrapper<WebhooksError>;
   WebhooksErrorCode: WebhooksErrorCode;
-  WebhooksResult: ResolversTypes['WebhooksError'] | ResolversTypes['WebhooksSuccess'];
+  WebhooksResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['WebhooksResult']>;
   WebhooksSuccess: ResolverTypeWrapper<WebhooksSuccess>;
 };
 
@@ -5120,275 +5512,294 @@ export type ResolversTypes = {
 export type ResolversParentTypes = {
   AddDiscoverFeedError: AddDiscoverFeedError;
   AddDiscoverFeedInput: AddDiscoverFeedInput;
-  AddDiscoverFeedResult: ResolversParentTypes['AddDiscoverFeedError'] | ResolversParentTypes['AddDiscoverFeedSuccess'];
+  AddDiscoverFeedResult: ResolversUnionTypes<ResolversParentTypes>['AddDiscoverFeedResult'];
   AddDiscoverFeedSuccess: AddDiscoverFeedSuccess;
   AddPopularReadError: AddPopularReadError;
-  AddPopularReadResult: ResolversParentTypes['AddPopularReadError'] | ResolversParentTypes['AddPopularReadSuccess'];
+  AddPopularReadResult: ResolversUnionTypes<ResolversParentTypes>['AddPopularReadResult'];
   AddPopularReadSuccess: AddPopularReadSuccess;
+  AnkiCardBatch: AnkiCardBatch;
+  AnkiCardBatchesError: AnkiCardBatchesError;
+  AnkiCardBatchesInput: AnkiCardBatchesInput;
+  AnkiCardBatchesResult: ResolversUnionTypes<ResolversParentTypes>['AnkiCardBatchesResult'];
+  AnkiCardBatchesSuccess: AnkiCardBatchesSuccess;
+  AnkiCardDetail: AnkiCardDetail;
+  AnkiCardsError: AnkiCardsError;
+  AnkiCardsResult: ResolversUnionTypes<ResolversParentTypes>['AnkiCardsResult'];
+  AnkiCardsSuccess: AnkiCardsSuccess;
+  AnkiIntegrationError: AnkiIntegrationError;
+  AnkiIntegrationResult: ResolversUnionTypes<ResolversParentTypes>['AnkiIntegrationResult'];
+  AnkiIntegrationSuccess: AnkiIntegrationSuccess;
   ApiKey: ApiKey;
   ApiKeysError: ApiKeysError;
-  ApiKeysResult: ResolversParentTypes['ApiKeysError'] | ResolversParentTypes['ApiKeysSuccess'];
+  ApiKeysResult: ResolversUnionTypes<ResolversParentTypes>['ApiKeysResult'];
   ApiKeysSuccess: ApiKeysSuccess;
   ArchiveLinkError: ArchiveLinkError;
   ArchiveLinkInput: ArchiveLinkInput;
-  ArchiveLinkResult: ResolversParentTypes['ArchiveLinkError'] | ResolversParentTypes['ArchiveLinkSuccess'];
+  ArchiveLinkResult: ResolversUnionTypes<ResolversParentTypes>['ArchiveLinkResult'];
   ArchiveLinkSuccess: ArchiveLinkSuccess;
   Article: Article;
   ArticleEdge: ArticleEdge;
   ArticleError: ArticleError;
   ArticleHighlightsInput: ArticleHighlightsInput;
-  ArticleResult: ResolversParentTypes['ArticleError'] | ResolversParentTypes['ArticleSuccess'];
+  ArticleResult: ResolversUnionTypes<ResolversParentTypes>['ArticleResult'];
   ArticleSavingRequest: ArticleSavingRequest;
   ArticleSavingRequestError: ArticleSavingRequestError;
-  ArticleSavingRequestResult: ResolversParentTypes['ArticleSavingRequestError'] | ResolversParentTypes['ArticleSavingRequestSuccess'];
+  ArticleSavingRequestResult: ResolversUnionTypes<ResolversParentTypes>['ArticleSavingRequestResult'];
   ArticleSavingRequestSuccess: ArticleSavingRequestSuccess;
   ArticleSuccess: ArticleSuccess;
   ArticlesError: ArticlesError;
-  ArticlesResult: ResolversParentTypes['ArticlesError'] | ResolversParentTypes['ArticlesSuccess'];
+  ArticlesResult: ResolversUnionTypes<ResolversParentTypes>['ArticlesResult'];
   ArticlesSuccess: ArticlesSuccess;
-  Boolean: Scalars['Boolean'];
+  Boolean: Scalars['Boolean']['output'];
   BulkActionError: BulkActionError;
-  BulkActionResult: ResolversParentTypes['BulkActionError'] | ResolversParentTypes['BulkActionSuccess'];
+  BulkActionResult: ResolversUnionTypes<ResolversParentTypes>['BulkActionResult'];
   BulkActionSuccess: BulkActionSuccess;
   CreateArticleError: CreateArticleError;
   CreateArticleInput: CreateArticleInput;
-  CreateArticleResult: ResolversParentTypes['CreateArticleError'] | ResolversParentTypes['CreateArticleSuccess'];
+  CreateArticleResult: ResolversUnionTypes<ResolversParentTypes>['CreateArticleResult'];
   CreateArticleSavingRequestError: CreateArticleSavingRequestError;
   CreateArticleSavingRequestInput: CreateArticleSavingRequestInput;
-  CreateArticleSavingRequestResult: ResolversParentTypes['CreateArticleSavingRequestError'] | ResolversParentTypes['CreateArticleSavingRequestSuccess'];
+  CreateArticleSavingRequestResult: ResolversUnionTypes<ResolversParentTypes>['CreateArticleSavingRequestResult'];
   CreateArticleSavingRequestSuccess: CreateArticleSavingRequestSuccess;
   CreateArticleSuccess: CreateArticleSuccess;
   CreateFolderPolicyError: CreateFolderPolicyError;
   CreateFolderPolicyInput: CreateFolderPolicyInput;
-  CreateFolderPolicyResult: ResolversParentTypes['CreateFolderPolicyError'] | ResolversParentTypes['CreateFolderPolicySuccess'];
+  CreateFolderPolicyResult: ResolversUnionTypes<ResolversParentTypes>['CreateFolderPolicyResult'];
   CreateFolderPolicySuccess: CreateFolderPolicySuccess;
   CreateGroupError: CreateGroupError;
   CreateGroupInput: CreateGroupInput;
-  CreateGroupResult: ResolversParentTypes['CreateGroupError'] | ResolversParentTypes['CreateGroupSuccess'];
+  CreateGroupResult: ResolversUnionTypes<ResolversParentTypes>['CreateGroupResult'];
   CreateGroupSuccess: CreateGroupSuccess;
   CreateHighlightError: CreateHighlightError;
   CreateHighlightInput: CreateHighlightInput;
   CreateHighlightReplyError: CreateHighlightReplyError;
   CreateHighlightReplyInput: CreateHighlightReplyInput;
-  CreateHighlightReplyResult: ResolversParentTypes['CreateHighlightReplyError'] | ResolversParentTypes['CreateHighlightReplySuccess'];
+  CreateHighlightReplyResult: ResolversUnionTypes<ResolversParentTypes>['CreateHighlightReplyResult'];
   CreateHighlightReplySuccess: CreateHighlightReplySuccess;
-  CreateHighlightResult: ResolversParentTypes['CreateHighlightError'] | ResolversParentTypes['CreateHighlightSuccess'];
+  CreateHighlightResult: ResolversUnionTypes<ResolversParentTypes>['CreateHighlightResult'];
   CreateHighlightSuccess: CreateHighlightSuccess;
   CreateLabelError: CreateLabelError;
   CreateLabelInput: CreateLabelInput;
-  CreateLabelResult: ResolversParentTypes['CreateLabelError'] | ResolversParentTypes['CreateLabelSuccess'];
+  CreateLabelResult: ResolversUnionTypes<ResolversParentTypes>['CreateLabelResult'];
   CreateLabelSuccess: CreateLabelSuccess;
   CreateNewsletterEmailError: CreateNewsletterEmailError;
   CreateNewsletterEmailInput: CreateNewsletterEmailInput;
-  CreateNewsletterEmailResult: ResolversParentTypes['CreateNewsletterEmailError'] | ResolversParentTypes['CreateNewsletterEmailSuccess'];
+  CreateNewsletterEmailResult: ResolversUnionTypes<ResolversParentTypes>['CreateNewsletterEmailResult'];
   CreateNewsletterEmailSuccess: CreateNewsletterEmailSuccess;
   CreatePostError: CreatePostError;
   CreatePostInput: CreatePostInput;
-  CreatePostResult: ResolversParentTypes['CreatePostError'] | ResolversParentTypes['CreatePostSuccess'];
+  CreatePostResult: ResolversUnionTypes<ResolversParentTypes>['CreatePostResult'];
   CreatePostSuccess: CreatePostSuccess;
   CreateReactionError: CreateReactionError;
   CreateReactionInput: CreateReactionInput;
-  CreateReactionResult: ResolversParentTypes['CreateReactionError'] | ResolversParentTypes['CreateReactionSuccess'];
+  CreateReactionResult: ResolversUnionTypes<ResolversParentTypes>['CreateReactionResult'];
   CreateReactionSuccess: CreateReactionSuccess;
   CreateReminderError: CreateReminderError;
   CreateReminderInput: CreateReminderInput;
-  CreateReminderResult: ResolversParentTypes['CreateReminderError'] | ResolversParentTypes['CreateReminderSuccess'];
+  CreateReminderResult: ResolversUnionTypes<ResolversParentTypes>['CreateReminderResult'];
   CreateReminderSuccess: CreateReminderSuccess;
-  Date: Scalars['Date'];
+  Date: Scalars['Date']['output'];
   DeleteAccountError: DeleteAccountError;
-  DeleteAccountResult: ResolversParentTypes['DeleteAccountError'] | ResolversParentTypes['DeleteAccountSuccess'];
+  DeleteAccountResult: ResolversUnionTypes<ResolversParentTypes>['DeleteAccountResult'];
   DeleteAccountSuccess: DeleteAccountSuccess;
   DeleteDiscoverArticleError: DeleteDiscoverArticleError;
   DeleteDiscoverArticleInput: DeleteDiscoverArticleInput;
-  DeleteDiscoverArticleResult: ResolversParentTypes['DeleteDiscoverArticleError'] | ResolversParentTypes['DeleteDiscoverArticleSuccess'];
+  DeleteDiscoverArticleResult: ResolversUnionTypes<ResolversParentTypes>['DeleteDiscoverArticleResult'];
   DeleteDiscoverArticleSuccess: DeleteDiscoverArticleSuccess;
   DeleteDiscoverFeedError: DeleteDiscoverFeedError;
   DeleteDiscoverFeedInput: DeleteDiscoverFeedInput;
-  DeleteDiscoverFeedResult: ResolversParentTypes['DeleteDiscoverFeedError'] | ResolversParentTypes['DeleteDiscoverFeedSuccess'];
+  DeleteDiscoverFeedResult: ResolversUnionTypes<ResolversParentTypes>['DeleteDiscoverFeedResult'];
   DeleteDiscoverFeedSuccess: DeleteDiscoverFeedSuccess;
   DeleteFilterError: DeleteFilterError;
-  DeleteFilterResult: ResolversParentTypes['DeleteFilterError'] | ResolversParentTypes['DeleteFilterSuccess'];
+  DeleteFilterResult: ResolversUnionTypes<ResolversParentTypes>['DeleteFilterResult'];
   DeleteFilterSuccess: DeleteFilterSuccess;
   DeleteFolderPolicyError: DeleteFolderPolicyError;
-  DeleteFolderPolicyResult: ResolversParentTypes['DeleteFolderPolicyError'] | ResolversParentTypes['DeleteFolderPolicySuccess'];
+  DeleteFolderPolicyResult: ResolversUnionTypes<ResolversParentTypes>['DeleteFolderPolicyResult'];
   DeleteFolderPolicySuccess: DeleteFolderPolicySuccess;
   DeleteHighlightError: DeleteHighlightError;
   DeleteHighlightReplyError: DeleteHighlightReplyError;
-  DeleteHighlightReplyResult: ResolversParentTypes['DeleteHighlightReplyError'] | ResolversParentTypes['DeleteHighlightReplySuccess'];
+  DeleteHighlightReplyResult: ResolversUnionTypes<ResolversParentTypes>['DeleteHighlightReplyResult'];
   DeleteHighlightReplySuccess: DeleteHighlightReplySuccess;
-  DeleteHighlightResult: ResolversParentTypes['DeleteHighlightError'] | ResolversParentTypes['DeleteHighlightSuccess'];
+  DeleteHighlightResult: ResolversUnionTypes<ResolversParentTypes>['DeleteHighlightResult'];
   DeleteHighlightSuccess: DeleteHighlightSuccess;
   DeleteIntegrationError: DeleteIntegrationError;
-  DeleteIntegrationResult: ResolversParentTypes['DeleteIntegrationError'] | ResolversParentTypes['DeleteIntegrationSuccess'];
+  DeleteIntegrationResult: ResolversUnionTypes<ResolversParentTypes>['DeleteIntegrationResult'];
   DeleteIntegrationSuccess: DeleteIntegrationSuccess;
   DeleteLabelError: DeleteLabelError;
-  DeleteLabelResult: ResolversParentTypes['DeleteLabelError'] | ResolversParentTypes['DeleteLabelSuccess'];
+  DeleteLabelResult: ResolversUnionTypes<ResolversParentTypes>['DeleteLabelResult'];
   DeleteLabelSuccess: DeleteLabelSuccess;
   DeleteNewsletterEmailError: DeleteNewsletterEmailError;
-  DeleteNewsletterEmailResult: ResolversParentTypes['DeleteNewsletterEmailError'] | ResolversParentTypes['DeleteNewsletterEmailSuccess'];
+  DeleteNewsletterEmailResult: ResolversUnionTypes<ResolversParentTypes>['DeleteNewsletterEmailResult'];
   DeleteNewsletterEmailSuccess: DeleteNewsletterEmailSuccess;
   DeletePostError: DeletePostError;
-  DeletePostResult: ResolversParentTypes['DeletePostError'] | ResolversParentTypes['DeletePostSuccess'];
+  DeletePostResult: ResolversUnionTypes<ResolversParentTypes>['DeletePostResult'];
   DeletePostSuccess: DeletePostSuccess;
   DeleteReactionError: DeleteReactionError;
-  DeleteReactionResult: ResolversParentTypes['DeleteReactionError'] | ResolversParentTypes['DeleteReactionSuccess'];
+  DeleteReactionResult: ResolversUnionTypes<ResolversParentTypes>['DeleteReactionResult'];
   DeleteReactionSuccess: DeleteReactionSuccess;
   DeleteReminderError: DeleteReminderError;
-  DeleteReminderResult: ResolversParentTypes['DeleteReminderError'] | ResolversParentTypes['DeleteReminderSuccess'];
+  DeleteReminderResult: ResolversUnionTypes<ResolversParentTypes>['DeleteReminderResult'];
   DeleteReminderSuccess: DeleteReminderSuccess;
   DeleteRuleError: DeleteRuleError;
-  DeleteRuleResult: ResolversParentTypes['DeleteRuleError'] | ResolversParentTypes['DeleteRuleSuccess'];
+  DeleteRuleResult: ResolversUnionTypes<ResolversParentTypes>['DeleteRuleResult'];
   DeleteRuleSuccess: DeleteRuleSuccess;
   DeleteWebhookError: DeleteWebhookError;
-  DeleteWebhookResult: ResolversParentTypes['DeleteWebhookError'] | ResolversParentTypes['DeleteWebhookSuccess'];
+  DeleteWebhookResult: ResolversUnionTypes<ResolversParentTypes>['DeleteWebhookResult'];
   DeleteWebhookSuccess: DeleteWebhookSuccess;
   DeviceToken: DeviceToken;
   DeviceTokensError: DeviceTokensError;
-  DeviceTokensResult: ResolversParentTypes['DeviceTokensError'] | ResolversParentTypes['DeviceTokensSuccess'];
+  DeviceTokensResult: ResolversUnionTypes<ResolversParentTypes>['DeviceTokensResult'];
   DeviceTokensSuccess: DeviceTokensSuccess;
   DigestConfig: DigestConfig;
   DigestConfigInput: DigestConfigInput;
   DiscoverFeed: DiscoverFeed;
   DiscoverFeedArticle: DiscoverFeedArticle;
   DiscoverFeedError: DiscoverFeedError;
-  DiscoverFeedResult: ResolversParentTypes['DiscoverFeedError'] | ResolversParentTypes['DiscoverFeedSuccess'];
+  DiscoverFeedResult: ResolversUnionTypes<ResolversParentTypes>['DiscoverFeedResult'];
   DiscoverFeedSuccess: DiscoverFeedSuccess;
   DiscoverTopic: DiscoverTopic;
   EditDiscoverFeedError: EditDiscoverFeedError;
   EditDiscoverFeedInput: EditDiscoverFeedInput;
-  EditDiscoverFeedResult: ResolversParentTypes['EditDiscoverFeedError'] | ResolversParentTypes['EditDiscoverFeedSuccess'];
+  EditDiscoverFeedResult: ResolversUnionTypes<ResolversParentTypes>['EditDiscoverFeedResult'];
   EditDiscoverFeedSuccess: EditDiscoverFeedSuccess;
   EmptyTrashError: EmptyTrashError;
-  EmptyTrashResult: ResolversParentTypes['EmptyTrashError'] | ResolversParentTypes['EmptyTrashSuccess'];
+  EmptyTrashResult: ResolversUnionTypes<ResolversParentTypes>['EmptyTrashResult'];
   EmptyTrashSuccess: EmptyTrashSuccess;
   ExportToIntegrationError: ExportToIntegrationError;
-  ExportToIntegrationResult: ResolversParentTypes['ExportToIntegrationError'] | ResolversParentTypes['ExportToIntegrationSuccess'];
+  ExportToIntegrationResult: ResolversUnionTypes<ResolversParentTypes>['ExportToIntegrationResult'];
   ExportToIntegrationSuccess: ExportToIntegrationSuccess;
   Feature: Feature;
   Feed: Feed;
   FeedArticle: FeedArticle;
   FeedArticleEdge: FeedArticleEdge;
   FeedArticlesError: FeedArticlesError;
-  FeedArticlesResult: ResolversParentTypes['FeedArticlesError'] | ResolversParentTypes['FeedArticlesSuccess'];
+  FeedArticlesResult: ResolversUnionTypes<ResolversParentTypes>['FeedArticlesResult'];
   FeedArticlesSuccess: FeedArticlesSuccess;
   FeedEdge: FeedEdge;
   FeedsError: FeedsError;
   FeedsInput: FeedsInput;
-  FeedsResult: ResolversParentTypes['FeedsError'] | ResolversParentTypes['FeedsSuccess'];
+  FeedsResult: ResolversUnionTypes<ResolversParentTypes>['FeedsResult'];
   FeedsSuccess: FeedsSuccess;
   FetchContentError: FetchContentError;
-  FetchContentResult: ResolversParentTypes['FetchContentError'] | ResolversParentTypes['FetchContentSuccess'];
+  FetchContentResult: ResolversUnionTypes<ResolversParentTypes>['FetchContentResult'];
   FetchContentSuccess: FetchContentSuccess;
   Filter: Filter;
   FiltersError: FiltersError;
-  FiltersResult: ResolversParentTypes['FiltersError'] | ResolversParentTypes['FiltersSuccess'];
+  FiltersResult: ResolversUnionTypes<ResolversParentTypes>['FiltersResult'];
   FiltersSuccess: FiltersSuccess;
-  Float: Scalars['Float'];
+  Float: Scalars['Float']['output'];
   FolderPoliciesError: FolderPoliciesError;
-  FolderPoliciesResult: ResolversParentTypes['FolderPoliciesError'] | ResolversParentTypes['FolderPoliciesSuccess'];
+  FolderPoliciesResult: ResolversUnionTypes<ResolversParentTypes>['FolderPoliciesResult'];
   FolderPoliciesSuccess: FolderPoliciesSuccess;
   FolderPolicy: FolderPolicy;
+  GenerateAnkiCardsBatchError: GenerateAnkiCardsBatchError;
+  GenerateAnkiCardsBatchInput: GenerateAnkiCardsBatchInput;
+  GenerateAnkiCardsBatchResult: ResolversUnionTypes<ResolversParentTypes>['GenerateAnkiCardsBatchResult'];
+  GenerateAnkiCardsBatchSuccess: GenerateAnkiCardsBatchSuccess;
+  GenerateAnkiCardsError: GenerateAnkiCardsError;
+  GenerateAnkiCardsResult: ResolversUnionTypes<ResolversParentTypes>['GenerateAnkiCardsResult'];
+  GenerateAnkiCardsSuccess: GenerateAnkiCardsSuccess;
   GenerateApiKeyError: GenerateApiKeyError;
   GenerateApiKeyInput: GenerateApiKeyInput;
-  GenerateApiKeyResult: ResolversParentTypes['GenerateApiKeyError'] | ResolversParentTypes['GenerateApiKeySuccess'];
+  GenerateApiKeyResult: ResolversUnionTypes<ResolversParentTypes>['GenerateApiKeyResult'];
   GenerateApiKeySuccess: GenerateApiKeySuccess;
   GetDiscoverFeedArticleError: GetDiscoverFeedArticleError;
-  GetDiscoverFeedArticleResults: ResolversParentTypes['GetDiscoverFeedArticleError'] | ResolversParentTypes['GetDiscoverFeedArticleSuccess'];
+  GetDiscoverFeedArticleResults: ResolversUnionTypes<ResolversParentTypes>['GetDiscoverFeedArticleResults'];
   GetDiscoverFeedArticleSuccess: GetDiscoverFeedArticleSuccess;
   GetDiscoverTopicError: GetDiscoverTopicError;
-  GetDiscoverTopicResults: ResolversParentTypes['GetDiscoverTopicError'] | ResolversParentTypes['GetDiscoverTopicSuccess'];
+  GetDiscoverTopicResults: ResolversUnionTypes<ResolversParentTypes>['GetDiscoverTopicResults'];
   GetDiscoverTopicSuccess: GetDiscoverTopicSuccess;
   GetFollowersError: GetFollowersError;
-  GetFollowersResult: ResolversParentTypes['GetFollowersError'] | ResolversParentTypes['GetFollowersSuccess'];
+  GetFollowersResult: ResolversUnionTypes<ResolversParentTypes>['GetFollowersResult'];
   GetFollowersSuccess: GetFollowersSuccess;
   GetFollowingError: GetFollowingError;
-  GetFollowingResult: ResolversParentTypes['GetFollowingError'] | ResolversParentTypes['GetFollowingSuccess'];
+  GetFollowingResult: ResolversUnionTypes<ResolversParentTypes>['GetFollowingResult'];
   GetFollowingSuccess: GetFollowingSuccess;
   GetUserPersonalizationError: GetUserPersonalizationError;
-  GetUserPersonalizationResult: ResolversParentTypes['GetUserPersonalizationError'] | ResolversParentTypes['GetUserPersonalizationSuccess'];
+  GetUserPersonalizationResult: ResolversUnionTypes<ResolversParentTypes>['GetUserPersonalizationResult'];
   GetUserPersonalizationSuccess: GetUserPersonalizationSuccess;
   GoogleLoginInput: GoogleLoginInput;
   GoogleSignupError: GoogleSignupError;
   GoogleSignupInput: GoogleSignupInput;
-  GoogleSignupResult: ResolversParentTypes['GoogleSignupError'] | ResolversParentTypes['GoogleSignupSuccess'];
+  GoogleSignupResult: ResolversUnionTypes<ResolversParentTypes>['GoogleSignupResult'];
   GoogleSignupSuccess: GoogleSignupSuccess;
   GroupsError: GroupsError;
-  GroupsResult: ResolversParentTypes['GroupsError'] | ResolversParentTypes['GroupsSuccess'];
+  GroupsResult: ResolversUnionTypes<ResolversParentTypes>['GroupsResult'];
   GroupsSuccess: GroupsSuccess;
   HiddenHomeSectionError: HiddenHomeSectionError;
-  HiddenHomeSectionResult: ResolversParentTypes['HiddenHomeSectionError'] | ResolversParentTypes['HiddenHomeSectionSuccess'];
+  HiddenHomeSectionResult: ResolversUnionTypes<ResolversParentTypes>['HiddenHomeSectionResult'];
   HiddenHomeSectionSuccess: HiddenHomeSectionSuccess;
   Highlight: Highlight;
   HighlightEdge: HighlightEdge;
   HighlightReply: HighlightReply;
   HighlightStats: HighlightStats;
   HighlightsError: HighlightsError;
-  HighlightsResult: ResolversParentTypes['HighlightsError'] | ResolversParentTypes['HighlightsSuccess'];
+  HighlightsResult: ResolversUnionTypes<ResolversParentTypes>['HighlightsResult'];
   HighlightsSuccess: HighlightsSuccess;
   HomeEdge: HomeEdge;
   HomeError: HomeError;
   HomeItem: HomeItem;
   HomeItemSource: HomeItemSource;
-  HomeResult: ResolversParentTypes['HomeError'] | ResolversParentTypes['HomeSuccess'];
+  HomeResult: ResolversUnionTypes<ResolversParentTypes>['HomeResult'];
   HomeSection: HomeSection;
   HomeSuccess: HomeSuccess;
-  ID: Scalars['ID'];
+  ID: Scalars['ID']['output'];
   ImportFromIntegrationError: ImportFromIntegrationError;
-  ImportFromIntegrationResult: ResolversParentTypes['ImportFromIntegrationError'] | ResolversParentTypes['ImportFromIntegrationSuccess'];
+  ImportFromIntegrationResult: ResolversUnionTypes<ResolversParentTypes>['ImportFromIntegrationResult'];
   ImportFromIntegrationSuccess: ImportFromIntegrationSuccess;
-  Int: Scalars['Int'];
+  Int: Scalars['Int']['output'];
   Integration: Integration;
   IntegrationError: IntegrationError;
-  IntegrationResult: ResolversParentTypes['IntegrationError'] | ResolversParentTypes['IntegrationSuccess'];
+  IntegrationResult: ResolversUnionTypes<ResolversParentTypes>['IntegrationResult'];
   IntegrationSuccess: IntegrationSuccess;
   IntegrationsError: IntegrationsError;
-  IntegrationsResult: ResolversParentTypes['IntegrationsError'] | ResolversParentTypes['IntegrationsSuccess'];
+  IntegrationsResult: ResolversUnionTypes<ResolversParentTypes>['IntegrationsResult'];
   IntegrationsSuccess: IntegrationsSuccess;
-  JSON: Scalars['JSON'];
+  JSON: Scalars['JSON']['output'];
   JoinGroupError: JoinGroupError;
-  JoinGroupResult: ResolversParentTypes['JoinGroupError'] | ResolversParentTypes['JoinGroupSuccess'];
+  JoinGroupResult: ResolversUnionTypes<ResolversParentTypes>['JoinGroupResult'];
   JoinGroupSuccess: JoinGroupSuccess;
   Label: Label;
   LabelsError: LabelsError;
-  LabelsResult: ResolversParentTypes['LabelsError'] | ResolversParentTypes['LabelsSuccess'];
+  LabelsResult: ResolversUnionTypes<ResolversParentTypes>['LabelsResult'];
   LabelsSuccess: LabelsSuccess;
   LeaveGroupError: LeaveGroupError;
-  LeaveGroupResult: ResolversParentTypes['LeaveGroupError'] | ResolversParentTypes['LeaveGroupSuccess'];
+  LeaveGroupResult: ResolversUnionTypes<ResolversParentTypes>['LeaveGroupResult'];
   LeaveGroupSuccess: LeaveGroupSuccess;
   Link: Link;
   LinkShareInfo: LinkShareInfo;
   LogOutError: LogOutError;
-  LogOutResult: ResolversParentTypes['LogOutError'] | ResolversParentTypes['LogOutSuccess'];
+  LogOutResult: ResolversUnionTypes<ResolversParentTypes>['LogOutResult'];
   LogOutSuccess: LogOutSuccess;
   LoginError: LoginError;
-  LoginResult: ResolversParentTypes['LoginError'] | ResolversParentTypes['LoginSuccess'];
+  LoginResult: ResolversUnionTypes<ResolversParentTypes>['LoginResult'];
   LoginSuccess: LoginSuccess;
   MarkEmailAsItemError: MarkEmailAsItemError;
-  MarkEmailAsItemResult: ResolversParentTypes['MarkEmailAsItemError'] | ResolversParentTypes['MarkEmailAsItemSuccess'];
+  MarkEmailAsItemResult: ResolversUnionTypes<ResolversParentTypes>['MarkEmailAsItemResult'];
   MarkEmailAsItemSuccess: MarkEmailAsItemSuccess;
   MergeHighlightError: MergeHighlightError;
   MergeHighlightInput: MergeHighlightInput;
-  MergeHighlightResult: ResolversParentTypes['MergeHighlightError'] | ResolversParentTypes['MergeHighlightSuccess'];
+  MergeHighlightResult: ResolversUnionTypes<ResolversParentTypes>['MergeHighlightResult'];
   MergeHighlightSuccess: MergeHighlightSuccess;
   MoveFilterError: MoveFilterError;
   MoveFilterInput: MoveFilterInput;
-  MoveFilterResult: ResolversParentTypes['MoveFilterError'] | ResolversParentTypes['MoveFilterSuccess'];
+  MoveFilterResult: ResolversUnionTypes<ResolversParentTypes>['MoveFilterResult'];
   MoveFilterSuccess: MoveFilterSuccess;
   MoveLabelError: MoveLabelError;
   MoveLabelInput: MoveLabelInput;
-  MoveLabelResult: ResolversParentTypes['MoveLabelError'] | ResolversParentTypes['MoveLabelSuccess'];
+  MoveLabelResult: ResolversUnionTypes<ResolversParentTypes>['MoveLabelResult'];
   MoveLabelSuccess: MoveLabelSuccess;
   MoveToFolderError: MoveToFolderError;
-  MoveToFolderResult: ResolversParentTypes['MoveToFolderError'] | ResolversParentTypes['MoveToFolderSuccess'];
+  MoveToFolderResult: ResolversUnionTypes<ResolversParentTypes>['MoveToFolderResult'];
   MoveToFolderSuccess: MoveToFolderSuccess;
   Mutation: {};
   NewsletterEmail: NewsletterEmail;
   NewsletterEmailsError: NewsletterEmailsError;
-  NewsletterEmailsResult: ResolversParentTypes['NewsletterEmailsError'] | ResolversParentTypes['NewsletterEmailsSuccess'];
+  NewsletterEmailsResult: ResolversUnionTypes<ResolversParentTypes>['NewsletterEmailsResult'];
   NewsletterEmailsSuccess: NewsletterEmailsSuccess;
   OptInFeatureError: OptInFeatureError;
   OptInFeatureInput: OptInFeatureInput;
-  OptInFeatureResult: ResolversParentTypes['OptInFeatureError'] | ResolversParentTypes['OptInFeatureSuccess'];
+  OptInFeatureResult: ResolversUnionTypes<ResolversParentTypes>['OptInFeatureResult'];
   OptInFeatureSuccess: OptInFeatureSuccess;
   Page: Page;
   PageInfo: PageInfo;
@@ -5397,10 +5808,10 @@ export type ResolversParentTypes = {
   Post: Post;
   PostEdge: PostEdge;
   PostError: PostError;
-  PostResult: ResolversParentTypes['PostError'] | ResolversParentTypes['PostSuccess'];
+  PostResult: ResolversUnionTypes<ResolversParentTypes>['PostResult'];
   PostSuccess: PostSuccess;
   PostsError: PostsError;
-  PostsResult: ResolversParentTypes['PostsError'] | ResolversParentTypes['PostsSuccess'];
+  PostsResult: ResolversUnionTypes<ResolversParentTypes>['PostsResult'];
   PostsSuccess: PostsSuccess;
   PreparedDocumentInput: PreparedDocumentInput;
   Profile: Profile;
@@ -5409,240 +5820,247 @@ export type ResolversParentTypes = {
   ReadState: ReadState;
   RecentEmail: RecentEmail;
   RecentEmailsError: RecentEmailsError;
-  RecentEmailsResult: ResolversParentTypes['RecentEmailsError'] | ResolversParentTypes['RecentEmailsSuccess'];
+  RecentEmailsResult: ResolversUnionTypes<ResolversParentTypes>['RecentEmailsResult'];
   RecentEmailsSuccess: RecentEmailsSuccess;
   RecentSearch: RecentSearch;
   RecentSearchesError: RecentSearchesError;
-  RecentSearchesResult: ResolversParentTypes['RecentSearchesError'] | ResolversParentTypes['RecentSearchesSuccess'];
+  RecentSearchesResult: ResolversUnionTypes<ResolversParentTypes>['RecentSearchesResult'];
   RecentSearchesSuccess: RecentSearchesSuccess;
   RecommendError: RecommendError;
   RecommendHighlightsError: RecommendHighlightsError;
   RecommendHighlightsInput: RecommendHighlightsInput;
-  RecommendHighlightsResult: ResolversParentTypes['RecommendHighlightsError'] | ResolversParentTypes['RecommendHighlightsSuccess'];
+  RecommendHighlightsResult: ResolversUnionTypes<ResolversParentTypes>['RecommendHighlightsResult'];
   RecommendHighlightsSuccess: RecommendHighlightsSuccess;
   RecommendInput: RecommendInput;
-  RecommendResult: ResolversParentTypes['RecommendError'] | ResolversParentTypes['RecommendSuccess'];
+  RecommendResult: ResolversUnionTypes<ResolversParentTypes>['RecommendResult'];
   RecommendSuccess: RecommendSuccess;
   Recommendation: Recommendation;
   RecommendationGroup: RecommendationGroup;
   RecommendingUser: RecommendingUser;
   RefreshHomeError: RefreshHomeError;
-  RefreshHomeResult: ResolversParentTypes['RefreshHomeError'] | ResolversParentTypes['RefreshHomeSuccess'];
+  RefreshHomeResult: ResolversUnionTypes<ResolversParentTypes>['RefreshHomeResult'];
   RefreshHomeSuccess: RefreshHomeSuccess;
+  RegenerateAnkiCardsError: RegenerateAnkiCardsError;
+  RegenerateAnkiCardsResult: ResolversUnionTypes<ResolversParentTypes>['RegenerateAnkiCardsResult'];
+  RegenerateAnkiCardsSuccess: RegenerateAnkiCardsSuccess;
   Reminder: Reminder;
   ReminderError: ReminderError;
-  ReminderResult: ResolversParentTypes['ReminderError'] | ResolversParentTypes['ReminderSuccess'];
+  ReminderResult: ResolversUnionTypes<ResolversParentTypes>['ReminderResult'];
   ReminderSuccess: ReminderSuccess;
   ReplyToEmailError: ReplyToEmailError;
-  ReplyToEmailResult: ResolversParentTypes['ReplyToEmailError'] | ResolversParentTypes['ReplyToEmailSuccess'];
+  ReplyToEmailResult: ResolversUnionTypes<ResolversParentTypes>['ReplyToEmailResult'];
   ReplyToEmailSuccess: ReplyToEmailSuccess;
   ReportItemInput: ReportItemInput;
   ReportItemResult: ReportItemResult;
   RevokeApiKeyError: RevokeApiKeyError;
-  RevokeApiKeyResult: ResolversParentTypes['RevokeApiKeyError'] | ResolversParentTypes['RevokeApiKeySuccess'];
+  RevokeApiKeyResult: ResolversUnionTypes<ResolversParentTypes>['RevokeApiKeyResult'];
   RevokeApiKeySuccess: RevokeApiKeySuccess;
   Rule: Rule;
   RuleAction: RuleAction;
   RuleActionInput: RuleActionInput;
   RulesError: RulesError;
-  RulesResult: ResolversParentTypes['RulesError'] | ResolversParentTypes['RulesSuccess'];
+  RulesResult: ResolversUnionTypes<ResolversParentTypes>['RulesResult'];
   RulesSuccess: RulesSuccess;
   SaveArticleReadingProgressError: SaveArticleReadingProgressError;
   SaveArticleReadingProgressInput: SaveArticleReadingProgressInput;
-  SaveArticleReadingProgressResult: ResolversParentTypes['SaveArticleReadingProgressError'] | ResolversParentTypes['SaveArticleReadingProgressSuccess'];
+  SaveArticleReadingProgressResult: ResolversUnionTypes<ResolversParentTypes>['SaveArticleReadingProgressResult'];
   SaveArticleReadingProgressSuccess: SaveArticleReadingProgressSuccess;
   SaveDiscoverArticleError: SaveDiscoverArticleError;
   SaveDiscoverArticleInput: SaveDiscoverArticleInput;
-  SaveDiscoverArticleResult: ResolversParentTypes['SaveDiscoverArticleError'] | ResolversParentTypes['SaveDiscoverArticleSuccess'];
+  SaveDiscoverArticleResult: ResolversUnionTypes<ResolversParentTypes>['SaveDiscoverArticleResult'];
   SaveDiscoverArticleSuccess: SaveDiscoverArticleSuccess;
   SaveError: SaveError;
   SaveFileInput: SaveFileInput;
   SaveFilterError: SaveFilterError;
   SaveFilterInput: SaveFilterInput;
-  SaveFilterResult: ResolversParentTypes['SaveFilterError'] | ResolversParentTypes['SaveFilterSuccess'];
+  SaveFilterResult: ResolversUnionTypes<ResolversParentTypes>['SaveFilterResult'];
   SaveFilterSuccess: SaveFilterSuccess;
   SavePageInput: SavePageInput;
-  SaveResult: ResolversParentTypes['SaveError'] | ResolversParentTypes['SaveSuccess'];
+  SaveResult: ResolversUnionTypes<ResolversParentTypes>['SaveResult'];
   SaveSuccess: SaveSuccess;
   SaveUrlInput: SaveUrlInput;
   ScanFeedsError: ScanFeedsError;
   ScanFeedsInput: ScanFeedsInput;
-  ScanFeedsResult: ResolversParentTypes['ScanFeedsError'] | ResolversParentTypes['ScanFeedsSuccess'];
+  ScanFeedsResult: ResolversUnionTypes<ResolversParentTypes>['ScanFeedsResult'];
   ScanFeedsSuccess: ScanFeedsSuccess;
   SearchError: SearchError;
   SearchItem: SearchItem;
   SearchItemEdge: SearchItemEdge;
-  SearchResult: ResolversParentTypes['SearchError'] | ResolversParentTypes['SearchSuccess'];
+  SearchResult: ResolversUnionTypes<ResolversParentTypes>['SearchResult'];
   SearchSuccess: SearchSuccess;
   SendInstallInstructionsError: SendInstallInstructionsError;
-  SendInstallInstructionsResult: ResolversParentTypes['SendInstallInstructionsError'] | ResolversParentTypes['SendInstallInstructionsSuccess'];
+  SendInstallInstructionsResult: ResolversUnionTypes<ResolversParentTypes>['SendInstallInstructionsResult'];
   SendInstallInstructionsSuccess: SendInstallInstructionsSuccess;
   SetBookmarkArticleError: SetBookmarkArticleError;
   SetBookmarkArticleInput: SetBookmarkArticleInput;
-  SetBookmarkArticleResult: ResolversParentTypes['SetBookmarkArticleError'] | ResolversParentTypes['SetBookmarkArticleSuccess'];
+  SetBookmarkArticleResult: ResolversUnionTypes<ResolversParentTypes>['SetBookmarkArticleResult'];
   SetBookmarkArticleSuccess: SetBookmarkArticleSuccess;
   SetDeviceTokenError: SetDeviceTokenError;
   SetDeviceTokenInput: SetDeviceTokenInput;
-  SetDeviceTokenResult: ResolversParentTypes['SetDeviceTokenError'] | ResolversParentTypes['SetDeviceTokenSuccess'];
+  SetDeviceTokenResult: ResolversUnionTypes<ResolversParentTypes>['SetDeviceTokenResult'];
   SetDeviceTokenSuccess: SetDeviceTokenSuccess;
   SetFavoriteArticleError: SetFavoriteArticleError;
-  SetFavoriteArticleResult: ResolversParentTypes['SetFavoriteArticleError'] | ResolversParentTypes['SetFavoriteArticleSuccess'];
+  SetFavoriteArticleResult: ResolversUnionTypes<ResolversParentTypes>['SetFavoriteArticleResult'];
   SetFavoriteArticleSuccess: SetFavoriteArticleSuccess;
   SetFollowError: SetFollowError;
   SetFollowInput: SetFollowInput;
-  SetFollowResult: ResolversParentTypes['SetFollowError'] | ResolversParentTypes['SetFollowSuccess'];
+  SetFollowResult: ResolversUnionTypes<ResolversParentTypes>['SetFollowResult'];
   SetFollowSuccess: SetFollowSuccess;
   SetIntegrationError: SetIntegrationError;
   SetIntegrationInput: SetIntegrationInput;
-  SetIntegrationResult: ResolversParentTypes['SetIntegrationError'] | ResolversParentTypes['SetIntegrationSuccess'];
+  SetIntegrationResult: ResolversUnionTypes<ResolversParentTypes>['SetIntegrationResult'];
   SetIntegrationSuccess: SetIntegrationSuccess;
   SetLabelsError: SetLabelsError;
   SetLabelsForHighlightInput: SetLabelsForHighlightInput;
   SetLabelsInput: SetLabelsInput;
-  SetLabelsResult: ResolversParentTypes['SetLabelsError'] | ResolversParentTypes['SetLabelsSuccess'];
+  SetLabelsResult: ResolversUnionTypes<ResolversParentTypes>['SetLabelsResult'];
   SetLabelsSuccess: SetLabelsSuccess;
   SetRuleError: SetRuleError;
   SetRuleInput: SetRuleInput;
-  SetRuleResult: ResolversParentTypes['SetRuleError'] | ResolversParentTypes['SetRuleSuccess'];
+  SetRuleResult: ResolversUnionTypes<ResolversParentTypes>['SetRuleResult'];
   SetRuleSuccess: SetRuleSuccess;
   SetShareArticleError: SetShareArticleError;
   SetShareArticleInput: SetShareArticleInput;
-  SetShareArticleResult: ResolversParentTypes['SetShareArticleError'] | ResolversParentTypes['SetShareArticleSuccess'];
+  SetShareArticleResult: ResolversUnionTypes<ResolversParentTypes>['SetShareArticleResult'];
   SetShareArticleSuccess: SetShareArticleSuccess;
   SetShareHighlightError: SetShareHighlightError;
   SetShareHighlightInput: SetShareHighlightInput;
-  SetShareHighlightResult: ResolversParentTypes['SetShareHighlightError'] | ResolversParentTypes['SetShareHighlightSuccess'];
+  SetShareHighlightResult: ResolversUnionTypes<ResolversParentTypes>['SetShareHighlightResult'];
   SetShareHighlightSuccess: SetShareHighlightSuccess;
   SetShowTranslatedError: SetShowTranslatedError;
-  SetShowTranslatedResult: ResolversParentTypes['SetShowTranslatedError'] | ResolversParentTypes['SetShowTranslatedSuccess'];
+  SetShowTranslatedResult: ResolversUnionTypes<ResolversParentTypes>['SetShowTranslatedResult'];
   SetShowTranslatedSuccess: SetShowTranslatedSuccess;
   SetUserPersonalizationError: SetUserPersonalizationError;
   SetUserPersonalizationInput: SetUserPersonalizationInput;
-  SetUserPersonalizationResult: ResolversParentTypes['SetUserPersonalizationError'] | ResolversParentTypes['SetUserPersonalizationSuccess'];
+  SetUserPersonalizationResult: ResolversUnionTypes<ResolversParentTypes>['SetUserPersonalizationResult'];
   SetUserPersonalizationSuccess: SetUserPersonalizationSuccess;
   SetWebhookError: SetWebhookError;
   SetWebhookInput: SetWebhookInput;
-  SetWebhookResult: ResolversParentTypes['SetWebhookError'] | ResolversParentTypes['SetWebhookSuccess'];
+  SetWebhookResult: ResolversUnionTypes<ResolversParentTypes>['SetWebhookResult'];
   SetWebhookSuccess: SetWebhookSuccess;
   ShareStats: ShareStats;
   SharedArticleError: SharedArticleError;
-  SharedArticleResult: ResolversParentTypes['SharedArticleError'] | ResolversParentTypes['SharedArticleSuccess'];
+  SharedArticleResult: ResolversUnionTypes<ResolversParentTypes>['SharedArticleResult'];
   SharedArticleSuccess: SharedArticleSuccess;
   SortParams: SortParams;
-  String: Scalars['String'];
+  String: Scalars['String']['output'];
   SubscribeError: SubscribeError;
   SubscribeInput: SubscribeInput;
-  SubscribeResult: ResolversParentTypes['SubscribeError'] | ResolversParentTypes['SubscribeSuccess'];
+  SubscribeResult: ResolversUnionTypes<ResolversParentTypes>['SubscribeResult'];
   SubscribeSuccess: SubscribeSuccess;
   Subscription: Subscription;
   SubscriptionError: SubscriptionError;
-  SubscriptionResult: ResolversParentTypes['SubscriptionError'] | ResolversParentTypes['SubscriptionSuccess'];
+  SubscriptionResult: ResolversUnionTypes<ResolversParentTypes>['SubscriptionResult'];
   SubscriptionRootType: {};
   SubscriptionSuccess: SubscriptionSuccess;
   SubscriptionsError: SubscriptionsError;
-  SubscriptionsResult: ResolversParentTypes['SubscriptionsError'] | ResolversParentTypes['SubscriptionsSuccess'];
+  SubscriptionsResult: ResolversUnionTypes<ResolversParentTypes>['SubscriptionsResult'];
   SubscriptionsSuccess: SubscriptionsSuccess;
   SyncUpdatedItemEdge: SyncUpdatedItemEdge;
   Task: Task;
+  TestAnkiConnectionError: TestAnkiConnectionError;
+  TestAnkiConnectionInput: TestAnkiConnectionInput;
+  TestAnkiConnectionResult: ResolversUnionTypes<ResolversParentTypes>['TestAnkiConnectionResult'];
+  TestAnkiConnectionSuccess: TestAnkiConnectionSuccess;
   TypeaheadSearchError: TypeaheadSearchError;
   TypeaheadSearchItem: TypeaheadSearchItem;
-  TypeaheadSearchResult: ResolversParentTypes['TypeaheadSearchError'] | ResolversParentTypes['TypeaheadSearchSuccess'];
+  TypeaheadSearchResult: ResolversUnionTypes<ResolversParentTypes>['TypeaheadSearchResult'];
   TypeaheadSearchSuccess: TypeaheadSearchSuccess;
   UnsubscribeError: UnsubscribeError;
-  UnsubscribeResult: ResolversParentTypes['UnsubscribeError'] | ResolversParentTypes['UnsubscribeSuccess'];
+  UnsubscribeResult: ResolversUnionTypes<ResolversParentTypes>['UnsubscribeResult'];
   UnsubscribeSuccess: UnsubscribeSuccess;
   UpdateEmailError: UpdateEmailError;
   UpdateEmailInput: UpdateEmailInput;
-  UpdateEmailResult: ResolversParentTypes['UpdateEmailError'] | ResolversParentTypes['UpdateEmailSuccess'];
+  UpdateEmailResult: ResolversUnionTypes<ResolversParentTypes>['UpdateEmailResult'];
   UpdateEmailSuccess: UpdateEmailSuccess;
   UpdateFilterError: UpdateFilterError;
   UpdateFilterInput: UpdateFilterInput;
-  UpdateFilterResult: ResolversParentTypes['UpdateFilterError'] | ResolversParentTypes['UpdateFilterSuccess'];
+  UpdateFilterResult: ResolversUnionTypes<ResolversParentTypes>['UpdateFilterResult'];
   UpdateFilterSuccess: UpdateFilterSuccess;
   UpdateFolderPolicyError: UpdateFolderPolicyError;
   UpdateFolderPolicyInput: UpdateFolderPolicyInput;
-  UpdateFolderPolicyResult: ResolversParentTypes['UpdateFolderPolicyError'] | ResolversParentTypes['UpdateFolderPolicySuccess'];
+  UpdateFolderPolicyResult: ResolversUnionTypes<ResolversParentTypes>['UpdateFolderPolicyResult'];
   UpdateFolderPolicySuccess: UpdateFolderPolicySuccess;
   UpdateHighlightError: UpdateHighlightError;
   UpdateHighlightInput: UpdateHighlightInput;
   UpdateHighlightReplyError: UpdateHighlightReplyError;
   UpdateHighlightReplyInput: UpdateHighlightReplyInput;
-  UpdateHighlightReplyResult: ResolversParentTypes['UpdateHighlightReplyError'] | ResolversParentTypes['UpdateHighlightReplySuccess'];
+  UpdateHighlightReplyResult: ResolversUnionTypes<ResolversParentTypes>['UpdateHighlightReplyResult'];
   UpdateHighlightReplySuccess: UpdateHighlightReplySuccess;
-  UpdateHighlightResult: ResolversParentTypes['UpdateHighlightError'] | ResolversParentTypes['UpdateHighlightSuccess'];
+  UpdateHighlightResult: ResolversUnionTypes<ResolversParentTypes>['UpdateHighlightResult'];
   UpdateHighlightSuccess: UpdateHighlightSuccess;
   UpdateLabelError: UpdateLabelError;
   UpdateLabelInput: UpdateLabelInput;
-  UpdateLabelResult: ResolversParentTypes['UpdateLabelError'] | ResolversParentTypes['UpdateLabelSuccess'];
+  UpdateLabelResult: ResolversUnionTypes<ResolversParentTypes>['UpdateLabelResult'];
   UpdateLabelSuccess: UpdateLabelSuccess;
   UpdateLinkShareInfoError: UpdateLinkShareInfoError;
   UpdateLinkShareInfoInput: UpdateLinkShareInfoInput;
-  UpdateLinkShareInfoResult: ResolversParentTypes['UpdateLinkShareInfoError'] | ResolversParentTypes['UpdateLinkShareInfoSuccess'];
+  UpdateLinkShareInfoResult: ResolversUnionTypes<ResolversParentTypes>['UpdateLinkShareInfoResult'];
   UpdateLinkShareInfoSuccess: UpdateLinkShareInfoSuccess;
   UpdateNewsletterEmailError: UpdateNewsletterEmailError;
   UpdateNewsletterEmailInput: UpdateNewsletterEmailInput;
-  UpdateNewsletterEmailResult: ResolversParentTypes['UpdateNewsletterEmailError'] | ResolversParentTypes['UpdateNewsletterEmailSuccess'];
+  UpdateNewsletterEmailResult: ResolversUnionTypes<ResolversParentTypes>['UpdateNewsletterEmailResult'];
   UpdateNewsletterEmailSuccess: UpdateNewsletterEmailSuccess;
   UpdatePageError: UpdatePageError;
   UpdatePageInput: UpdatePageInput;
-  UpdatePageResult: ResolversParentTypes['UpdatePageError'] | ResolversParentTypes['UpdatePageSuccess'];
+  UpdatePageResult: ResolversUnionTypes<ResolversParentTypes>['UpdatePageResult'];
   UpdatePageSuccess: UpdatePageSuccess;
   UpdatePostError: UpdatePostError;
   UpdatePostInput: UpdatePostInput;
-  UpdatePostResult: ResolversParentTypes['UpdatePostError'] | ResolversParentTypes['UpdatePostSuccess'];
+  UpdatePostResult: ResolversUnionTypes<ResolversParentTypes>['UpdatePostResult'];
   UpdatePostSuccess: UpdatePostSuccess;
   UpdateReminderError: UpdateReminderError;
   UpdateReminderInput: UpdateReminderInput;
-  UpdateReminderResult: ResolversParentTypes['UpdateReminderError'] | ResolversParentTypes['UpdateReminderSuccess'];
+  UpdateReminderResult: ResolversUnionTypes<ResolversParentTypes>['UpdateReminderResult'];
   UpdateReminderSuccess: UpdateReminderSuccess;
   UpdateSharedCommentError: UpdateSharedCommentError;
   UpdateSharedCommentInput: UpdateSharedCommentInput;
-  UpdateSharedCommentResult: ResolversParentTypes['UpdateSharedCommentError'] | ResolversParentTypes['UpdateSharedCommentSuccess'];
+  UpdateSharedCommentResult: ResolversUnionTypes<ResolversParentTypes>['UpdateSharedCommentResult'];
   UpdateSharedCommentSuccess: UpdateSharedCommentSuccess;
   UpdateSubscriptionError: UpdateSubscriptionError;
   UpdateSubscriptionInput: UpdateSubscriptionInput;
-  UpdateSubscriptionResult: ResolversParentTypes['UpdateSubscriptionError'] | ResolversParentTypes['UpdateSubscriptionSuccess'];
+  UpdateSubscriptionResult: ResolversUnionTypes<ResolversParentTypes>['UpdateSubscriptionResult'];
   UpdateSubscriptionSuccess: UpdateSubscriptionSuccess;
   UpdateUserError: UpdateUserError;
   UpdateUserInput: UpdateUserInput;
   UpdateUserProfileError: UpdateUserProfileError;
   UpdateUserProfileInput: UpdateUserProfileInput;
-  UpdateUserProfileResult: ResolversParentTypes['UpdateUserProfileError'] | ResolversParentTypes['UpdateUserProfileSuccess'];
+  UpdateUserProfileResult: ResolversUnionTypes<ResolversParentTypes>['UpdateUserProfileResult'];
   UpdateUserProfileSuccess: UpdateUserProfileSuccess;
-  UpdateUserResult: ResolversParentTypes['UpdateUserError'] | ResolversParentTypes['UpdateUserSuccess'];
+  UpdateUserResult: ResolversUnionTypes<ResolversParentTypes>['UpdateUserResult'];
   UpdateUserSuccess: UpdateUserSuccess;
   UpdatesSinceError: UpdatesSinceError;
-  UpdatesSinceResult: ResolversParentTypes['UpdatesSinceError'] | ResolversParentTypes['UpdatesSinceSuccess'];
+  UpdatesSinceResult: ResolversUnionTypes<ResolversParentTypes>['UpdatesSinceResult'];
   UpdatesSinceSuccess: UpdatesSinceSuccess;
   UploadFileRequestError: UploadFileRequestError;
   UploadFileRequestInput: UploadFileRequestInput;
-  UploadFileRequestResult: ResolversParentTypes['UploadFileRequestError'] | ResolversParentTypes['UploadFileRequestSuccess'];
+  UploadFileRequestResult: ResolversUnionTypes<ResolversParentTypes>['UploadFileRequestResult'];
   UploadFileRequestSuccess: UploadFileRequestSuccess;
   UploadImportFileError: UploadImportFileError;
-  UploadImportFileResult: ResolversParentTypes['UploadImportFileError'] | ResolversParentTypes['UploadImportFileSuccess'];
+  UploadImportFileResult: ResolversUnionTypes<ResolversParentTypes>['UploadImportFileResult'];
   UploadImportFileSuccess: UploadImportFileSuccess;
   User: User;
   UserError: UserError;
   UserPersonalization: UserPersonalization;
-  UserResult: ResolversParentTypes['UserError'] | ResolversParentTypes['UserSuccess'];
+  UserResult: ResolversUnionTypes<ResolversParentTypes>['UserResult'];
   UserSuccess: UserSuccess;
   UsersError: UsersError;
-  UsersResult: ResolversParentTypes['UsersError'] | ResolversParentTypes['UsersSuccess'];
+  UsersResult: ResolversUnionTypes<ResolversParentTypes>['UsersResult'];
   UsersSuccess: UsersSuccess;
   Webhook: Webhook;
   WebhookError: WebhookError;
-  WebhookResult: ResolversParentTypes['WebhookError'] | ResolversParentTypes['WebhookSuccess'];
+  WebhookResult: ResolversUnionTypes<ResolversParentTypes>['WebhookResult'];
   WebhookSuccess: WebhookSuccess;
   WebhooksError: WebhooksError;
-  WebhooksResult: ResolversParentTypes['WebhooksError'] | ResolversParentTypes['WebhooksSuccess'];
+  WebhooksResult: ResolversUnionTypes<ResolversParentTypes>['WebhooksResult'];
   WebhooksSuccess: WebhooksSuccess;
 };
 
 export type SanitizeDirectiveArgs = {
-  allowedTags?: Maybe<Array<Maybe<Scalars['String']>>>;
-  maxLength?: Maybe<Scalars['Int']>;
-  minLength?: Maybe<Scalars['Int']>;
-  pattern?: Maybe<Scalars['String']>;
+  allowedTags?: Maybe<Array<Maybe<Scalars['String']['input']>>>;
+  maxLength?: Maybe<Scalars['Int']['input']>;
+  minLength?: Maybe<Scalars['Int']['input']>;
+  pattern?: Maybe<Scalars['String']['input']>;
 };
 
 export type SanitizeDirectiveResolver<Result, Parent, ContextType = ResolverContext, Args = SanitizeDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
@@ -5672,6 +6090,71 @@ export type AddPopularReadResultResolvers<ContextType = ResolverContext, ParentT
 
 export type AddPopularReadSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AddPopularReadSuccess'] = ResolversParentTypes['AddPopularReadSuccess']> = {
   pageId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AnkiCardBatchResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AnkiCardBatch'] = ResolversParentTypes['AnkiCardBatch']> = {
+  ankiNoteIds?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  cardCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  cardDetails?: Resolver<Maybe<Array<ResolversTypes['AnkiCardDetail']>>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  deck?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  language?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  libraryItemId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['AnkiCardStatus'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AnkiCardBatchesErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AnkiCardBatchesError'] = ResolversParentTypes['AnkiCardBatchesError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['AnkiCardBatchesErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AnkiCardBatchesResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AnkiCardBatchesResult'] = ResolversParentTypes['AnkiCardBatchesResult']> = {
+  __resolveType: TypeResolveFn<'AnkiCardBatchesError' | 'AnkiCardBatchesSuccess', ParentType, ContextType>;
+};
+
+export type AnkiCardBatchesSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AnkiCardBatchesSuccess'] = ResolversParentTypes['AnkiCardBatchesSuccess']> = {
+  batches?: Resolver<Array<ResolversTypes['AnkiCardBatch']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AnkiCardDetailResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AnkiCardDetail'] = ResolversParentTypes['AnkiCardDetail']> = {
+  answer?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  context?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  question?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AnkiCardsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AnkiCardsError'] = ResolversParentTypes['AnkiCardsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['AnkiCardsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AnkiCardsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AnkiCardsResult'] = ResolversParentTypes['AnkiCardsResult']> = {
+  __resolveType: TypeResolveFn<'AnkiCardsError' | 'AnkiCardsSuccess', ParentType, ContextType>;
+};
+
+export type AnkiCardsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AnkiCardsSuccess'] = ResolversParentTypes['AnkiCardsSuccess']> = {
+  batch?: Resolver<Maybe<ResolversTypes['AnkiCardBatch']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AnkiIntegrationErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AnkiIntegrationError'] = ResolversParentTypes['AnkiIntegrationError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['AnkiIntegrationErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AnkiIntegrationResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AnkiIntegrationResult'] = ResolversParentTypes['AnkiIntegrationResult']> = {
+  __resolveType: TypeResolveFn<'AnkiIntegrationError' | 'AnkiIntegrationSuccess', ParentType, ContextType>;
+};
+
+export type AnkiIntegrationSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AnkiIntegrationSuccess'] = ResolversParentTypes['AnkiIntegrationSuccess']> = {
+  integration?: Resolver<Maybe<ResolversTypes['Integration']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -6477,6 +6960,34 @@ export type FolderPolicyResolvers<ContextType = ResolverContext, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type GenerateAnkiCardsBatchErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GenerateAnkiCardsBatchError'] = ResolversParentTypes['GenerateAnkiCardsBatchError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['GenerateAnkiCardsBatchErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type GenerateAnkiCardsBatchResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GenerateAnkiCardsBatchResult'] = ResolversParentTypes['GenerateAnkiCardsBatchResult']> = {
+  __resolveType: TypeResolveFn<'GenerateAnkiCardsBatchError' | 'GenerateAnkiCardsBatchSuccess', ParentType, ContextType>;
+};
+
+export type GenerateAnkiCardsBatchSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GenerateAnkiCardsBatchSuccess'] = ResolversParentTypes['GenerateAnkiCardsBatchSuccess']> = {
+  jobsEnqueued?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type GenerateAnkiCardsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GenerateAnkiCardsError'] = ResolversParentTypes['GenerateAnkiCardsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['GenerateAnkiCardsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type GenerateAnkiCardsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GenerateAnkiCardsResult'] = ResolversParentTypes['GenerateAnkiCardsResult']> = {
+  __resolveType: TypeResolveFn<'GenerateAnkiCardsError' | 'GenerateAnkiCardsSuccess', ParentType, ContextType>;
+};
+
+export type GenerateAnkiCardsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GenerateAnkiCardsSuccess'] = ResolversParentTypes['GenerateAnkiCardsSuccess']> = {
+  batch?: Resolver<ResolversTypes['AnkiCardBatch'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type GenerateApiKeyErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GenerateApiKeyError'] = ResolversParentTypes['GenerateApiKeyError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['GenerateApiKeyErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -6994,6 +7505,8 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   emptyTrash?: Resolver<ResolversTypes['EmptyTrashResult'], ParentType, ContextType>;
   exportToIntegration?: Resolver<ResolversTypes['ExportToIntegrationResult'], ParentType, ContextType, RequireFields<MutationExportToIntegrationArgs, 'integrationId'>>;
   fetchContent?: Resolver<ResolversTypes['FetchContentResult'], ParentType, ContextType, RequireFields<MutationFetchContentArgs, 'id'>>;
+  generateAnkiCards?: Resolver<ResolversTypes['GenerateAnkiCardsResult'], ParentType, ContextType, RequireFields<MutationGenerateAnkiCardsArgs, 'libraryItemId'>>;
+  generateAnkiCardsBatch?: Resolver<ResolversTypes['GenerateAnkiCardsBatchResult'], ParentType, ContextType, RequireFields<MutationGenerateAnkiCardsBatchArgs, 'input'>>;
   generateApiKey?: Resolver<ResolversTypes['GenerateApiKeyResult'], ParentType, ContextType, RequireFields<MutationGenerateApiKeyArgs, 'input'>>;
   googleLogin?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationGoogleLoginArgs, 'input'>>;
   googleSignup?: Resolver<ResolversTypes['GoogleSignupResult'], ParentType, ContextType, RequireFields<MutationGoogleSignupArgs, 'input'>>;
@@ -7010,6 +7523,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   recommend?: Resolver<ResolversTypes['RecommendResult'], ParentType, ContextType, RequireFields<MutationRecommendArgs, 'input'>>;
   recommendHighlights?: Resolver<ResolversTypes['RecommendHighlightsResult'], ParentType, ContextType, RequireFields<MutationRecommendHighlightsArgs, 'input'>>;
   refreshHome?: Resolver<ResolversTypes['RefreshHomeResult'], ParentType, ContextType>;
+  regenerateAnkiCards?: Resolver<ResolversTypes['RegenerateAnkiCardsResult'], ParentType, ContextType, RequireFields<MutationRegenerateAnkiCardsArgs, 'libraryItemId'>>;
   replyToEmail?: Resolver<ResolversTypes['ReplyToEmailResult'], ParentType, ContextType, RequireFields<MutationReplyToEmailArgs, 'recentEmailId' | 'reply'>>;
   reportItem?: Resolver<ResolversTypes['ReportItemResult'], ParentType, ContextType, RequireFields<MutationReportItemArgs, 'input'>>;
   revokeApiKey?: Resolver<ResolversTypes['RevokeApiKeyResult'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
@@ -7031,6 +7545,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   setUserPersonalization?: Resolver<ResolversTypes['SetUserPersonalizationResult'], ParentType, ContextType, RequireFields<MutationSetUserPersonalizationArgs, 'input'>>;
   setWebhook?: Resolver<ResolversTypes['SetWebhookResult'], ParentType, ContextType, RequireFields<MutationSetWebhookArgs, 'input'>>;
   subscribe?: Resolver<ResolversTypes['SubscribeResult'], ParentType, ContextType, RequireFields<MutationSubscribeArgs, 'input'>>;
+  testAnkiConnection?: Resolver<ResolversTypes['TestAnkiConnectionResult'], ParentType, ContextType, RequireFields<MutationTestAnkiConnectionArgs, 'input'>>;
   unsubscribe?: Resolver<ResolversTypes['UnsubscribeResult'], ParentType, ContextType, RequireFields<MutationUnsubscribeArgs, 'name'>>;
   updateEmail?: Resolver<ResolversTypes['UpdateEmailResult'], ParentType, ContextType, RequireFields<MutationUpdateEmailArgs, 'input'>>;
   updateFilter?: Resolver<ResolversTypes['UpdateFilterResult'], ParentType, ContextType, RequireFields<MutationUpdateFilterArgs, 'input'>>;
@@ -7174,6 +7689,9 @@ export type ProfileResolvers<ContextType = ResolverContext, ParentType extends R
 };
 
 export type QueryResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  ankiCardBatches?: Resolver<ResolversTypes['AnkiCardBatchesResult'], ParentType, ContextType, Partial<QueryAnkiCardBatchesArgs>>;
+  ankiCards?: Resolver<ResolversTypes['AnkiCardsResult'], ParentType, ContextType, RequireFields<QueryAnkiCardsArgs, 'libraryItemId'>>;
+  ankiIntegration?: Resolver<ResolversTypes['AnkiIntegrationResult'], ParentType, ContextType>;
   apiKeys?: Resolver<ResolversTypes['ApiKeysResult'], ParentType, ContextType>;
   article?: Resolver<ResolversTypes['ArticleResult'], ParentType, ContextType, RequireFields<QueryArticleArgs, 'slug' | 'username'>>;
   articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequestResult'], ParentType, ContextType, Partial<QueryArticleSavingRequestArgs>>;
@@ -7354,6 +7872,20 @@ export type RefreshHomeSuccessResolvers<ContextType = ResolverContext, ParentTyp
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type RegenerateAnkiCardsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RegenerateAnkiCardsError'] = ResolversParentTypes['RegenerateAnkiCardsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['RegenerateAnkiCardsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RegenerateAnkiCardsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RegenerateAnkiCardsResult'] = ResolversParentTypes['RegenerateAnkiCardsResult']> = {
+  __resolveType: TypeResolveFn<'RegenerateAnkiCardsError' | 'RegenerateAnkiCardsSuccess', ParentType, ContextType>;
+};
+
+export type RegenerateAnkiCardsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RegenerateAnkiCardsSuccess'] = ResolversParentTypes['RegenerateAnkiCardsSuccess']> = {
+  batch?: Resolver<ResolversTypes['AnkiCardBatch'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type ReminderResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Reminder'] = ResolversParentTypes['Reminder']> = {
   archiveUntil?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -7522,6 +8054,7 @@ export type SearchErrorResolvers<ContextType = ResolverContext, ParentType exten
 
 export type SearchItemResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SearchItem'] = ResolversParentTypes['SearchItem']> = {
   aiSummary?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  ankiCardCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   annotation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   archivedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -7564,6 +8097,8 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   state?: Resolver<Maybe<ResolversTypes['ArticleSavingRequestStatus']>, ParentType, ContextType>;
   subscription?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  translatedLanguage?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  translationStatus?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   unsubHttpUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   unsubMailTo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
@@ -7883,6 +8418,21 @@ export type TaskResolvers<ContextType = ResolverContext, ParentType extends Reso
   progress?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   runningTime?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   state?: Resolver<ResolversTypes['TaskState'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TestAnkiConnectionErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['TestAnkiConnectionError'] = ResolversParentTypes['TestAnkiConnectionError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['TestAnkiConnectionErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TestAnkiConnectionResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['TestAnkiConnectionResult'] = ResolversParentTypes['TestAnkiConnectionResult']> = {
+  __resolveType: TypeResolveFn<'TestAnkiConnectionError' | 'TestAnkiConnectionSuccess', ParentType, ContextType>;
+};
+
+export type TestAnkiConnectionSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['TestAnkiConnectionSuccess'] = ResolversParentTypes['TestAnkiConnectionSuccess']> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  version?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -8298,6 +8848,17 @@ export type Resolvers<ContextType = ResolverContext> = {
   AddPopularReadError?: AddPopularReadErrorResolvers<ContextType>;
   AddPopularReadResult?: AddPopularReadResultResolvers<ContextType>;
   AddPopularReadSuccess?: AddPopularReadSuccessResolvers<ContextType>;
+  AnkiCardBatch?: AnkiCardBatchResolvers<ContextType>;
+  AnkiCardBatchesError?: AnkiCardBatchesErrorResolvers<ContextType>;
+  AnkiCardBatchesResult?: AnkiCardBatchesResultResolvers<ContextType>;
+  AnkiCardBatchesSuccess?: AnkiCardBatchesSuccessResolvers<ContextType>;
+  AnkiCardDetail?: AnkiCardDetailResolvers<ContextType>;
+  AnkiCardsError?: AnkiCardsErrorResolvers<ContextType>;
+  AnkiCardsResult?: AnkiCardsResultResolvers<ContextType>;
+  AnkiCardsSuccess?: AnkiCardsSuccessResolvers<ContextType>;
+  AnkiIntegrationError?: AnkiIntegrationErrorResolvers<ContextType>;
+  AnkiIntegrationResult?: AnkiIntegrationResultResolvers<ContextType>;
+  AnkiIntegrationSuccess?: AnkiIntegrationSuccessResolvers<ContextType>;
   ApiKey?: ApiKeyResolvers<ContextType>;
   ApiKeysError?: ApiKeysErrorResolvers<ContextType>;
   ApiKeysResult?: ApiKeysResultResolvers<ContextType>;
@@ -8441,6 +9002,12 @@ export type Resolvers<ContextType = ResolverContext> = {
   FolderPoliciesResult?: FolderPoliciesResultResolvers<ContextType>;
   FolderPoliciesSuccess?: FolderPoliciesSuccessResolvers<ContextType>;
   FolderPolicy?: FolderPolicyResolvers<ContextType>;
+  GenerateAnkiCardsBatchError?: GenerateAnkiCardsBatchErrorResolvers<ContextType>;
+  GenerateAnkiCardsBatchResult?: GenerateAnkiCardsBatchResultResolvers<ContextType>;
+  GenerateAnkiCardsBatchSuccess?: GenerateAnkiCardsBatchSuccessResolvers<ContextType>;
+  GenerateAnkiCardsError?: GenerateAnkiCardsErrorResolvers<ContextType>;
+  GenerateAnkiCardsResult?: GenerateAnkiCardsResultResolvers<ContextType>;
+  GenerateAnkiCardsSuccess?: GenerateAnkiCardsSuccessResolvers<ContextType>;
   GenerateApiKeyError?: GenerateApiKeyErrorResolvers<ContextType>;
   GenerateApiKeyResult?: GenerateApiKeyResultResolvers<ContextType>;
   GenerateApiKeySuccess?: GenerateApiKeySuccessResolvers<ContextType>;
@@ -8568,6 +9135,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   RefreshHomeError?: RefreshHomeErrorResolvers<ContextType>;
   RefreshHomeResult?: RefreshHomeResultResolvers<ContextType>;
   RefreshHomeSuccess?: RefreshHomeSuccessResolvers<ContextType>;
+  RegenerateAnkiCardsError?: RegenerateAnkiCardsErrorResolvers<ContextType>;
+  RegenerateAnkiCardsResult?: RegenerateAnkiCardsResultResolvers<ContextType>;
+  RegenerateAnkiCardsSuccess?: RegenerateAnkiCardsSuccessResolvers<ContextType>;
   Reminder?: ReminderResolvers<ContextType>;
   ReminderError?: ReminderErrorResolvers<ContextType>;
   ReminderResult?: ReminderResultResolvers<ContextType>;
@@ -8660,6 +9230,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   SubscriptionsSuccess?: SubscriptionsSuccessResolvers<ContextType>;
   SyncUpdatedItemEdge?: SyncUpdatedItemEdgeResolvers<ContextType>;
   Task?: TaskResolvers<ContextType>;
+  TestAnkiConnectionError?: TestAnkiConnectionErrorResolvers<ContextType>;
+  TestAnkiConnectionResult?: TestAnkiConnectionResultResolvers<ContextType>;
+  TestAnkiConnectionSuccess?: TestAnkiConnectionSuccessResolvers<ContextType>;
   TypeaheadSearchError?: TypeaheadSearchErrorResolvers<ContextType>;
   TypeaheadSearchItem?: TypeaheadSearchItemResolvers<ContextType>;
   TypeaheadSearchResult?: TypeaheadSearchResultResolvers<ContextType>;

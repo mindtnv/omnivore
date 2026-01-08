@@ -740,7 +740,8 @@ export const enqueueAISummarizeJob = async (data: AISummarizeJobData) => {
 }
 
 export const enqueueTranslateContentJob = async (
-  data: TranslateContentJobData
+  data: TranslateContentJobData,
+  options?: { retry?: boolean }
 ) => {
   const queue = await getQueue()
   if (!queue) {
@@ -748,13 +749,16 @@ export const enqueueTranslateContentJob = async (
   }
 
   // Create unique jobId for deduplication
-  const jobId = `${TRANSLATE_CONTENT_JOB_NAME}_${data.libraryItemId}_${data.targetLanguage}_${JOB_VERSION}`
+  // For retries, add timestamp to bypass deduplication
+  const jobId = options?.retry
+    ? `${TRANSLATE_CONTENT_JOB_NAME}_${data.libraryItemId}_${data.targetLanguage}_retry_${Date.now()}`
+    : `${TRANSLATE_CONTENT_JOB_NAME}_${data.libraryItemId}_${data.targetLanguage}_${JOB_VERSION}`
 
   return queue.add(TRANSLATE_CONTENT_JOB_NAME, data, {
-    jobId, // deduplication by libraryItemId + targetLanguage
+    jobId, // deduplication by libraryItemId + targetLanguage (unless retry)
     removeOnComplete: true,
     removeOnFail: true,
-    priority: getJobPriority(TRANSLATE_CONTENT_JOB_NAME),
+    priority: options?.retry ? 2 : getJobPriority(TRANSLATE_CONTENT_JOB_NAME), // Higher priority for retries
     attempts: 3,
     backoff: {
       type: 'exponential',

@@ -43,6 +43,10 @@ import {
   useUpdateHighlight,
 } from '../../../lib/networking/highlights/useItemHighlights'
 import { useGetViewer } from '../../../lib/networking/viewer/useGetViewer'
+import { useGetIntegrationsQuery } from '../../../lib/networking/queries/useGetIntegrationsQuery'
+import { useGetAnkiCardsQuery } from '../../../lib/networking/queries/useGetAnkiCardsQuery'
+import { generateAnkiCardsMutation } from '../../../lib/networking/mutations/generateAnkiCardsMutation'
+import { AnkiCardsSidebar } from '../../../components/templates/anki/AnkiCardsSidebar'
 
 const PdfArticleContainerNoSSR = nextDynamic<PdfArticleContainerProps>(
   () =>
@@ -70,6 +74,7 @@ export default function Reader(): JSX.Element {
   const [showHighlightsModal, setShowHighlightsModal] = useState(false)
   const [useNativePdfReader, setUseNativePdfReader] = useState(false)
   const [showTranslation, setShowTranslation] = useState(false)
+  const [showAnkiCardsSidebar, setShowAnkiCardsSidebar] = useState(false)
   const { data: viewerData } = useGetViewer()
   const readerSettings = useReaderSettings()
   const archiveItem = useArchiveItem()
@@ -81,12 +86,55 @@ export default function Reader(): JSX.Element {
   const mergeHighlight = useMergeHighlight()
   const setShowTranslatedMutation = useSetShowTranslated()
   const { userPersonalization } = useGetUserPersonalization()
+  const { integrations } = useGetIntegrationsQuery()
+
+  // Check if Anki integration is enabled
+  const ankiEnabled = integrations.some(
+    (i) => i.name === 'ANKI' && i.enabled
+  )
 
   const { data: libraryItem, error: articleFetchError } =
     useGetLibraryItemContent(
       params?.username as string,
       params?.slug as string
     )
+
+  // Track if we should poll for Anki status
+  const [ankiPollingEnabled, setAnkiPollingEnabled] = useState(false)
+
+  // Fetch Anki card status for this article (with polling when processing)
+  const { batch: ankiCardBatch, revalidate: revalidateAnkiCards } = useGetAnkiCardsQuery(
+    ankiEnabled && libraryItem?.id ? libraryItem.id : undefined,
+    ankiPollingEnabled
+  )
+
+  // Update polling state based on Anki batch status
+  useEffect(() => {
+    const shouldPoll = ankiEnabled && (
+      ankiCardBatch?.status === 'PROCESSING' ||
+      ankiCardBatch?.status === 'PENDING' ||
+      ankiCardBatch?.status === 'WAITING_FOR_TRANSLATION'
+    )
+    setAnkiPollingEnabled(shouldPoll)
+  }, [ankiEnabled, ankiCardBatch?.status])
+
+  const handleGenerateAnkiCards = useCallback(async () => {
+    if (!libraryItem?.id) return
+    // If cards are already created, open the sidebar
+    if (ankiCardBatch?.status === 'COMPLETED') {
+      setShowAnkiCardsSidebar(true)
+      return
+    }
+    // Otherwise generate new cards
+    try {
+      await generateAnkiCardsMutation(libraryItem.id)
+      showSuccessToast('Generating Anki cards...', { position: 'bottom-right' })
+      revalidateAnkiCards()
+    } catch (err) {
+      showErrorToast('Error generating Anki cards', { position: 'bottom-right' })
+    }
+  }, [libraryItem?.id, ankiCardBatch?.status, revalidateAnkiCards])
+
   useEffect(() => {
     dispatchLabels({
       type: 'RESET',
@@ -500,6 +548,10 @@ export default function Reader(): JSX.Element {
           showTranslation={showTranslation}
           onToggleTranslation={handleToggleTranslation}
           targetLanguage={userPersonalization?.preferredLanguage}
+          ankiEnabled={ankiEnabled}
+          ankiCardStatus={ankiCardBatch?.status}
+          ankiCardCount={ankiCardBatch?.cardCount}
+          onGenerateAnkiCards={handleGenerateAnkiCards}
         />
       }
       alwaysDisplayToolbar={libraryItem?.contentReader == 'PDF'}
@@ -530,6 +582,10 @@ export default function Reader(): JSX.Element {
           showTranslation={showTranslation}
           onToggleTranslation={handleToggleTranslation}
           targetLanguage={userPersonalization?.preferredLanguage}
+          ankiEnabled={ankiEnabled}
+          ankiCardStatus={ankiCardBatch?.status}
+          ankiCardCount={ankiCardBatch?.cardCount}
+          onGenerateAnkiCards={handleGenerateAnkiCards}
         />
       </ReaderHeader>
 
@@ -559,6 +615,10 @@ export default function Reader(): JSX.Element {
             showTranslation={showTranslation}
             onToggleTranslation={handleToggleTranslation}
             targetLanguage={userPersonalization?.preferredLanguage}
+            ankiEnabled={ankiEnabled}
+            ankiCardStatus={ankiCardBatch?.status}
+            ankiCardCount={ankiCardBatch?.cardCount}
+            onGenerateAnkiCards={handleGenerateAnkiCards}
           />
         ) : null}
       </VStack>
@@ -590,7 +650,8 @@ export default function Reader(): JSX.Element {
             width: '100%',
             height: '100%',
             background: '$readerBg',
-            overflow: 'scroll',
+            overflowY: 'auto',
+            overflowX: 'hidden',
             paddingTop: '80px',
             '@media print': {
               paddingTop: '0px',
@@ -712,7 +773,8 @@ export default function Reader(): JSX.Element {
             width: '100%',
             height: '100%',
             background: '$readerBg',
-            overflow: 'scroll',
+            overflowY: 'auto',
+            overflowX: 'hidden',
             paddingTop: '80px',
           }}
         >
@@ -775,6 +837,13 @@ export default function Reader(): JSX.Element {
             // titleEvent.title = title
             // document.dispatchEvent(titleEvent)
           }}
+        />
+      )}
+      {libraryItem && ankiEnabled && (
+        <AnkiCardsSidebar
+          libraryItemId={libraryItem.id}
+          isShow={showAnkiCardsSidebar}
+          onClose={() => setShowAnkiCardsSidebar(false)}
         />
       )}
     </PrimaryLayout>

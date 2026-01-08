@@ -996,6 +996,7 @@ export enum BulkAction {
   ADD_LABELS = 'ADD_LABELS',
   MARK_AS_READ = 'MARK_AS_READ',
   MOVE_TO_FOLDER = 'MOVE_TO_FOLDER',
+  CREATE_ANKI_CARDS = 'CREATE_ANKI_CARDS',
 }
 
 type BulkActionResult = {
@@ -1185,6 +1186,7 @@ export type LibraryItemNode = {
   recommendations?: Recommendation[]
   highlights?: Highlight[]
   highlightsCount?: number
+  ankiCardCount?: number | null
 }
 
 export type Recommendation = {

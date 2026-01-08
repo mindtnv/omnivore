@@ -6,6 +6,11 @@ export interface ContentChunk {
   nodeIndices: number[] // Track which nodes belong to this chunk
 }
 
+interface ChunkOptions {
+  blocksPerChunk?: number
+  maxTokensPerChunk?: number
+}
+
 // Block-level elements that should be kept together when possible
 const BLOCK_ELEMENTS = new Set([
   'P',
@@ -109,16 +114,19 @@ const extractBlocks = (root: Node): Element[] => {
 }
 
 /**
- * Chunk HTML content into blocks suitable for translation
+ * Chunk HTML content by grouping blocks (segments) together
+ * Simple approach: group N blocks together, translate, combine back
  *
  * @param root - Root HTML node to chunk
- * @param maxTokensPerChunk - Maximum tokens per chunk (default: 3000)
+ * @param options - Chunking options for block and token limits
  * @returns Array of content chunks
  */
 export const chunkHTMLContent = (
   root: Node,
-  maxTokensPerChunk: number = 3000
+  options: ChunkOptions = {}
 ): ContentChunk[] => {
+  const blocksPerChunk = options.blocksPerChunk ?? 30
+  const maxTokensPerChunk = options.maxTokensPerChunk
   const blocks = extractBlocks(root)
 
   if (blocks.length === 0) {
@@ -126,70 +134,52 @@ export const chunkHTMLContent = (
   }
 
   const chunks: ContentChunk[] = []
-  let currentChunkBlocks: Element[] = []
-  let currentTokenCount = 0
+  let currentBlocks: Element[] = []
+  let currentTokens = 0
+  let currentStartIndex = 0
+
+  const pushChunk = () => {
+    if (currentBlocks.length === 0) {
+      return
+    }
+
+    const chunkHTML = currentBlocks.map(b => b.outerHTML).join('')
+    const nodeIndices = Array.from(
+      { length: currentBlocks.length },
+      (_, idx) => currentStartIndex + idx
+    )
+
+    chunks.push({
+      html: chunkHTML,
+      tokenCount: currentTokens,
+      nodeIndices,
+    })
+
+    currentBlocks = []
+    currentTokens = 0
+  }
 
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i]
-    const blockHTML = (block as Element).outerHTML
+    const blockHTML = block.outerHTML
     const blockTokens = countTokens(blockHTML)
 
-    // If single block exceeds limit, it becomes its own chunk
-    if (blockTokens > maxTokensPerChunk) {
-      // Flush current chunk if any
-      if (currentChunkBlocks.length > 0) {
-        const chunkHTML = currentChunkBlocks.map(b => (b as Element).outerHTML).join('\n')
-        chunks.push({
-          html: chunkHTML,
-          tokenCount: countTokens(chunkHTML),
-          nodeIndices: Array.from({ length: currentChunkBlocks.length }, (_, idx) =>
-            i - currentChunkBlocks.length + idx
-          ),
-        })
-        currentChunkBlocks = []
-        currentTokenCount = 0
-      }
+    const wouldExceedBlocks = currentBlocks.length >= blocksPerChunk
+    const wouldExceedTokens =
+      maxTokensPerChunk !== undefined &&
+      currentBlocks.length > 0 &&
+      currentTokens + blockTokens > maxTokensPerChunk
 
-      // Add large block as single chunk
-      chunks.push({
-        html: blockHTML,
-        tokenCount: blockTokens,
-        nodeIndices: [i],
-      })
-      continue
+    if (wouldExceedBlocks || wouldExceedTokens) {
+      pushChunk()
+      currentStartIndex = i
     }
 
-    // Check if adding this block would exceed limit
-    if (currentTokenCount + blockTokens > maxTokensPerChunk && currentChunkBlocks.length > 0) {
-      // Flush current chunk
-      const chunkHTML = currentChunkBlocks.map(b => (b as Element).outerHTML).join('\n')
-      chunks.push({
-        html: chunkHTML,
-        tokenCount: countTokens(chunkHTML),
-        nodeIndices: Array.from({ length: currentChunkBlocks.length }, (_, idx) =>
-          i - currentChunkBlocks.length + idx
-        ),
-      })
-      currentChunkBlocks = []
-      currentTokenCount = 0
-    }
-
-    // Add block to current chunk
-    currentChunkBlocks.push(block)
-    currentTokenCount += blockTokens
+    currentBlocks.push(block)
+    currentTokens += blockTokens
   }
 
-  // Flush remaining blocks
-  if (currentChunkBlocks.length > 0) {
-    const chunkHTML = currentChunkBlocks.map(b => (b as Element).outerHTML).join('\n')
-    chunks.push({
-      html: chunkHTML,
-      tokenCount: countTokens(chunkHTML),
-      nodeIndices: Array.from({ length: currentChunkBlocks.length }, (_, idx) =>
-        blocks.length - currentChunkBlocks.length + idx
-      ),
-    })
-  }
+  pushChunk()
 
   return chunks
 }

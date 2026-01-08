@@ -62,6 +62,10 @@ const StyledLink = styled(SpanBox, {
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
+
+  '@mdDown': {
+    minHeight: '44px',
+  },
 })
 
 type ExternalLinkProps = {
@@ -142,6 +146,9 @@ export function SettingsMenu(): JSX.Element {
             width: '100%',
             overflowY: 'scroll',
             paddingBottom: '120px',
+            '@mdDown': {
+              gap: '15px',
+            },
           }}
           distribution="start"
           alignment="start"
@@ -252,6 +259,11 @@ function SettingsButton(props: SettingsButtonProps): JSX.Element {
             backgroundColor: selected
               ? '$thLibrarySelectionColor'
               : '$thBackground4',
+          },
+
+          '@mdDown': {
+            minHeight: '44px',
+            py: '12px',
           },
         }}
       >

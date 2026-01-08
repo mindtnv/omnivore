@@ -153,7 +153,7 @@ const HeaderControls = (props: LibraryHeaderProps): JSX.Element => {
         setSearchBoxFocused={setSearchBoxFocused}
       />
 
-      <SpanBox css={{ display: 'flex', ml: 'auto', gap: '10px' }}>
+      <SpanBox css={{ display: 'flex', ml: 'auto', gap: '10px', '@mdDown': { gap: '15px' } }}>
         <Button
           title="TLDR Summaries"
           style="plainIcon"
@@ -161,6 +161,9 @@ const HeaderControls = (props: LibraryHeaderProps): JSX.Element => {
             display: 'flex',
             marginLeft: 'auto',
             '&:hover': { opacity: '1.0' },
+            '@mdDown': {
+              p: '12px',
+            },
           }}
           onClick={(e) => {
             if (props.mode == 'reads') {
@@ -185,6 +188,9 @@ const HeaderControls = (props: LibraryHeaderProps): JSX.Element => {
             display: 'flex',
             marginLeft: 'auto',
             '&:hover': { opacity: '1.0' },
+            '@mdDown': {
+              p: '12px',
+            },
           }}
           onClick={(e) => {
             props.updateLayout(
@@ -219,6 +225,9 @@ export function MenuHeaderButton(props: MenuHeaderButtonProps): JSX.Element {
         borderRadius: '5px',
         px: '5px',
         cursor: 'pointer',
+        '@mdDown': {
+          minHeight: '44px',
+        },
       }}
       alignment="center"
       distribution="around"
@@ -282,6 +291,9 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
         boxShadow: props.searchBoxFocused
           ? 'none'
           : '0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06);',
+        '@mdDown': {
+          height: '44px',
+        },
       }}
     >
       <HStack
@@ -295,6 +307,8 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
           css={{
             width: '53px',
             height: '100%',
+            minHeight: '44px',
+            minWidth: '44px',
             display: 'flex',
             bg: props.multiSelectMode !== 'off' ? '$ctaBlue' : 'transparent',
             borderTopLeftRadius: '6px',

@@ -683,7 +683,7 @@ const QuickLinksHomeSection = (props: HomeSectionProps): JSX.Element => {
           fontWeight: '500',
           textTransform: 'uppercase',
           color: '$ctaBlue',
-          bg: '#007AFF20',
+          bg: '#FFD23420',
           px: '10px',
           py: '5px',
           borderRadius: '5px',
@@ -911,7 +911,7 @@ const JustAddedItemView = (props: HomeItemViewProps): JSX.Element => {
         bg: '$homeCardHover',
         borderRadius: '5px',
         '&:hover': {
-          bg: '#007AFF10',
+          bg: '#FFD23410',
         },
         '&:hover .title-text': {
           textDecoration: 'underline',
@@ -1166,7 +1166,7 @@ const QuickLinkHomeItemView = (props: HomeItemViewProps): JSX.Element => {
         gap: '5px',
         borderRadius: '5px',
         '&:hover': {
-          bg: '#007AFF10',
+          bg: '#FFD23410',
           cursor: 'pointer',
         },
         '&:hover .title-text': {

@@ -13,6 +13,8 @@ import { EditInfoIcon } from '../../elements/icons/EditInfoIcon'
 import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
 import { State } from '../../../lib/networking/fragments/articleFragment'
 import { LanguageToggle } from '../../elements/LanguageToggle'
+import { AnkiButton } from '../../elements/AnkiButton'
+import { AnkiCardStatus } from '../../../lib/networking/queries/useGetAnkiCardsQuery'
 
 export type ArticleActionsMenuLayout = 'top' | 'side'
 
@@ -26,6 +28,11 @@ type ArticleActionsMenuProps = {
   showTranslation?: boolean
   onToggleTranslation?: () => void
   targetLanguage?: string | null
+  // Anki props
+  ankiEnabled?: boolean
+  ankiCardStatus?: AnkiCardStatus | null
+  ankiCardCount?: number
+  onGenerateAnkiCards?: () => void
 }
 
 type MenuSeparatorProps = {
@@ -189,6 +196,25 @@ export function ArticleActionsMenu(
             showTranslation={props.showTranslation ?? false}
             onToggle={props.onToggleTranslation!}
           />
+        )}
+
+        {/* Anki Button - shown when Anki integration is enabled */}
+        {props.ankiEnabled && props.onGenerateAnkiCards && (
+          <SpanBox
+            css={{
+              display: 'flex',
+              alignItems: 'center',
+              '@mdDown': {
+                display: 'none',
+              },
+            }}
+          >
+            <AnkiButton
+              status={props.ankiCardStatus}
+              cardCount={props.ankiCardCount}
+              onClick={props.onGenerateAnkiCards}
+            />
+          </SpanBox>
         )}
 
         <MenuSeparator layout={props.layout} />

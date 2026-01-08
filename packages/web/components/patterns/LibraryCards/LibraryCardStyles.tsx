@@ -7,7 +7,7 @@ import { NewsletterFlairIcon } from '../../elements/icons/NewsletterFlairIcon'
 import { FeedFlairIcon } from '../../elements/icons/FeedFlairIcon'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { timeAgo } from '../../../lib/textFormatting'
-import { Globe, Sparkle, Translate, CircleNotch } from '@phosphor-icons/react'
+import { Globe, Sparkle, Translate, CircleNotch, Cards } from '@phosphor-icons/react'
 import { styled, keyframes, theme } from '../../tokens/stitches.config'
 
 export const MenuStyle = {
@@ -36,6 +36,9 @@ export const MetaStyle = {
   textOverflow: 'ellipsis',
   wordBreak: 'break-word',
   lineHeight: 1.25,
+  '@mdDown': {
+    fontSize: '14px',
+  },
 }
 
 export const TitleStyle = {
@@ -51,6 +54,9 @@ export const TitleStyle = {
   display: '-webkit-box',
   '-webkit-line-clamp': '2',
   '-webkit-box-orient': 'vertical',
+  '@mdDown': {
+    fontSize: '15px',
+  },
 }
 
 export const AuthorInfoStyle = {
@@ -65,6 +71,9 @@ export const AuthorInfoStyle = {
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
+  '@mdDown': {
+    fontSize: '13px',
+  },
 }
 
 export const FLAIR_ICON_NAMES = [
@@ -168,6 +177,13 @@ export function CardCheckbox(props: CardCheckBoxProps): JSX.Element {
       onClick={(event) => {
         event.stopPropagation()
       }}
+      style={{
+        minHeight: '44px',
+        minWidth: '44px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
       <input
         type="checkbox"
@@ -175,6 +191,10 @@ export function CardCheckbox(props: CardCheckBoxProps): JSX.Element {
         onChange={(event) => {
           props.handleChanged()
           event.stopPropagation()
+        }}
+        style={{
+          minHeight: '24px',
+          minWidth: '24px',
         }}
       ></input>
     </form>
@@ -213,6 +233,18 @@ const IndicatorBadge = styled('span', {
         color: 'rgb(59, 130, 246)',
       },
       translationProcessing: {
+        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+        color: 'rgb(245, 158, 11)',
+      },
+      anki: {
+        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+        color: 'rgb(34, 197, 94)',
+        cursor: 'pointer',
+        '&:hover': {
+          backgroundColor: 'rgba(34, 197, 94, 0.2)',
+        },
+      },
+      ankiProcessing: {
         backgroundColor: 'rgba(245, 158, 11, 0.1)',
         color: 'rgb(245, 158, 11)',
       },
@@ -273,23 +305,38 @@ const getLanguageCode = (language?: string | null): string => {
   return language.slice(0, 2).toUpperCase()
 }
 
+export type AnkiCardStatusType =
+  | 'PENDING'
+  | 'PROCESSING'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'WAITING_FOR_TRANSLATION'
+
 type LibraryItemIndicatorsProps = {
   item: LibraryItemNode
+  ankiCardStatus?: AnkiCardStatusType | null
+  ankiCardCount?: number
+  onAnkiBadgeClick?: () => void
 }
 
 export function LibraryItemIndicators(
   props: LibraryItemIndicatorsProps
 ): JSX.Element | null {
-  const { item } = props
+  const { item, ankiCardStatus, ankiCardCount, onAnkiBadgeClick } = props
   const hasLanguage = !!item.language
   const hasAiSummary = !!item.aiSummary
   const hasTranslation = item.translationStatus === 'COMPLETED'
   const isTranslating =
     item.translationStatus === 'PROCESSING' ||
     item.translationStatus === 'PENDING'
+  const hasAnkiCards = ankiCardStatus === 'COMPLETED' && (ankiCardCount ?? 0) > 0
+  const isAnkiProcessing =
+    ankiCardStatus === 'PROCESSING' ||
+    ankiCardStatus === 'PENDING' ||
+    ankiCardStatus === 'WAITING_FOR_TRANSLATION'
 
   // Don't render if no indicators to show
-  if (!hasLanguage && !hasAiSummary && !hasTranslation && !isTranslating) {
+  if (!hasLanguage && !hasAiSummary && !hasTranslation && !isTranslating && !hasAnkiCards && !isAnkiProcessing) {
     return null
   }
 
@@ -333,6 +380,29 @@ export function LibraryItemIndicators(
         <IndicatorBadge variant="translationProcessing" title="Translation in progress">
           <SpinningIcon size={10} weight="bold" />
           ...
+        </IndicatorBadge>
+      )}
+
+      {/* Anki cards available indicator */}
+      {hasAnkiCards && (
+        <IndicatorBadge
+          variant="anki"
+          title={`${ankiCardCount} Anki card${ankiCardCount !== 1 ? 's' : ''} generated`}
+          onClick={(e) => {
+            e.stopPropagation()
+            onAnkiBadgeClick?.()
+          }}
+        >
+          <Cards size={10} weight="bold" />
+          {ankiCardCount}
+        </IndicatorBadge>
+      )}
+
+      {/* Anki processing indicator */}
+      {isAnkiProcessing && (
+        <IndicatorBadge variant="ankiProcessing" title="Generating Anki cards...">
+          <SpinningIcon size={10} weight="bold" />
+          <Cards size={10} weight="bold" />
         </IndicatorBadge>
       )}
     </HStack>

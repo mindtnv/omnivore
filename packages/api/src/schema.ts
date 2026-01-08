@@ -1698,6 +1698,7 @@ const schema = gql`
     highlightsCount: Int
     translationStatus: String
     translatedLanguage: String
+    ankiCardCount: Int
   }
 
   type SearchItemEdge {
@@ -2063,6 +2064,7 @@ const schema = gql`
   enum IntegrationType {
     EXPORT
     IMPORT
+    ANKI
   }
 
   type SetIntegrationError {
@@ -2096,6 +2098,28 @@ const schema = gql`
     settings: JSON
   }
 
+  input TestAnkiConnectionInput {
+    ankiConnectUrl: String!
+    apiKey: String
+  }
+
+  union TestAnkiConnectionResult = TestAnkiConnectionSuccess | TestAnkiConnectionError
+
+  type TestAnkiConnectionSuccess {
+    success: Boolean!
+    version: Int
+  }
+
+  type TestAnkiConnectionError {
+    errorCodes: [TestAnkiConnectionErrorCode!]!
+  }
+
+  enum TestAnkiConnectionErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    CONNECTION_FAILED
+  }
+
   union IntegrationsResult = IntegrationsSuccess | IntegrationsError
 
   type IntegrationsSuccess {
@@ -2126,6 +2150,154 @@ const schema = gql`
   enum DeleteIntegrationErrorCode {
     UNAUTHORIZED
     BAD_REQUEST
+    NOT_FOUND
+  }
+
+  # Anki Card Generation Types
+  enum AnkiCardStatus {
+    PENDING
+    PROCESSING
+    COMPLETED
+    FAILED
+    WAITING_FOR_TRANSLATION
+  }
+
+  type AnkiCardDetail {
+    question: String!
+    answer: String!
+    context: String
+  }
+
+  type AnkiCardBatch {
+    id: ID!
+    libraryItemId: ID!
+    userId: ID!
+    deck: String!
+    cardCount: Int!
+    status: AnkiCardStatus!
+    language: String
+    ankiNoteIds: [String!]
+    cardDetails: [AnkiCardDetail!]
+    createdAt: Date!
+    updatedAt: Date!
+  }
+
+  # Generate cards for single item
+  union GenerateAnkiCardsResult = GenerateAnkiCardsSuccess | GenerateAnkiCardsError
+
+  type GenerateAnkiCardsSuccess {
+    batch: AnkiCardBatch!
+  }
+
+  type GenerateAnkiCardsError {
+    errorCodes: [GenerateAnkiCardsErrorCode!]!
+  }
+
+  enum GenerateAnkiCardsErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+    INTEGRATION_NOT_CONFIGURED
+    ALREADY_EXISTS
+    FAILED_TO_ENQUEUE
+  }
+
+  # Generate cards for multiple items
+  input GenerateAnkiCardsBatchInput {
+    libraryItemIds: [ID!]!
+  }
+
+  union GenerateAnkiCardsBatchResult =
+      GenerateAnkiCardsBatchSuccess
+    | GenerateAnkiCardsBatchError
+
+  type GenerateAnkiCardsBatchSuccess {
+    jobsEnqueued: Int!
+  }
+
+  type GenerateAnkiCardsBatchError {
+    errorCodes: [GenerateAnkiCardsBatchErrorCode!]!
+  }
+
+  enum GenerateAnkiCardsBatchErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    INTEGRATION_NOT_CONFIGURED
+  }
+
+  # Regenerate existing cards
+  union RegenerateAnkiCardsResult =
+      RegenerateAnkiCardsSuccess
+    | RegenerateAnkiCardsError
+
+  type RegenerateAnkiCardsSuccess {
+    batch: AnkiCardBatch!
+  }
+
+  type RegenerateAnkiCardsError {
+    errorCodes: [RegenerateAnkiCardsErrorCode!]!
+  }
+
+  enum RegenerateAnkiCardsErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+    INTEGRATION_NOT_CONFIGURED
+    FAILED_TO_ENQUEUE
+  }
+
+  # Get cards for a library item
+  union AnkiCardsResult = AnkiCardsSuccess | AnkiCardsError
+
+  type AnkiCardsSuccess {
+    batch: AnkiCardBatch
+  }
+
+  type AnkiCardsError {
+    errorCodes: [AnkiCardsErrorCode!]!
+  }
+
+  enum AnkiCardsErrorCode {
+    UNAUTHORIZED
+    NOT_FOUND
+  }
+
+  # Get all batches with pagination
+  input AnkiCardBatchesInput {
+    status: AnkiCardStatus
+    first: Int
+    after: String
+  }
+
+  union AnkiCardBatchesResult = AnkiCardBatchesSuccess | AnkiCardBatchesError
+
+  type AnkiCardBatchesSuccess {
+    batches: [AnkiCardBatch!]!
+    pageInfo: PageInfo!
+  }
+
+  type AnkiCardBatchesError {
+    errorCodes: [AnkiCardBatchesErrorCode!]!
+  }
+
+  enum AnkiCardBatchesErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  # Get Anki integration settings
+  union AnkiIntegrationResult = AnkiIntegrationSuccess | AnkiIntegrationError
+
+  type AnkiIntegrationSuccess {
+    integration: Integration
+  }
+
+  type AnkiIntegrationError {
+    errorCodes: [AnkiIntegrationErrorCode!]!
+  }
+
+  enum AnkiIntegrationErrorCode {
+    UNAUTHORIZED
     NOT_FOUND
   }
 
@@ -3551,6 +3723,7 @@ const schema = gql`
     setLabelsForHighlight(input: SetLabelsForHighlightInput!): SetLabelsResult!
     moveLabel(input: MoveLabelInput!): MoveLabelResult!
     setIntegration(input: SetIntegrationInput!): SetIntegrationResult!
+    testAnkiConnection(input: TestAnkiConnectionInput!): TestAnkiConnectionResult!
     deleteIntegration(id: ID!): DeleteIntegrationResult!
     optInFeature(input: OptInFeatureInput!): OptInFeatureResult!
     setRule(input: SetRuleInput!): SetRuleResult!
@@ -3609,6 +3782,9 @@ const schema = gql`
     createPost(input: CreatePostInput!): CreatePostResult!
     updatePost(input: UpdatePostInput!): UpdatePostResult!
     deletePost(id: ID!): DeletePostResult!
+    generateAnkiCards(libraryItemId: ID!): GenerateAnkiCardsResult!
+    generateAnkiCardsBatch(input: GenerateAnkiCardsBatchInput!): GenerateAnkiCardsBatchResult!
+    regenerateAnkiCards(libraryItemId: ID!): RegenerateAnkiCardsResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
@@ -3675,6 +3851,9 @@ const schema = gql`
     folderPolicies: FolderPoliciesResult!
     posts(userId: ID!, after: String, first: Int): PostsResult!
     post(id: ID!): PostResult!
+    ankiCards(libraryItemId: ID!): AnkiCardsResult!
+    ankiCardBatches(input: AnkiCardBatchesInput): AnkiCardBatchesResult!
+    ankiIntegration: AnkiIntegrationResult!
   }
 
   schema {

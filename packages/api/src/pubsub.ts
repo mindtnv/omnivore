@@ -107,8 +107,9 @@ export const createPubSubClient = (): PubsubClient => {
       if (type === EntityType.ITEM) {
         // Get user personalization for language preference
         let userPreferredLanguage: string | undefined
+        let userPersonalization: Awaited<ReturnType<typeof findUserPersonalization>> | null = null
         try {
-          const userPersonalization = await findUserPersonalization(userId)
+          userPersonalization = await findUserPersonalization(userId)
           userPreferredLanguage = userPersonalization?.preferredLanguage || undefined
         } catch (err) {
           logger.error('Error getting user personalization for summary:', err)
@@ -119,41 +120,37 @@ export const createPubSubClient = (): PubsubClient => {
           userId,
           libraryItemId: data.id,
           language: userPreferredLanguage,
+          // Pass item language for downstream decisions
+          itemLanguage: 'itemLanguage' in data ? (data as any).itemLanguage : undefined,
         })
 
-        // Trigger translation if user has auto-translate enabled
-        const hasItemLanguage = (
-          data: any
-        ): data is { itemLanguage: string | null } => {
-          return 'itemLanguage' in data
-        }
+        // Trigger auto-translation independent of summary status.
+        if (userPersonalization?.autoTranslate && userPreferredLanguage) {
+          if (!env.ai.translationEnabled) {
+            logger.info('[Auto Translate] Skipping translation: feature disabled')
+          } else {
+          const itemLanguage = 'itemLanguage' in data ? (data as any).itemLanguage : undefined
+          const normalizedItemLang = normalizeLanguage(itemLanguage)
+          const normalizedUserLang = normalizeLanguage(userPreferredLanguage)
 
-        if (hasItemLanguage(data) && data.itemLanguage) {
-          try {
-            const userPersonalization = await findUserPersonalization(userId)
-            const normalizedItemLang = normalizeLanguage(data.itemLanguage)
-            const normalizedUserLang = normalizeLanguage(userPersonalization?.preferredLanguage)
-
-            if (
-              userPersonalization?.autoTranslate &&
-              normalizedUserLang &&
-              normalizedItemLang !== normalizedUserLang
-            ) {
-              await enqueueTranslateContentJob({
-                userId,
-                libraryItemId: data.id,
-                targetLanguage: userPersonalization.preferredLanguage!, // We already checked normalizedUserLang is defined
-              })
-              logger.info(
-                `Queued translation for item ${data.id} from ${normalizedItemLang} to ${normalizedUserLang}`
-              )
-            } else if (normalizedItemLang === normalizedUserLang) {
-              logger.info(
-                `Skipping translation for item ${data.id}: article language (${normalizedItemLang}) matches user preference (${normalizedUserLang})`
-              )
-            }
-          } catch (err) {
-            logger.error('Error checking translation settings:', err)
+          if (
+            normalizedItemLang &&
+            normalizedUserLang &&
+            normalizedItemLang !== normalizedUserLang
+          ) {
+            await enqueueTranslateContentJob({
+              userId,
+              libraryItemId: data.id,
+              targetLanguage: userPreferredLanguage,
+            })
+            logger.info(
+              `[Auto Translate] Queued translation for item ${data.id} from ${normalizedItemLang} to ${normalizedUserLang}`
+            )
+          } else if (normalizedItemLang && normalizedUserLang) {
+            logger.info(
+              `[Auto Translate] Skipping translation: article language (${normalizedItemLang}) matches user preference (${normalizedUserLang})`
+            )
+          }
           }
         }
 

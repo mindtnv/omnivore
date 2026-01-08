@@ -50,6 +50,86 @@ enum AllowedReply {
   YES
 }
 
+type AnkiCardBatch {
+  ankiNoteIds: [String!]
+  cardCount: Int!
+  cardDetails: [AnkiCardDetail!]
+  createdAt: Date!
+  deck: String!
+  id: ID!
+  language: String
+  libraryItemId: ID!
+  status: AnkiCardStatus!
+  updatedAt: Date!
+  userId: ID!
+}
+
+type AnkiCardBatchesError {
+  errorCodes: [AnkiCardBatchesErrorCode!]!
+}
+
+enum AnkiCardBatchesErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+input AnkiCardBatchesInput {
+  after: String
+  first: Int
+  status: AnkiCardStatus
+}
+
+union AnkiCardBatchesResult = AnkiCardBatchesError | AnkiCardBatchesSuccess
+
+type AnkiCardBatchesSuccess {
+  batches: [AnkiCardBatch!]!
+  pageInfo: PageInfo!
+}
+
+type AnkiCardDetail {
+  answer: String!
+  context: String
+  question: String!
+}
+
+enum AnkiCardStatus {
+  COMPLETED
+  FAILED
+  PENDING
+  PROCESSING
+  WAITING_FOR_TRANSLATION
+}
+
+type AnkiCardsError {
+  errorCodes: [AnkiCardsErrorCode!]!
+}
+
+enum AnkiCardsErrorCode {
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union AnkiCardsResult = AnkiCardsError | AnkiCardsSuccess
+
+type AnkiCardsSuccess {
+  batch: AnkiCardBatch
+}
+
+type AnkiIntegrationError {
+  errorCodes: [AnkiIntegrationErrorCode!]!
+}
+
+enum AnkiIntegrationErrorCode {
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union AnkiIntegrationResult = AnkiIntegrationError | AnkiIntegrationSuccess
+
+type AnkiIntegrationSuccess {
+  integration: Integration
+}
+
 type ApiKey {
   createdAt: Date!
   expiresAt: Date!
@@ -1079,6 +1159,45 @@ enum FolderPolicyAction {
   DELETE
 }
 
+type GenerateAnkiCardsBatchError {
+  errorCodes: [GenerateAnkiCardsBatchErrorCode!]!
+}
+
+enum GenerateAnkiCardsBatchErrorCode {
+  BAD_REQUEST
+  INTEGRATION_NOT_CONFIGURED
+  UNAUTHORIZED
+}
+
+input GenerateAnkiCardsBatchInput {
+  libraryItemIds: [ID!]!
+}
+
+union GenerateAnkiCardsBatchResult = GenerateAnkiCardsBatchError | GenerateAnkiCardsBatchSuccess
+
+type GenerateAnkiCardsBatchSuccess {
+  jobsEnqueued: Int!
+}
+
+type GenerateAnkiCardsError {
+  errorCodes: [GenerateAnkiCardsErrorCode!]!
+}
+
+enum GenerateAnkiCardsErrorCode {
+  ALREADY_EXISTS
+  BAD_REQUEST
+  FAILED_TO_ENQUEUE
+  INTEGRATION_NOT_CONFIGURED
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union GenerateAnkiCardsResult = GenerateAnkiCardsError | GenerateAnkiCardsSuccess
+
+type GenerateAnkiCardsSuccess {
+  batch: AnkiCardBatch!
+}
+
 type GenerateApiKeyError {
   errorCodes: [GenerateApiKeyErrorCode!]!
 }
@@ -1412,6 +1531,7 @@ type IntegrationSuccess {
 }
 
 enum IntegrationType {
+  ANKI
   EXPORT
   IMPORT
 }
@@ -1685,6 +1805,8 @@ type Mutation {
   emptyTrash: EmptyTrashResult!
   exportToIntegration(integrationId: ID!): ExportToIntegrationResult!
   fetchContent(id: ID!): FetchContentResult!
+  generateAnkiCards(libraryItemId: ID!): GenerateAnkiCardsResult!
+  generateAnkiCardsBatch(input: GenerateAnkiCardsBatchInput!): GenerateAnkiCardsBatchResult!
   generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
@@ -1701,6 +1823,7 @@ type Mutation {
   recommend(input: RecommendInput!): RecommendResult!
   recommendHighlights(input: RecommendHighlightsInput!): RecommendHighlightsResult!
   refreshHome: RefreshHomeResult!
+  regenerateAnkiCards(libraryItemId: ID!): RegenerateAnkiCardsResult!
   replyToEmail(recentEmailId: ID!, reply: AllowedReply!): ReplyToEmailResult!
   reportItem(input: ReportItemInput!): ReportItemResult!
   revokeApiKey(id: ID!): RevokeApiKeyResult!
@@ -1722,6 +1845,7 @@ type Mutation {
   setUserPersonalization(input: SetUserPersonalizationInput!): SetUserPersonalizationResult!
   setWebhook(input: SetWebhookInput!): SetWebhookResult!
   subscribe(input: SubscribeInput!): SubscribeResult!
+  testAnkiConnection(input: TestAnkiConnectionInput!): TestAnkiConnectionResult!
   unsubscribe(name: String!, subscriptionId: ID): UnsubscribeResult!
   updateEmail(input: UpdateEmailInput!): UpdateEmailResult!
   updateFilter(input: UpdateFilterInput!): UpdateFilterResult!
@@ -1912,6 +2036,9 @@ type Profile {
 }
 
 type Query {
+  ankiCardBatches(input: AnkiCardBatchesInput): AnkiCardBatchesResult!
+  ankiCards(libraryItemId: ID!): AnkiCardsResult!
+  ankiIntegration: AnkiIntegrationResult!
   apiKeys: ApiKeysResult!
   article(format: String, slug: String!, username: String!): ArticleResult!
   articleSavingRequest(id: ID, url: String): ArticleSavingRequestResult!
@@ -2112,6 +2239,24 @@ union RefreshHomeResult = RefreshHomeError | RefreshHomeSuccess
 
 type RefreshHomeSuccess {
   success: Boolean!
+}
+
+type RegenerateAnkiCardsError {
+  errorCodes: [RegenerateAnkiCardsErrorCode!]!
+}
+
+enum RegenerateAnkiCardsErrorCode {
+  BAD_REQUEST
+  FAILED_TO_ENQUEUE
+  INTEGRATION_NOT_CONFIGURED
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union RegenerateAnkiCardsResult = RegenerateAnkiCardsError | RegenerateAnkiCardsSuccess
+
+type RegenerateAnkiCardsSuccess {
+  batch: AnkiCardBatch!
 }
 
 type Reminder {
@@ -2407,6 +2552,7 @@ enum SearchErrorCode {
 
 type SearchItem {
   aiSummary: String
+  ankiCardCount: Int
   annotation: String
   archivedAt: Date
   author: String
@@ -2449,6 +2595,8 @@ type SearchItem {
   state: ArticleSavingRequestStatus
   subscription: String
   title: String!
+  translatedLanguage: String
+  translationStatus: String
   unsubHttpUrl: String
   unsubMailTo: String
   updatedAt: Date
@@ -2933,6 +3081,28 @@ enum TaskState {
   PENDING
   RUNNING
   SUCCEEDED
+}
+
+type TestAnkiConnectionError {
+  errorCodes: [TestAnkiConnectionErrorCode!]!
+}
+
+enum TestAnkiConnectionErrorCode {
+  BAD_REQUEST
+  CONNECTION_FAILED
+  UNAUTHORIZED
+}
+
+input TestAnkiConnectionInput {
+  ankiConnectUrl: String!
+  apiKey: String
+}
+
+union TestAnkiConnectionResult = TestAnkiConnectionError | TestAnkiConnectionSuccess
+
+type TestAnkiConnectionSuccess {
+  success: Boolean!
+  version: Int
 }
 
 enum TranslationStatus {
